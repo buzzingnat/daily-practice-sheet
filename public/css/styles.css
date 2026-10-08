@@ -1,0 +1,94 @@
+@font-face {
+  font-family: 'HiraganaTracing';
+  src: url('../fonts/chirufont.ttf') format('truetype');
+  font-style: normal;
+  font-weight: normal;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+header, main, section, footer {
+    margin: 0;
+    width: 100%;
+    min-height: 5em;
+}
+
+header, section, footer {
+    padding: 1em;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #bfbfbf;
+    border-bottom: darkgray solid 1px;
+    display: flex;
+    flex-flow: wrap;
+    align-items: center;
+}
+
+main {
+    flex: 1;
+    padding: 0;
+}
+
+section {
+    background: #efefef;
+    border-bottom: silver solid 1px;
+}
+
+footer {
+    background: #8f8f8f;
+    width: 100%;
+}
+
+header h1, header h2 {
+    padding: 0;
+    margin: .5em;
+}
+header hr {
+    width: 100%;
+    height: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+#topic-choices {
+    display: flex;
+    flex-flow: wrap;
+}
+
+#topic-choices>button {
+    height: 2.5em;
+    width: 10em;
+    border: thin silver solid;
+    padding: 8px;
+    margin: 8px;
+    box-sizing: border-box;
+}
+
+#topic-choices>button:hover {
+    background: #9d9d9d;
+}
+
+#topic-choices>button:active, #topic-choices>button.selected{
+    background: #9dadfd;
+    border: solid 2px #9dfdfd;
+}
+
+#topic-choices>button.disabled {
+    cursor: not-allowed;
+    opacity: .6;
+}
