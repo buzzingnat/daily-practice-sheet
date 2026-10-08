@@ -3,7 +3,7 @@ This project is a Modular Educational Worksheet Generator. It produces high-reso
 
 ## Running the Project
 Always start by running
-`cd projects/dailyPracticeSheet && nvm use`
+`cd path/to/folder && nvm use`
 in every terminal window to get to the correct folder and to use the node version in the .nvmrc file
 
 For development, run two commands in separate terminal windows.
