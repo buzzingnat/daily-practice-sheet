@@ -1,4 +1,7 @@
-# Running the Project
+# daily-practice-sheet
+This project is a Modular Educational Worksheet Generator. It produces high-resolution, print-ready PDF worksheets for learners of any age. The user selects which topics to include and how often each appears. It is a frontend vanilla TypeScript project that uses `servor` for development and `jspdf` for creating the printable worksheets.
+
+## Running the Project
 Always start by running
 `cd projects/dailyPracticeSheet && nvm use`
 in every terminal window to get to the correct folder and to use the node version in the .nvmrc file
