@@ -3,7 +3,7 @@ import {
   HalfPageLayout,
   QuadrantExercise
 } from './worksheet-layout';
-import { createClockQuadrant } from './clock-exercise';
+import { createClockExercise } from './clock-exercise';
 import { createKanaExercise } from './kana-exercise';
 import { createBlankExercise, createPlaceholderExercise } from './utils';
 
@@ -16,7 +16,7 @@ export async function executeTestSheetGeneration(): Promise<void> {
   // --- 1. Top Half-Sheet Component Assignments ---
   const topHalfLayout: HalfPageLayout = {
     // Top-Left Quadrant: Student reads clock and writes digital time
-    topLeft: createClockQuadrant(
+    topLeft: createClockExercise(
       'telling',
       'TELLING TIME',
       { hours: 10, minutes: 10 }
@@ -49,7 +49,7 @@ export async function executeTestSheetGeneration(): Promise<void> {
     topRight: createPlaceholderExercise('SUBTRACTION PRACTICE'),
 
     // Bottom-Left Quadrant: Student views digital target text and draws clock hands
-    bottomLeft: createClockQuadrant(
+    bottomLeft: createClockExercise(
       'setting',
       'SETTING TIME',
       { hours: 3, minutes: 45 },

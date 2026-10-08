@@ -119,7 +119,7 @@ function drawFractionStructureInput(
 /**
  * Evaluates the gradeLevel string constraint to build randomized problem pairs.
  */
-export function createFractionsQuadrant(
+export function createFractionsExercise(
     gradeLevel: GradeLevel = '1st',
     title: string = 'FRACTIONS'
 ): QuadrantExercise {

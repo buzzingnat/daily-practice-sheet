@@ -154,7 +154,7 @@ function drawAnswerBox(
  * their own wording; otherwise the time is formatted for them, since a setting
  * task with a blank prompt asks the student to set the clock to nothing.
  */
-export function createClockQuadrant(
+export function createClockExercise(
     clockType: ClockType,
     title: string,
     time: ClockTime,

@@ -1,15 +1,15 @@
 import { getSharedImage } from "./asset-manager";
 import { executeTestSheetGeneration } from './run-test';
 import { generateWorkbookBatch, createWorkbookExerciseFactories } from './randomization-and-difficulty-generator';
-import { createClockQuadrant, ClockType } from './clock-exercise';
+import { createClockExercise, ClockType } from './clock-exercise';
 import { createAdditionExercise} from './addition-exercise';
-import { createSubtractionQuadrant } from './subtraction-exercise';
-import { createFractionsQuadrant } from './fractions-exercise';
+import { createSubtractionExercise } from './subtraction-exercise';
+import { createFractionsExercise } from './fractions-exercise';
 import { createKanaExercise } from './kana-exercise';
 import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWorksheetBatch } from './worksheet-layout';
 import { createPlaceholderExercise, createBlankExercise } from './utils';
-import { loadGeographyData, createGeographyQuadrant, Continent } from './geography-exercise';
-import { GradeLevel } from './types';
+import { loadGeographyData, createGeographyExercise, Continent } from './geography-exercise';
+import { GradeLevel, TOPIC_KEYS, TopicKey } from './types';
 import { KANA_IMAGE_URL } from './constants';
 
 // for storing user selections for worksheet settings
@@ -20,14 +20,14 @@ import { KANA_IMAGE_URL } from './constants';
 // to be learning when countries are added in the future) would make more sense
 // but we are using numbers for now
 // later move this to local storage
-const localState: Record<string, number>= {
-    topic_setTime: 0,
-    topic_tellTime: 0,
-    topic_fractions: 0,
-    topic_addition: 0,
-    topic_subtraction: 0,
-    topic_hiragana: 0,
-    topic_continents: 0,
+const localState: Record<TopicKey, number>= {
+    setTime: 0,
+    tellTime: 0,
+    fractions: 0,
+    addition: 0,
+    subtraction: 0,
+    hiragana: 0,
+    continents: 0,
 };
 
 // a placeholder, this needs to become "generate single sample page" later
@@ -45,14 +45,18 @@ function renderTestWorksheetButton() {
     }
 }
 
+const RANDOM_BATCH_BUTTON_ID = 'random-batch-generator-btn';
+
 // a placeholder, this will become Create Worksheet Set later
 function renderRandomizedWorksheetBatchButton() {
     const randomBatchButton = document.createElement('button');
     randomBatchButton.textContent = 'Make Randomized Batch';
-    randomBatchButton.id = 'random-batch-generator-btn';
+    randomBatchButton.id = RANDOM_BATCH_BUTTON_ID;
+    // Nothing is selected at startup, and a page of nothing is a poor use of paper
+    randomBatchButton.disabled = countSelectedTopics() === 0;
     randomBatchButton.addEventListener('click', () => {
         buildAndDownloadWorksheetBatch(
-            generateWorkbookBatch(createWorkbookExerciseFactories())
+            generateWorkbookBatch(createWorkbookExerciseFactories(), getSelectedTopics())
         );
     });
     const introSection = document.getElementById('intro-section');
@@ -119,16 +123,16 @@ const DEFAULT_EXAMPLES: ExampleSpecification[] = [
  */
 function createExerciseFromSpecification(specification: ExampleSpecification): QuadrantExercise {
     if (specification.type === 'clock') {
-        return createClockQuadrant(
+        return createClockExercise(
             specification.clockType,
             specification.title,
             { hours: specification.hours, minutes: specification.minutes },
             specification.digitalDisplayLabel
         );
     } else if (specification.type === 'fractions') {
-        return createFractionsQuadrant(specification.grade, specification.title);
+        return createFractionsExercise(specification.grade, specification.title);
     } else if (specification.type === 'subtraction') {
-        return createSubtractionQuadrant(specification.grade, specification.title);
+        return createSubtractionExercise(specification.grade, specification.title);
     } else if (specification.type === 'addition') {
         return createAdditionExercise(specification.grade, specification.title);
     } else if (specification.type === 'kana') {
@@ -138,7 +142,7 @@ function createExerciseFromSpecification(specification: ExampleSpecification): Q
             specification.pronunciation
         );
     } else if (specification.type === 'geography') {
-        return createGeographyQuadrant(specification.continent, specification.title);
+        return createGeographyExercise(specification.continent, specification.title);
     } else if (specification.type === 'placeholder') {
         return createPlaceholderExercise(specification.title);
     }  else if (specification.type === 'blank') {
@@ -177,8 +181,12 @@ function renderExamples(specifications: ExampleSpecification[] = DEFAULT_EXAMPLE
 
 const MAXIMUM_TOPIC_COUNT = 6;
 
+function getSelectedTopics(): TopicKey[] {
+    return TOPIC_KEYS.filter((key) => localState[key] > 0);
+}
+
 function countSelectedTopics(): number {
-    return Object.values(localState).filter((value) => value > 0).length;
+    return getSelectedTopics().length;
 }
 
 function refreshTopicAvailability(): void {
@@ -188,9 +196,14 @@ function refreshTopicAvailability(): void {
         const isSelected = button.classList.contains('selected');
         button.disabled = limitReached && !isSelected;
     });
+
+    const generateButton = document.getElementById(RANDOM_BATCH_BUTTON_ID);
+    if (generateButton instanceof HTMLButtonElement) {
+        generateButton.disabled = countSelectedTopics() === 0;
+    }
 }
 
-function clickTopicChoice(button: HTMLButtonElement, key: string): void {
+function clickTopicChoice(button: HTMLButtonElement, key: TopicKey): void {
     localState[key] = localState[key] === 0 ? 1 : 0;
     button.classList.toggle('selected');
     button.setAttribute('aria-pressed', String(localState[key] === 1));
@@ -205,26 +218,19 @@ function renderMainInitial() {
     const introSection = document.createElement('section');
     introSection.id = 'intro-section';
     const instructionPara = document.createElement('p');
-    instructionPara.textContent = 'Select up to six topics below. Generate a set of 20 half page printouts including each topic, scattered regularly across the worksheets.';
+    instructionPara.textContent = 'Select up to six topics below. Generate one randomized page that mixes the selected topics across its quadrants.';
     const topicChoicesContainer = document.createElement('div');
     topicChoicesContainer.id = 'topic-choices';
     introSection.appendChild(instructionPara);
     introSection.appendChild(topicChoicesContainer);
     mainElement.appendChild(introSection);
 
-    const choiceList = [
-            'fractions', 'addition', 'subtraction',
-            'setTime', 'tellTime', 'hiragana',
-            'continents'
-        ];
-
-    for(const title of choiceList) {
-        const key = 'topic_'+title;
+    for(const title of TOPIC_KEYS) {
         const newTopic = document.createElement('button');
         newTopic.classList.add('topic-choice');
         newTopic.innerText = title;
         newTopic.id = title;
-        newTopic.addEventListener('click', () => clickTopicChoice(newTopic, key));
+        newTopic.addEventListener('click', () => clickTopicChoice(newTopic, title));
         topicChoicesContainer.appendChild(newTopic);
     }
 

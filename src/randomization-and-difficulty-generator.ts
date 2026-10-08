@@ -1,203 +1,174 @@
-import { HalfPageLayout, QuadrantExercise } from "./worksheet-layout";
+import { HalfPageLayout, QuadrantExercise } from './worksheet-layout';
 import { createKanaExercise } from './kana-exercise';
 import { createAdditionExercise } from './addition-exercise';
-import { createSubtractionQuadrant } from './subtraction-exercise';
-import { createClockQuadrant } from './clock-exercise';
-import { createFractionsQuadrant } from './fractions-exercise';
+import { createSubtractionExercise } from './subtraction-exercise';
+import { ClockType, createClockExercise } from './clock-exercise';
+import { createFractionsExercise } from './fractions-exercise';
+import { CONTINENTS, Continent, createGeographyExercise } from './geography-exercise';
+import { planHalfPages } from './half-page-planner';
+import { ShuffledDeck, createShuffledDeck } from './shuffled-deck';
+import { QuadrantTopics, RandomSource, TopicKey } from './types';
 
-
-// Define the available module categories for deterministic mixing
-export type ExerciseCategory = "CLOCK" | "SUBTRACTION" | "ADDITION" | "KANA" | "FRACTIONS";
-
-export interface GenerationConstraints {
-    sheetIndex: number;
-    halfPageIndex: number;
-    quadrantIndex: number; // 0 to 3 (topLeft, topRight, bottomLeft, bottomRight)
+export interface KanaCard {
+    character: string;
+    pronunciationHint: string;
 }
 
-// Factories for instantiating quadrant exercises dynamically
+// Content that must take turns rather than trust to luck.
+export interface ContentDecks {
+    kana: ShuffledDeck<KanaCard>;
+    continents: ShuffledDeck<Continent>;
+}
+
+// Factories for instantiating quadrant exercises. Topics with rotating
+// content receive the card already dealt; the rest roll their own numbers.
 export interface ExerciseFactories {
-    createClockExercise(sheetIndex: number): QuadrantExercise;
-    createSubtractionExercise(sheetIndex: number): QuadrantExercise;
-    createAdditionExercise(sheetIndex: number): QuadrantExercise;
-    createKanaExercise(sheetIndex: number): QuadrantExercise;
-    createFractionsExercise(sheetIndex: number): QuadrantExercise;
+    createClockExercise(clockType: ClockType): QuadrantExercise;
+    createSubtractionExercise(): QuadrantExercise;
+    createAdditionExercise(): QuadrantExercise;
+    createKanaExercise(card: KanaCard): QuadrantExercise;
+    createFractionsExercise(): QuadrantExercise;
+    createGeographyExercise(continent: Continent): QuadrantExercise;
 }
 
+// The page count lives in one place, so the coming page-count selector has one number to change.
+const SHEETS_PER_BATCH = 1;
+const HALF_PAGES_PER_SHEET = 2;
+
+// Each card appears this often per cycle: five kana twice in ten draws,
+// seven continents twice in fourteen.
+const COPIES_PER_CYCLE = 2;
+
+const KANA_CARDS: readonly KanaCard[] = [
+    { character: 'お', pronunciationHint: '"o" pronounce "oa", as in boat.' },
+    { character: 'あ', pronunciationHint: '"a" pronounce "ah", as in father.' },
+    { character: 'い', pronunciationHint: '"i" pronounce "ee", as in meet.' },
+    { character: 'う', pronunciationHint: '"u" pronounce "oo", as in boot.' },
+    { character: 'え', pronunciationHint: '"e" pronounce "eh", as in bet.' }
+];
+
 /**
- * Generates an array of randomized, well-distributed categories for the grid.
- * Ensures balanced coverage so every sheet feels unique but uniform in difficulty.
+ * Builds fresh decks for one batch. Exported so a later task can keep one
+ * set alive across clicks; for now every click starts with a new shuffle.
  */
-function generateBalancedCategoryPool(totalRequiredSlots: number): ExerciseCategory[] {
-    const categories: ExerciseCategory[] = ["CLOCK", "SUBTRACTION", "ADDITION", "KANA", "FRACTIONS"];
-    const pool: ExerciseCategory[] = [];
-
-    let categoryIndex = 0;
-    let poolIndex = 0;
-
-    // Fill the pool round-robin to ensure an mathematically equal distribution
-    while (poolIndex < totalRequiredSlots) {
-        pool.push(categories[categoryIndex] as ExerciseCategory);
-        
-        categoryIndex = categoryIndex + 1;
-        if (categoryIndex >= categories.length) {
-            categoryIndex = 0;
-        }
-
-        poolIndex = poolIndex + 1;
-    }
-
-    // In-place Fisher-Yates shuffle to randomize distribution safely
-    let currentPoolIndex = pool.length - 1;
-    while (currentPoolIndex > 0) {
-        const randomTargetIndex = Math.floor(Math.random() * (currentPoolIndex + 1));
-        const temporaryValue = pool[currentPoolIndex];
-        
-        pool[currentPoolIndex] = pool[randomTargetIndex] as ExerciseCategory;
-        pool[randomTargetIndex] = temporaryValue as ExerciseCategory;
-
-        currentPoolIndex = currentPoolIndex - 1;
-    }
-
-    return pool;
+export function createContentDecks(random: RandomSource): ContentDecks {
+    return {
+        kana: createShuffledDeck(KANA_CARDS, COPIES_PER_CYCLE, random),
+        continents: createShuffledDeck(CONTINENTS, COPIES_PER_CYCLE, random)
+    };
 }
 
 /**
- * Resolves a specific category into a concrete initialized exercise module
+ * Resolves a topic into a concrete exercise, dealing a card where the topic
+ * needs one. The closing else assigns to never, so a topic added without a
+ * branch is caught by the compiler instead of by a puzzled child.
  */
 function instantiateExercise(
-    category: ExerciseCategory,
+    topic: TopicKey,
     factories: ExerciseFactories,
-    constraints: GenerationConstraints
+    decks: ContentDecks
 ): QuadrantExercise {
-    if (category === "CLOCK") {
-        return factories.createClockExercise(constraints.sheetIndex);
+    if (topic === 'tellTime') {
+        return factories.createClockExercise('telling');
+    } else if (topic === 'setTime') {
+        return factories.createClockExercise('setting');
+    } else if (topic === 'subtraction') {
+        return factories.createSubtractionExercise();
+    } else if (topic === 'addition') {
+        return factories.createAdditionExercise();
+    } else if (topic === 'hiragana') {
+        return factories.createKanaExercise(decks.kana.drawNext());
+    } else if (topic === 'fractions') {
+        return factories.createFractionsExercise();
+    } else if (topic === 'continents') {
+        return factories.createGeographyExercise(decks.continents.drawNext());
+    } else {
+        const unhandledTopic: never = topic;
+        throw new Error(`No exercise factory for ${String(unhandledTopic)}`);
     }
-    
-    if (category === "SUBTRACTION") {
-        return factories.createSubtractionExercise(constraints.sheetIndex);
-    }
-    
-    if (category === "ADDITION") {
-        return factories.createAdditionExercise(constraints.sheetIndex);
-    }
-    
-    if (category === "KANA") {
-        return factories.createKanaExercise(constraints.sheetIndex);
-    }
-    
-    // Default fallback case handles the FRACTIONS exercise category safely
-    return factories.createFractionsExercise(constraints.sheetIndex);
 }
 
 /**
- * Main Application Factory Production Object Builder
- * Computes individual parameter configurations dynamically inside the sheet loop mapping sequence.
+ * Turns one planned half-page into exercises. Quadrants are built one per
+ * line, in reading order, so cards are dealt in the order a reader meets them.
+ */
+function buildHalfPageLayout(
+    topics: QuadrantTopics,
+    factories: ExerciseFactories,
+    decks: ContentDecks
+): HalfPageLayout {
+    const [topLeftTopic, topRightTopic, bottomLeftTopic, bottomRightTopic] = topics;
+    const topLeft = instantiateExercise(topLeftTopic, factories, decks);
+    const topRight = instantiateExercise(topRightTopic, factories, decks);
+    const bottomLeft = instantiateExercise(bottomLeftTopic, factories, decks);
+    const bottomRight = instantiateExercise(bottomRightTopic, factories, decks);
+    return { topLeft, topRight, bottomLeft, bottomRight };
+}
+
+/**
+ * Supplies the concrete exercise builders. Clock times, sums and fractions
+ * still roll their own dice; only topic placement and rotating content
+ * answer to the planner.
  */
 export function createWorkbookExerciseFactories(): ExerciseFactories {
     return {
-        createClockExercise: (sheetIndex: number): QuadrantExercise => {
-            // Alternates the task mode using explicit timing objects derived from preview data signatures
-            const targetType = (sheetIndex % 2 === 0) ? "telling" : "setting";
-            let targetTitle = 'SETTING TIME';
-            if (targetType === 'telling') {
-                targetTitle = 'TELLING TIME';
+        createClockExercise: (clockType: ClockType): QuadrantExercise => {
+            let title = 'SETTING TIME';
+            if (clockType === 'telling') {
+                title = 'TELLING TIME';
             }
             // Generate a random hour between 1 and 12 inclusive
             const randomHour = Math.floor(Math.random() * 12) + 1;
             // Generate a random minute interval snapping cleanly to 5-minute ticks
             const randomMinute = Math.floor(Math.random() * 12) * 5;
-            return createClockQuadrant(targetType, targetTitle, { hours: randomHour, minutes: randomMinute });
+            return createClockExercise(clockType, title, { hours: randomHour, minutes: randomMinute });
         },
-        createFractionsExercise: (sheetIndex: number): QuadrantExercise => {
-            return createFractionsQuadrant('1st', 'FRACTIONS');
+        createFractionsExercise: (): QuadrantExercise => {
+            return createFractionsExercise('1st', 'FRACTIONS');
         },
-        createSubtractionExercise: (sheetIndex: number): QuadrantExercise => {
-            return createSubtractionQuadrant('1st');
+        createSubtractionExercise: (): QuadrantExercise => {
+            return createSubtractionExercise('1st');
         },
-        createAdditionExercise: (sheetIndex: number): QuadrantExercise => {
+        createAdditionExercise: (): QuadrantExercise => {
             return createAdditionExercise('1st');
         },
-        createKanaExercise: (sheetIndex: number): QuadrantExercise => {
-            // Pool of data payloads matching the exact parameters observed in the frontend framework configuration script
-            const charactersPool = ["お", "あ", "い", "う", "え"];
-            const pronunciationPool = [
-                '"o" pronounce "oa", as in boat.',
-                '"a" pronounce "ah", as in father.',
-                '"i" pronounce "ee", as in meet.',
-                '"u" pronounce "oo", as in boot.',
-                '"e" pronounce "eh", as in bet.'
-            ];
-
-            const itemPointer = sheetIndex % charactersPool.length;
-            return createKanaExercise(
-                "HIRAGANA PRACTICE",
-                charactersPool[itemPointer] as string,
-                pronunciationPool[itemPointer] as string
-            );
+        createKanaExercise: (card: KanaCard): QuadrantExercise => {
+            return createKanaExercise('HIRAGANA PRACTICE', card.character, card.pronunciationHint);
+        },
+        createGeographyExercise: (continent: Continent): QuadrantExercise => {
+            // Map data was preloaded at startup, so this stays synchronous
+            return createGeographyExercise(continent);
         }
     };
 }
 
 /**
- * Core Matrix Randomizer Function
- * Compiles exactly 20 unique workbook sheets populated with distributed modules.
+ * Compiles the workbook sheets (one page for now) from the selected topics.
+ * The planner decides who sits where; the decks decide which kana and which
+ * continent; the factories do the drawing.
  */
-export function generateWorkbookBatch(factories: ExerciseFactories): HalfPageLayout[][] {
-    const totalSheetsCount = 20;
-    const halfPagesPerSheetCount = 2;
-    const quadrantsPerHalfPageCount = 4;
-    const totalSlotsRequired = totalSheetsCount * halfPagesPerSheetCount * quadrantsPerHalfPageCount;
-
-    const randomizedCategoryPool = generateBalancedCategoryPool(totalSlotsRequired);
-    const workbookBatch: HalfPageLayout[][] = [];
-    
-    let poolExtractionPointer = 0;
-    let sheetCounter = 0;
-
-    while (sheetCounter < totalSheetsCount) {
-        const currentSheetHalfPages: HalfPageLayout[] = [];
-        let halfPageCounter = 0;
-
-        while (halfPageCounter < halfPagesPerSheetCount) {
-            
-            const topLeftCategory = randomizedCategoryPool[poolExtractionPointer] as ExerciseCategory;
-            const topRightCategory = randomizedCategoryPool[poolExtractionPointer + 1] as ExerciseCategory;
-            const bottomLeftCategory = randomizedCategoryPool[poolExtractionPointer + 2] as ExerciseCategory;
-            const bottomRightCategory = randomizedCategoryPool[poolExtractionPointer + 3] as ExerciseCategory;
-            
-            poolExtractionPointer = poolExtractionPointer + 4;
-
-            const halfPageLayout: HalfPageLayout = {
-                topLeft: instantiateExercise(topLeftCategory, factories, {
-                    sheetIndex: sheetCounter,
-                    halfPageIndex: halfPageCounter,
-                    quadrantIndex: 0
-                }),
-                topRight: instantiateExercise(topRightCategory, factories, {
-                    sheetIndex: sheetCounter,
-                    halfPageIndex: halfPageCounter,
-                    quadrantIndex: 1
-                }),
-                bottomLeft: instantiateExercise(bottomLeftCategory, factories, {
-                    sheetIndex: sheetCounter,
-                    halfPageIndex: halfPageCounter,
-                    quadrantIndex: 2
-                }),
-                bottomRight: instantiateExercise(bottomRightCategory, factories, {
-                    sheetIndex: sheetCounter,
-                    halfPageIndex: halfPageCounter,
-                    quadrantIndex: 3
-                })
-            };
-
-            currentSheetHalfPages.push(halfPageLayout);
-            halfPageCounter = halfPageCounter + 1;
-        }
-
-        workbookBatch.push(currentSheetHalfPages);
-        sheetCounter = sheetCounter + 1;
+export function generateWorkbookBatch(
+    factories: ExerciseFactories,
+    selectedTopics: readonly TopicKey[],
+    random: RandomSource = Math.random
+): HalfPageLayout[][] {
+    if (selectedTopics.length === 0) {
+        throw new Error('Select at least one topic before generating a worksheet.');
     }
+
+    const plans = planHalfPages(selectedTopics, SHEETS_PER_BATCH * HALF_PAGES_PER_SHEET, random);
+    const decks = createContentDecks(random);
+
+    const workbookBatch: HalfPageLayout[][] = [];
+    let currentSheetHalfPages: HalfPageLayout[] = [];
+
+    plans.forEach((topics) => {
+        currentSheetHalfPages.push(buildHalfPageLayout(topics, factories, decks));
+        if (currentSheetHalfPages.length === HALF_PAGES_PER_SHEET) {
+            workbookBatch.push(currentSheetHalfPages);
+            currentSheetHalfPages = [];
+        }
+    });
 
     return workbookBatch;
 }

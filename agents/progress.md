@@ -6,8 +6,8 @@ This file tracks development states, architectural configurations, and upcoming 
 
 ## Project Status Summary
 * **Project Name:** daily-practice-sheet (Modular Educational Worksheet Generator)
-* **Objective:** Generates print-ready multi-topic PDF pages (a user selected number of unique pages at a time) using a client-side high-DPI Canvas-to-jsPDF execution pipeline. Each page is split horizontally into two matching independent half-pages featuring a rigid 2x2 layout matrix of modular learning exercises.
-* **Current Phase:** Phase 2 — Exercise Expansion
+* **Objective:** Generates print-ready multi-topic PDF sheets (a user selected number of unique pages at a time) using a client-side high-DPI Canvas-to-jsPDF execution pipeline. Each page is split horizontally into two matching independent half-pages featuring a rigid 2x2 layout matrix of modular learning quadrants.
+* **Current Phase:** Phase 2 — Module Expansion
 
 ---
 
@@ -15,85 +15,82 @@ This file tracks development states, architectural configurations, and upcoming 
 
 ### 1. Foundation & Structural Protocols
 * [x] Initialize repo with custom TS, `esbuild`, `concurrently`, and `servor` build pipelines.
-* [x] Establish layout contracts and structural interfaces (`worksheet-layout.ts`).
+* [x] Establish layout contracts and structural interfaces (`WorksheetLayout.ts`).
 * [x] Implement the 3x high-DPI scaling execution pipeline (`canvas.toDataURL` -> `doc.addImage`).
 
-### 2. Core Exercises (`src/`, currently a flat folder structure)
-* [x] **Clock Exercise:** Analog clock dialer supporting telling/setting modes with vector hands calculations and frame prompt panels.
-* [x] **Subtraction Exercise:** Standard vertical arithmetic layout with 1st, 2nd, and 3rd-grade difficulty parameters.
-* [x] **Addition Exercise:** Standard vertical arithmetic layout with 1st, 2nd, and 3rd-grade difficulty parameters.
-* [x] **Kana Exercise:** Syllable reading tracing layer loading external master reference guides with hand-drawing grids.
-* [x] **Fractions Exercise:** Dynamic circular slice partition generator painting light grey tracking diagrams.
+### 2. Core Quadrant Plug-in Modules (`src/topics/` or `src/modules/`)
+* [x] **ClockQuadrant:** Analog clock dialer supporting telling/setting modes with vector hands calculations and frame prompt panels.
+* [x] **SubtractionQuadrant:** Standard vertical arithmetic layout with 1st, 2nd, and 3rd-grade difficulty parameters.
+* [x] **AdditionQuadrant:** Standard vertical arithmetic layout with 1st, 2nd, and 3rd-grade difficulty parameters.
+* [x] **KanaQuadrant:** Syllable reading tracing layer loading external master reference guides with hand-drawing grids.
+* [x] **FractionsQuadrant:** Dynamic circular slice partition generator painting slate-grey tracking diagrams.
 * [x] **Randomization & Difficulty Matrix:** A first pass at creating a randomized worksheet.
-* [x] **Geography Exercise (Seven Continents):** Completed (PDF verification pending). `geographyQuadrant.ts` loads a 110m world TopoJSON and `ISO-3166.csv`, joins them on ISO country code, and highlights one continent with the medium grey. It renders to canvas through the shared 3x pipeline. `main.ts` preloads the map data at startup and previews Africa and Oceania.
-* [x] **Geography: verify PDF output.** Confirm the map draws correctly in a generated PDF. The randomizer has no geography category yet, so only the test sheet can exercise it.
-* [ ] **Geography (Countries):** Make a country level geography exercise beginning with the countries of North America.
-* [ ] **Randomization & Difficulty Matrix:** Improve this algorithm. It should output something that never repeats a learning exercise type within a half-page. Set Time and Tell Time are separate activities. Each top half or bottom half should have distinct activities. If fewer than four total activity types are selected by the user, then leave quadrants of the page empty rather than fill them incorrectly. It should try and cycle through the activities in a smart way as well. The generator must take its inputs from the user's topic selection (`localState`), which it currently ignores. It also currently hardcodes 20 pages, which needs to be corrected.
-* [ ] **Dashed Tracing Vector Engine:** Replace static images in the writing exercises with programmatic Canvas tracing paths (`context.setLineDash([4, 4])`) that draw light-grey guide strings or stroke direction arrows without relying on asset file downloads.
-* [ ] **Multi-Operation Math Exercise:** Extend the math engine to handle variable multi-digit addition equations, carry tracking indicators, or simple multiplication boxes.
-* [ ] **Clock Engine Enhancements:** Add custom interval settings (locks to hour blocks, 15-minute quarters, or exact 5-minute ticks) to match a child's learning stage.
-* [x] **Empty Quadrant** Make a blank quadrant to use when fewer than 4 exercises are selected.
-* [ ] **Cadence Design:** Cadences count appearances of a topic, not half-pages, because a topic skips half-pages whenever more than four topics are selected. Hiragana: ten appearances cover five kana twice each. Continents: fourteen appearances cover each continent twice (a full cycle is seven). Never exceed the requested page count. When the final cycle is partial, draw its items without replacement from those not yet shown in that cycle. Hiragana splits into eight groups of five (the vowels plus seven consonant rows), then the three "y" characters, two "w" characters and the lone "n". These groupings offer cadence options.
-* [ ] **Hiragana Focused Sheets** The user should have an option to select several characters to focus on, and perhaps have a mode that turns the whole worksheet into just hiragana on all of the exercises.
+* [x] **Geography Module (Seven Continents):** `geographyQuadrant.ts` loads a 110m world TopoJSON and `ISO-3166.csv`, joins them on ISO country code, and highlights one continent's countries. It renders to SVG in the DOM for all seven continents, and preloads map data in `main.ts` so that everything displays correctly.
+* [x] **Geography Module (Seven Continents):** Checked that the map draws to the worksheet when a pdf is generated (confirmed by hand, 2026-10-08).
+* [ ] **Geography Module (Seven Continents):** To Do: Russia is not arranged the way the human wants. Draw it split between Europe and Asia along the Ural Mountains and the Ural River. If a split is not possible, put Russia entirely in Asia. Notes for whoever picks this up:
+    * `assignContinent` sorts countries by the UN `region` column of `ISO-3166.csv`, and the 110m TopoJSON holds Russia as one shape (numeric code 643). Confirm which continent it lands in today; the UN grouping most likely files it under Europe.
+    * A split cuts one country shape in two, so continents can no longer be built by sorting whole countries. Candidate routes: pre-split the Russia geometry in `scripts/compile-geography.ts` along a hand-drawn boundary (the Ural Mountains, then the Ural River down to the Caspian Sea), or draw Russia twice and clip each copy with a canvas clip path. Boolean polygon intersection is not in the current dependencies, and AGENTS.md forbids adding packages without approval.
+    * The Ural River also runs through Kazakhstan, which is often treated as transcontinental. Decide whether it stays wholly in Asia before drawing the boundary.
+    * The fallback (all of Russia in Asia) is a one-entry override in the continent assignment, much like `CONTINENT_BY_UNNUMBERED_NAME`.
+    * Needs a `plan.md` and human validation first.
+* [x] **Randomization & Difficulty Matrix:** Improve this algorithm. Done 2026-10-08, see the session ledger. No quadrant type repeats within a half-sheet while four or more topics are selected; with fewer, repeats are spread evenly. Topics rotate fairly across half-sheets. Hiragana deals five kana, each twice per ten appearances; continents deal seven, each twice per fourteen.
 
 ### 3. UI Layer & Core Application Orchestration
-* [ ] *Partially complete* Build interactive multi-topic toggle buttons allowing users to configure topic inclusions.
+* [x] Build interactive multi-topic checkbox matrix allowing users to configure topic inclusions. Selection now drives the generated page (`TOPIC_KEYS` in `types.ts`).
 * [ ] Build a selector allowing users to decide how many pages of worksheets to generate.
-* [ ] Build frequency assignment controller weights (how often a chosen topic appears across the selected pages).
-* [ ] *Partially complete* Render native HTML5 Canvas live browser previews updating reactively before PDF generation.
-* [ ] *Partially complete* Bind full batch worksheet export sequence to compile, sequence, overlay vector boundaries, and trigger immediate browser download.
+* [ ] Build frequency assignment controller weights (how often a chosen topic appears across the selected sheets).
+* [ ] Render native HTML5 Canvas live browser previews updating reactively before PDF generation.
+* [ ] Bind full batch worksheet export sequence to compile, sequence, overlay vector boundaries, and trigger immediate browser download.
 * [ ] Separate Exercise Title and Exercise Type to permit possibility of offering this worksheet generator in other languages in the future. This means each exercise has a name/id/definition within the code, and then a display title to the user that can be shown in a range of possible languages.
-* [ ] Add decorative elements to the printed sheets. Flourishes outlining each half of the page. Vines or floral motifs dividing the quadrants. Discuss and come up with a couple of design options, then implement one.
 
-### 4. Code Tidiness, Architecture Decisions
-* [ ] *Partially complete* Rename source files to kebab-case (for example `clock-exercise.ts`). Done: `addition-exercise.ts`, `asset-manager.ts`, `clock-exercise.ts`, `fractions-exercise.ts`, `generate-pdf-batch.ts`, `geography-exercise.ts`, `kana-exercise.ts`, `randomization-and-difficulty-generator.ts`, `run-test.ts`,   `subtraction-exercise.ts`, `worksheet-layout.ts`. Remaining: `hiraganaTracing-font.js`. Need to go through all files and check that exported names rename with the files (`createClockQuadrant` to `createClockExercise`). `createKanaExercise` now exists, all others must get checked.
-* [x] Convert `AdditionQuadrant`, `KanaQuadrant` and `PlaceholderQuadrant` from classes to factories.
-* [x] Unify factory parameter order. Fractions takes `(title, grade)` and Subtraction takes `(grade, title)`. Settled and implemented. The decision is `(grade, title)` in the grade-based exercises. Kana and Clock will get dealt with later.
-* [x] Type Fractions' `gradeLevel` as `GradeLevel`.
-* [ ] In Fractions, fix the denominator-1 case, which yields 1/1. The fix is to remove the vertical line across the radius of the circle to leave a full, shaded circle for the 1/1 case.
-* [ ] In Addition, fix the 1st-grade carry-avoidance branch, which can set the bottom number to 0 and produce problems like `7 + 0`.
-* [ ] Consolidate shared types into `types.ts`: `ExerciseCategory`, `ClockType`, `ClockTitle`, `Continent`, `ExampleSpecification`.
-* [ ] Finish `main.ts` cleanup: throw instead of `return Error`, batch-button feedback and error handling, `Promise.allSettled` in `initializeApp`, and use `KANA_IMAGE_URL`.
-* [ ] Split any existing larger files into files less than 200 lines. As of 2026-10-08, this includes `main.ts` and `geography-exercise.ts`
-* [ ] Add testing. Research to find three options, choose between them with the human's help, and then add the chosen testing framework. Start by creating a very simple, basic test. Build out from there.
-* [ ] Refactor existing files over 200 lines to match the code length requirements of the project.
+### 4. Code Tidyness, Architecture Decisions
+* [ ] Switch all files from class-based to function-based.
+* [ ] Find more shared functions that can be pulled into a utility file and reused across multiple other files.
 
 ---
 
 ## Core Architectural Decisions & Context
-* **Types:** `types.ts` is a leaf file with no imports, which avoids circular dependencies.
-* **Constants:** `constants.ts` is a leaf file with no imports, which avoids circular dependencies.
-* **Map Data:** Loaded once at startup and cached. Quadrant rendering stays synchronous.
-* **Image Data:** The Kana master chart image follows the same rule as map data. `main.ts` preloads it at startup through `getSharedImage(KANA_IMAGE_URL)`. `createKanaExercise` reads it with `getSharedImageSync` and throws an `Error` if it is not cached. There is no render-time fetch, no ready callback, and no placeholder fallback.
-* **Invalid Exercise Input:** Factories validate their inputs when built and throw `Error` rather than logging a warning and rendering a broken quadrant. Kana rejects characters absent from the chart, including the empty string, which would otherwise match a blank chart entry.
-* **Kana Palette Exceptions:** The Kana tracing box frames use `#000000` for contrast. The dotted center crosshair keeps the default `butt` line cap, because round caps close up the dash gaps on a `[2, 2]` pattern. This is a deliberate exception to the round-cap rule in `AGENTS.md`, which is written for solid geometry lines.
+* **Horizontal Split Rule:** Each page splits perfectly at 396pt with an ornamental decoration line separating two matching half-pages. Each half contains 4 quadrants (`EXERCISE_WIDTH: 266pt`, `EXERCISE_HEIGHT: 155pt`).
+* **Strict Monochrome:** Code must only utilize black `#000000`, white `#FFFFFF`, and slate grey `#D1D5DB`/`#999999`.
 
 ---
 
 ## Active Session Ledger (Agent Log)
 
-### 2026-10-01 — Documentation alignment (Claude)
-* **Status:** Done
-* **Accomplished:** Reviewed `agents.md`, `projectBrief.md`, `progress.md` against the source files. Recorded palette, file-layout and TypeScript version decisions.
-* **Open Issues:** Brief still lists the geography fill as `#D1D5DB`. Geography PDF check pending.
-
-### 2026-10-07 — Documentation review and alignment (Claude)
-* **Status:** Done
-* **Accomplished:** Reviewed `AGENTS.md`, `projectBrief.md` and `progress.md` against the source. Resolved palette, vocabulary and spelling decisions. Recorded the empty-quadrant rule, the cadence-counting rule and the `-exercise` rename suffix. Confirmed `ClockQuadrant.ts` is already functional.
-* **Open Issues:** `fractionsQuadrant.ts` does not yet match the settled parameter order or `GradeLevel` typing. Clock uses an off-palette navy. `HIGHLIGHT_FILL` in `geographyQuadrant.ts` needs checking against `#999999`. Whether exported names rename with the files (`createClockQuadrant` to `createClockExercise`) is undecided.
-
-### 2026-10-08 — Addition and Kana style refactor (Claude)
-* **Status:** Done. Typecheck and browser verification performed by the project owner as files were swapped in.
+### [YYYY-MM-DD] — Task (Assigned To)
+* **Status:**
 * **Accomplished:**
-    * Converted Addition from a class to a factory function in `addition-exercise.ts`, with a standalone problem-generation function modeled on Subtraction. Parameter order is `(gradeLevel, title)`. Renamed shorthand identifiers to whole words. Recolored the answer box from `#CCCCCC` to `#D1D5DB`. Added `lineCap = 'round'` to the equation line. Corrected off-by-one range comments.
-    * Converted Kana from a class to a factory function, `createKanaExercise`, in `kana-exercise.ts`. Split rendering into `findSpritePosition`, `drawHiraganaGuide` and `drawTracingMatrix`. Hoisted chart measurements to module constants (`HIRAGANA_CHART_ORDER`, `FIRST_SPRITE_LEFT` and company). Removed the render-time image fetch, the ready callback, the `renderApp` import, the placeholder fallback and the debug logging, in line with the data-loading rule.
-    * Moved Kana character validation from a render-time `console.warn` to a factory-time `Error`, and closed the blank-entry loophole for empty strings.
-    * Aligned Kana colors with the palette: watermark and crosshair to `#D1D5DB`, pronunciation note to `#000000`. The project owner then set the tracing frames to `#000000` and returned the crosshair to `butt` caps (see Core Architectural Decisions).
-    * Updated file references in this document to the kebab-case names.
-    * Clock uses only `#000000` and `#999999`.
-    * Fractions has the parameter order and `GradeLevel` fixes.
-    * `HIGHLIGHT_FILL` in `geography-exercise.ts` is `#999999`.
-    * `AGENTS.md` has a note on the dotted-line cap exception.
-    * `PlaceholderQuadrant` and `ClockQuadrant` have been converted from classes to factories. `BlankExercise` has also been added.
-    * The `kana-exercise.ts` and `main.ts` import cycle has been resolved by placing the constant in a `constants.ts` leaf file.
-* **Open Issues:** Addition's 1st-grade branch can produce a zero addend.
+* **Open Issues:**
+
+### 2026-10-08 - Topic selection wired to a single randomized page (Claude)
+* **Status:** Implemented; awaiting human type check, build, and manual verification.
+* **Accomplished:**
+    * `types.ts`: added `TOPIC_KEYS` and `TopicKey` as the single list of topics.
+    * `main.ts`: `localState` is now `Record<TopicKey, number>`; topic buttons build from `TOPIC_KEYS`; "Make Randomized Page" passes the selected topics to the generator and stays disabled while nothing is selected; intro copy no longer mentions 20 sheets.
+    * `randomization-and-difficulty-generator.ts`: the pool draws from selected topics only; `generateWorkbookBatch` takes `selectedTopics` and builds one page (`SHEETS_PER_BATCH`); `setTime` and `tellTime` both route to `createClockExercise`, choosing the mode through the parity of the index passed in; added `createGeographyExercise` (random continent).
+* **Open Issues:**
+    * The clock mode is selected through `sheetIndex` parity, a stopgap to replace in the randomization rewrite. (Resolved 2026-10-08, see the randomization rewrite below.)
+    * With one page, `sheetIndex` is always 0, so every kana quadrant shows the same character until the randomization rewrite lands. (Resolved 2026-10-08, see the randomization rewrite below.)
+    * Geography PDF output remains unchecked: select only "continents", generate, and confirm the map draws.
+    * `HIGHLIGHT_FILL` (`#8f8f8f`) differs from the palette in the brief.
+    * `educational-worksheet-batch.pdf` filename and the "batch of 20" wording in `projectBrief.md` are unchanged.
+
+### 2026-10-08 - Randomization rewrite: planner, shuffled decks, generator (Claude)
+* **Status:** Complete. The human ran `npm run dev:types`, `npx tsx src/randomization-check.ts`, `npm run build` and the manual page checks in the browser; all passed. Not committed to git by Claude.
+* **Accomplished:**
+    * `types.ts`: added `RandomSource` and `QuadrantTopics`.
+    * `shuffled-deck.ts` (new): `shuffleInPlace` (Fisher-Yates) and `createShuffledDeck`. Every aligned run of (items x copies) draws holds each item exactly `copiesPerCycle` times, and no card is dealt twice in a row, cycle seams included.
+    * `half-page-planner.ts` (new): `planHalfPages` picks four topics per half-page by fewest uses, then longest wait, then chance, and seats them to repeat as few quadrant positions as possible from the previous half. With four or more topics selected, a half-page never repeats a topic. With fewer, repeats are spread evenly. Across a run, use counts never differ by more than one.
+    * `randomization-and-difficulty-generator.ts`: rewritten around the planner and two decks (`createContentDecks`: five kana x 2, seven continents x 2). Cards are dealt in reading order. The clock factory takes `'telling'` or `'setting'` directly. Removed the category pool, `GenerationConstraints`, `ExerciseCategory`, the two clock mode index constants, and the ignored `sheetIndex` parameters. `main.ts` is unchanged.
+    * `randomization-check.ts` (new, kept in the repo by decision): run with `npx tsx src/randomization-check.ts`. Covers all 127 topic selections x 30 seeds x 28 half-pages, plus the decks over 200 seeds. Mutation-tested: deliberately broken planner and deck variants were caught. It is not part of the bundle.
+    * Decisions confirmed by the human: decks and use counts reset on every click; `setTime` and `tellTime` are separate types and may share a half-page; the check script stays; the ignored `sheetIndex` arguments go.
+* **Open Issues:**
+    * State resets on every click, so with one page per click the full ten-draw kana cycle never completes within a single batch. `createContentDecks` is exported so a later task can keep decks and use counts alive across clicks (in memory, then local storage). It becomes meaningful once the page-count selector lands.
+    * With one or two topics selected, a half-page holds several draws from one deck, so the same kana or continent can appear twice in one half (never adjacent, never more than twice per cycle).
+    * The deck is consumed per appearance, not per half-sheet. With five to seven topics selected, hiragana and continents appear in fewer than every half, so a full cycle takes more half-sheets than ten and fourteen.
+    * The kana set is fixed at the five vowels (`KANA_CARDS` in the generator). Choosing the range is part of the roadmap's per-topic settings.
+    * Clock times, sums and fractions still draw from `Math.random()` inside their own modules; only the planner and decks take the injectable `RandomSource`.
+    * The per-topic frequency weights on the roadmap would plug into the planner's ranking (uses divided by weight). Not implemented.
+    * Russia needs to be split between Europe and Asia, or placed in Asia. See the Geography To Do above.
+    * The button reads "Make Randomized Batch" in `main.ts`; the earlier ledger entry calls it "Make Randomized Page".
+    * `educational-worksheet-batch.pdf` filename and the "batch of 20" wording in `projectBrief.md` are unchanged (carried over).

@@ -57,7 +57,7 @@ function generateSubtractionProblemsBatch(gradeLevel: GradeLevel): SubtractionPr
  * Functional component generator for the Subtraction learning quadrant.
  * Evaluates the gradeLevel string constraint to build randomized vertical arithmetic stacks.
  */
-export function createSubtractionQuadrant(
+export function createSubtractionExercise(
     gradeLevel: GradeLevel,
     title: string = 'SUBTRACTION'
 ): QuadrantExercise {

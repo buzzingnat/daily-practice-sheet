@@ -190,7 +190,7 @@ export async function loadGeographyData(): Promise<void> {
  * Builds a "name this continent" quadrant. The map data must be preloaded,
  * because a quadrant that fetches mid-render would be late to its own party.
  */
-export function createGeographyQuadrant(
+export function createGeographyExercise(
     targetContinent: Continent,
     title: string = 'NAME THIS CONTINENT'
 ): QuadrantExercise {
