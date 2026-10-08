@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+bower_components/
+vendor/
+
+# Environment Variables & Secrets (NEVER commit these)
+.env
+.env.local
+.env.production
+*.pem
+*.key
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and Diagnostics
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs and Text Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Build outputs and temporary folders
+dist/
+build/
+out/
+.cache/
+tmp/
