@@ -98,8 +98,9 @@ const DEFAULT_EXAMPLES: ExampleSpecification[] = [
     { type: 'clock', clockType: 'telling', title: 'TELLING TIME', hours: 10, minutes: 10 },
     { type: 'clock', clockType: 'setting', title: 'SETTING TIME', hours: 3, minutes: 30 },
     { type: 'fractions', title: 'FRACTIONS', grade: '1st' },
-    { type: 'geography', continent: 'Africa' },
-    { type: 'geography', continent: 'Oceania' },
+    { type: 'geography', continent: 'Europe' },
+    { type: 'geography', continent: 'Asia' },
+    { type: 'geography', continent: 'North America' },
     { type: 'subtraction', grade: '2nd' },
     { type: 'addition', grade: '1st' },
     {

@@ -9,6 +9,11 @@ import {
 import { GeoJsonProperties, GeometryCollection, MultiPolygon } from 'geojson';
 import { QuadrantExercise, QuadrantContext } from './worksheet-layout';
 import { SANS_SERIF_FONT } from './constants';
+import {
+    traceAsiaSideRegion,
+    traceEuropeSideRegion,
+    traceUralBoundary
+} from './europe-asia-boundary';
 
 export const CONTINENTS = [
     'Africa',
@@ -42,6 +47,8 @@ type PlainPolygonalGeometry = TopologyPolygon | TopologyMultiPolygon;
 
 const TOPOLOGY_URL = '/maps/countries-110m.json';
 const ISO_CODES_URL = '/maps/ISO-3166.csv';
+// Russia is filed under Europe, and the Ural cut is made inside that shape at draw time.
+const RUSSIA_COUNTRY_CODE = 643;
 
 const HIGHLIGHT_FILL = '#999999';
 const OUTLINE_STROKE = '#000000';
@@ -158,6 +165,8 @@ export async function loadGeographyData(): Promise<void> {
             continentByCode.set(+row['country-code'], continent);
         }
     });
+    // Pinned rather than trusted to the CSV, because the Ural cut depends on it.
+    continentByCode.set(RUSSIA_COUNTRY_CODE, 'Europe');
 
     const geometriesByContinent = new Map<Continent, PlainPolygonalGeometry[]>();
     countries.geometries.forEach((geometry) => {
@@ -189,6 +198,8 @@ export async function loadGeographyData(): Promise<void> {
 /**
  * Builds a "name this continent" quadrant. The map data must be preloaded,
  * because a quadrant that fetches mid-render would be late to its own party.
+ * Russia sits whole inside the Europe landmass, so the fills are clipped at
+ * the Urals and a thin line marks the cut on every map.
  */
 export function createGeographyExercise(
     targetContinent: Continent,
@@ -198,6 +209,11 @@ export function createGeographyExercise(
         throw new Error('Call loadGeographyData() before creating a geography quadrant.');
     }
     const geographyData = cachedGeographyData;
+
+    const europeLandmass = geographyData.landmassByContinent.get('Europe');
+    if (!europeLandmass) {
+        throw new Error('Europe is missing from the geography data, so the Ural line has nothing to divide.');
+    }
 
     return {
         render(quadrantContext: QuadrantContext): void {
@@ -227,23 +243,55 @@ export function createGeographyExercise(
             context.lineCap = 'round';
             context.lineJoin = 'round';
 
-            // Outlines for every landmass; the target goes last so its fill sits on top
-            geographyData.landmassByContinent.forEach((landmass, continent) => {
-                if (continent !== targetContinent) {
-                    context.beginPath();
-                    path(landmass);
-                    context.stroke();
-                }
-            });
-
+            // Fills come first, so no neighbour's fill ever paints over an outline
             const targetLandmass = geographyData.landmassByContinent.get(targetContinent);
             if (targetLandmass) {
                 context.fillStyle = HIGHLIGHT_FILL;
-                context.beginPath();
-                path(targetLandmass);
-                context.fill();
-                context.stroke();
+                if (targetContinent === 'Europe') {
+                    // Europe keeps the western side of Russia; Siberia belongs to Asia
+                    context.save();
+                    context.beginPath();
+                    traceEuropeSideRegion(context, projection);
+                    context.clip();
+                    context.beginPath();
+                    path(targetLandmass);
+                    context.fill();
+                    context.restore();
+                } else {
+                    context.beginPath();
+                    path(targetLandmass);
+                    context.fill();
+
+                    if (targetContinent === 'Asia') {
+                        // The other half of Russia, borrowed from the Europe landmass
+                        context.save();
+                        context.beginPath();
+                        traceAsiaSideRegion(context, projection);
+                        context.clip('evenodd');
+                        context.beginPath();
+                        path(europeLandmass);
+                        context.fill();
+                        context.restore();
+                    }
+                }
             }
+
+            // Outlines for every landmass, target included
+            geographyData.landmassByContinent.forEach((landmass) => {
+                context.beginPath();
+                path(landmass);
+                context.stroke();
+            });
+
+            // The Ural line, clipped to Europe's landmass so it appears only inside Russia
+            context.save();
+            context.beginPath();
+            path(europeLandmass);
+            context.clip();
+            context.beginPath();
+            traceUralBoundary(context, projection);
+            context.stroke();
+            context.restore();
 
             // Labeled response line
             const answerBaseline = height - 10;
