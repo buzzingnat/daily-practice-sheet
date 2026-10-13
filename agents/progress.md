@@ -27,17 +27,16 @@ This file tracks development states, architectural configurations, and upcoming 
 * [x] **Randomization & Difficulty Matrix:** A first pass at creating a randomized worksheet.
 * [x] **Geography Module (Seven Continents):** `geographyQuadrant.ts` loads a 110m world TopoJSON and `ISO-3166.csv`, joins them on ISO country code, and highlights one continent's countries. It renders to SVG in the DOM for all seven continents, and preloads map data in `main.ts` so that everything displays correctly.
 * [x] **Geography Module (Seven Continents):** Checked that the map draws to the worksheet when a pdf is generated (confirmed by hand, 2026-10-08).
-* [ ] **Geography Module (Seven Continents):** Draw Russia split between Europe and Asia along the Ural Mountains and the Ural River. If a split is not possible, put Russia entirely in Asia. Notes for whoever picks this up:
+* [x] **Geography Module (Seven Continents):** Draw Russia split between Europe and Asia along the Ural Mountains and the Ural River. If a split is not possible, put Russia entirely in Asia. Notes for whoever picks this up:
     * `assignContinent` sorts countries by the UN `region` column of `ISO-3166.csv`, and the 110m TopoJSON holds Russia as one shape (numeric code 643). Confirm which continent it lands in today; the UN grouping most likely files it under Europe.
     * A split cuts one country shape in two, so continents can no longer be built by sorting whole countries. Candidate routes: pre-split the Russia geometry in `scripts/compile-geography.ts` along a hand-drawn boundary (the Ural Mountains, then the Ural River down to the Caspian Sea), or draw Russia twice and clip each copy with a canvas clip path. Boolean polygon intersection is not in the current dependencies, and AGENTS.md forbids adding packages without approval.
     * The Ural River also runs through Kazakhstan, which is often treated as transcontinental. Yes, this stays wholly in Asia.
     * The fallback (all of Russia in Asia) is a one-entry override in the continent assignment, much like `CONTINENT_BY_UNNUMBERED_NAME`.
-    * Needs a `plan.md` and human validation first.
 * [x] **Randomization & Difficulty Matrix:** Improve this algorithm. Done 2026-10-08, see the session ledger. No quadrant type repeats within a half-sheet while four or more topics are selected; with fewer, repeats are spread evenly. Topics rotate fairly across half-sheets. Hiragana deals five kana, each twice per ten appearances; continents deal seven, each twice per fourteen.
 
 ### 3. UI Layer & Core Application Orchestration
 * [x] Build interactive multi-topic checkbox matrix allowing users to configure topic inclusions. Selection now drives the generated page (`TOPIC_KEYS` in `types.ts`).
-* [ ] Build a selector allowing users to decide how many pages of worksheets to generate.
+* [x] Build a selector allowing users to decide how many half-pages to print (1 to 20, an odd count leaves the last page half-filled). Done 2026-10-12.
 * [ ] Build frequency assignment controller weights (how often a chosen topic appears across the selected sheets).
 * [ ] Render native HTML5 Canvas live browser previews updating reactively before PDF generation.
 * [ ] Bind full batch worksheet export sequence to compile, sequence, overlay vector boundaries, and trigger immediate browser download.
@@ -122,14 +121,14 @@ This file tracks development states, architectural configurations, and upcoming 
     * Node 14 is the default in this shell; `tsc` and `build.js` need a newer Node (22 was used).
 
 ### 2026-10-12 - Region maps: grey foreign land, no foreign borders (Claude)
-* **Status:** Implemented; type check and build pass, six examples checked by eye. Not committed.
+* **Status:** Implemented; type check and build pass, six examples checked by eye. Committed.
 * **Accomplished:**
     * Land outside the focused region is filled `#D1D5DB` and loses its country borders; coastlines stay. Borders are drawn only where they touch the region. `region-map-data.ts` now builds a `RegionDrawing` per region (`surroundingLand`, `borders`, `clippedRussianBorders`) and `RegionMapData.borders` is gone. French Guiana and Europe-side France are registered as separate shapes so South America and Europe each grey out the right pieces.
     * Europe and Asia views: all of Russia is grey, then wiped white on the view's side of the Urals. Russia's borders with countries in the view are drawn in full; its borders with countries outside the view are drawn on Russia's side only.
 * **Open Issues:** Foreign coastlines are still black; say if they should be lighter.
 
 ### 2026-10-12 - Per-topic settings panels (Claude)
-* **Status:** Implemented. `npx tsc --noEmit`, `npm run build` and `npx tsx src/randomization-check.ts` pass. Panels, chips, summaries, the one-must-stay rule and the generate click were exercised in the browser; no generated PDF was opened. Not committed.
+* **Status:** Implemented. `npx tsc --noEmit`, `npm run build` and `npx tsx src/randomization-check.ts` pass. Panels, chips, summaries, the one-must-stay rule and the generate click were exercised in the browser; no generated PDF was opened. Committed.
 * **Accomplished:**
     * Selecting addition, subtraction, fractions, hiragana or countries opens a fieldset below the topic buttons. Levels are radio segments labeled by content (addition: single, double, triple digit; subtraction: up to 20, double, triple digit; fractions: up to fourths, eighths, twelfths). Hiragana has one chip per chart row (wa, wo and n share one chip) plus All; countries has one chip per region plus All. The last chip in a group cannot be switched off. Each selected topic's button shows a summary.
     * `topic-settings.ts` (panel specifications, defaults, `resolveTopicSettings`, `summarizeSelection`), `topic-settings-panel.ts` (DOM), `kana-rows.ts` (all 46 characters with pronunciation hints), `types.ts` (`KANA_ROWS`, `CONFIGURABLE_TOPICS`, `TopicSettings`). The generator takes `TopicSettings`: decks are built from the chosen rows and regions, and the arithmetic and fractions factories take the chosen level. `randomization-check.ts` gained deck sizes 1, 3, 6, 10, 23 and 46.
@@ -153,6 +152,14 @@ This file tracks development states, architectural configurations, and upcoming 
 * **Status:** Done; type check and build pass. `MINIMUM_TARGET_AREA` in `region-map-data.ts` was 24 when I picked it up (changed by the human) and is now 20. Target pools at 20: Africa 35, Asia 24, Central America 11, Europe 31, North America 4, Oceania 3, South America 12.
 
 ### 2026-10-12 - Colors moved into constants.ts (Claude)
-* **Status:** Done; type check and build pass. The jsPDF overlay colors were confirmed to emit identical PDF operators from the hex constants as from the old RGB triples. Not committed.
+* **Status:** Done; type check and build pass. The jsPDF overlay colors were confirmed to emit identical PDF operators from the hex constants as from the old RGB triples. Committed.
 * **Accomplished:** `constants.ts` now holds `COLOR_BLACK`, `COLOR_WHITE`, `COLOR_LIGHT_GREY`, `COLOR_MEDIUM_GREY`, `COLOR_PDF_CROSSHAIR` (`#C8C8C8`) and `COLOR_PDF_PERFORATION` (`#969696`). Every hex value and RGB triple in the other `src/` files now references them; the modules' own semantic names (`HIGHLIGHT_FILL`, `INK_COLOR` and so on) stay, assigned from the palette. `main.ts` used `#fff` and `#999` shorthand, which map to the same white and medium grey. One line added to the Color Palette section of `AGENTS.md`.
 * **Open Issues:** `public/css/styles.css` still has its own colors (silver, `#9d9d9d`, `#9dadfd`, `#9dfdfd` and so on). CSS cannot import TypeScript constants; moving them to CSS custom properties is a separate task. `randomization-check.ts` has no colors.
+
+### 2026-10-12 - Print-size selector in half-pages (Claude)
+* **Status:** Implemented. `npx tsc --noEmit`, `npm run build` and `npx tsx src/randomization-check.ts` pass. In the browser, the stepper, typing, quick picks, clamping and captions were exercised, and PDFs generated for 1, 3, 4 and 20 half-pages had 1, 2, 2 and 10 pages. I did not eyeball the PDF pages themselves. Not committed.
+* **Accomplished:**
+    * `print-size.ts` (limits 1 to 20, default 2, quick picks 1, 2, 4, 6, 10, `clampHalfPageCount`, `describePrintSize`) and `print-size-panel.ts` (stepper, quick-pick chips, sheet diagram, live caption). The panel sits below the topic settings.
+    * `generateWorkbookBatch` takes `halfPageCount` and ends with a one-layout sheet when the count is odd; the old `SHEETS_PER_BATCH` constant is gone. `renderSingleWorksheetPage` takes an optional bottom half: a lone half-page prints its top half, keeps the 396pt cutting line, and leaves the bottom white with no header. `buildAndDownloadWorksheetBatch` now throws on a sheet that is empty or holds more than two half-pages instead of skipping it.
+    * `randomization-check.ts` gained `checkPrintSize` (clamping and descriptions for counts 1 to 20).
+* **Open Issues:** The count resets to 2 on reload (no local storage yet). jsPDF stores identical quadrant images once, so image counts in a PDF can be lower than four per half-page; this is expected. The decks still reset on every click, though a larger batch lets cycles complete within one click. The "batch" button label and `educational-worksheet-batch.pdf` filename are unchanged.

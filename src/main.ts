@@ -20,6 +20,8 @@ import {
     summarizeSelection
 } from './topic-settings';
 import { renderSettingsPanels } from './topic-settings-panel';
+import { DEFAULT_HALF_PAGES } from './print-size';
+import { renderPrintSizePanel } from './print-size-panel';
 
 // for storing user selections for worksheet settings
 // the number can be used to hold difficulty level of each exercise
@@ -43,6 +45,9 @@ const localState: Record<TopicKey, number>= {
 // What each settings panel currently holds. Kept when a topic is toggled off, so
 // changing one's mind does not cost the choices.
 const panelSelections = createDefaultSelections();
+
+// How much to print, in half-pages. Two make a page.
+let halfPageCount = DEFAULT_HALF_PAGES;
 
 // a placeholder, this needs to become "generate single sample page" later
 function renderTestWorksheetButton() {
@@ -73,7 +78,8 @@ function renderRandomizedWorksheetBatchButton() {
             generateWorkbookBatch(
                 createWorkbookExerciseFactories(),
                 getSelectedTopics(),
-                resolveTopicSettings(panelSelections)
+                resolveTopicSettings(panelSelections),
+                halfPageCount
             )
         );
     });
@@ -277,14 +283,20 @@ function renderMainInitial() {
     const introSection = document.createElement('section');
     introSection.id = 'intro-section';
     const instructionPara = document.createElement('p');
-    instructionPara.textContent = 'Select up to six topics below. Generate one randomized page that mixes the selected topics across its quadrants.';
+    instructionPara.textContent = 'Select up to six topics below. Choose how many half-pages to print. Each half-page mixes the selected topics across its quadrants.';
     const topicChoicesContainer = document.createElement('div');
     topicChoicesContainer.id = 'topic-choices';
     introSection.appendChild(instructionPara);
     const topicSettingsContainer = document.createElement('div');
     topicSettingsContainer.id = TOPIC_SETTINGS_ID;
     introSection.appendChild(topicChoicesContainer);
+    const printSizeContainer = document.createElement('div');
+    printSizeContainer.id = 'print-size';
     introSection.appendChild(topicSettingsContainer);
+    introSection.appendChild(printSizeContainer);
+    renderPrintSizePanel(printSizeContainer, halfPageCount, (newCount) => {
+        halfPageCount = newCount;
+    });
     mainElement.appendChild(introSection);
 
     for(const title of TOPIC_KEYS) {

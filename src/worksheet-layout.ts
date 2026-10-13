@@ -83,7 +83,7 @@ async function renderQuadrantToPdf(
 async function renderSingleWorksheetPage(
     documentInstance: jsPDF,
     topHalf: HalfPageLayout,
-    bottomHalf: HalfPageLayout
+    bottomHalf: HalfPageLayout | undefined
 ): Promise<void> {
     const marginX = MARGIN_X;
     const printableWidth = PRINTABLE_WIDTH; // 532pt
@@ -121,7 +121,10 @@ async function renderSingleWorksheetPage(
     documentInstance.line(20, 396, 592, 396);
     documentInstance.setLineDashPattern([], 0);
 
-    await renderHalfSheet(bottomHalf, 396);
+    // A lone half-page leaves the bottom white, with no header, but keeps the cutting line above
+    if (bottomHalf) {
+        await renderHalfSheet(bottomHalf, 396);
+    }
 }
 
 /**
@@ -164,15 +167,14 @@ export async function buildAndDownloadWorksheetBatch(
 
         const currentSheetHalfPages = workbookBatch[sheetIndex];
 
-        // Ensure each sheet layout has exactly two independent half-pages to populate top and bottom tracks
-        if (currentSheetHalfPages && currentSheetHalfPages.length === 2) {
-            const topHalfLayout = currentSheetHalfPages[0];
-            const bottomHalfLayout = currentSheetHalfPages[1];
-
-            if (topHalfLayout && bottomHalfLayout) {
-                await renderSingleWorksheetPage(documentInstance, topHalfLayout, bottomHalfLayout);
-            }
+        // A sheet holds two half-pages, or one when the count is odd. Anything else is a bug, not a page.
+        const topHalfLayout = currentSheetHalfPages ? currentSheetHalfPages[0] : undefined;
+        const bottomHalfLayout = currentSheetHalfPages ? currentSheetHalfPages[1] : undefined;
+        const halfPageTotal = currentSheetHalfPages ? currentSheetHalfPages.length : 0;
+        if (!topHalfLayout || halfPageTotal > 2) {
+            throw new Error(`Sheet ${sheetIndex + 1} holds ${halfPageTotal} half-pages; expected one or two.`);
         }
+        await renderSingleWorksheetPage(documentInstance, topHalfLayout, bottomHalfLayout);
 
         sheetIndex = sheetIndex + 1;
     }

@@ -153,3 +153,89 @@ header hr {
 #topic-settings .chip:focus-visible {
     outline: 2px solid #000;
 }
+
+#print-size {
+    margin: 8px;
+}
+
+#print-size .settings-panel {
+    border: thin silver solid;
+    padding: 4px 8px 8px;
+}
+
+#print-size .choice-row {
+    display: flex;
+    flex-flow: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+#print-size .stepper-button,
+#print-size .chip {
+    border: thin silver solid;
+    border-radius: 1em;
+    padding: 4px 12px;
+    background: #fff;
+    cursor: pointer;
+    font: inherit;
+}
+
+#print-size .stepper-button:hover,
+#print-size .chip:hover {
+    background: #9d9d9d;
+}
+
+#print-size .stepper-button:disabled {
+    cursor: not-allowed;
+    opacity: .6;
+}
+
+#print-size .chip[aria-pressed="true"] {
+    background: #9dadfd;
+    border: solid 2px #9dfdfd;
+    padding: 3px 11px;
+}
+
+#print-size input[type="number"] {
+    width: 4em;
+    padding: 4px;
+    font: inherit;
+    text-align: center;
+}
+
+#print-size .page-diagram {
+    display: flex;
+    flex-flow: wrap;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+#print-size .page-icon {
+    display: flex;
+    flex-flow: column;
+    width: 28px;
+    height: 36px;
+    border: 1px solid #000;
+    background: #fff;
+}
+
+#print-size .half-icon {
+    flex: 1;
+}
+
+#print-size .half-icon:first-child {
+    border-bottom: 1px dashed #999;
+}
+
+#print-size .half-icon.printed {
+    background: #9dadfd;
+}
+
+#print-size .print-size-caption {
+    margin: 0;
+}
+
+#print-size :focus-visible {
+    outline: 2px solid #000;
+}

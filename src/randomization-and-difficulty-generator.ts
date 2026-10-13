@@ -32,8 +32,6 @@ export interface ExerciseFactories {
     createCountryExercise(region: PopulatedRegion, countryIdentifier: string): QuadrantExercise;
 }
 
-// The page count lives in one place, so the coming page-count selector has one number to change.
-const SHEETS_PER_BATCH = 1;
 const HALF_PAGES_PER_SHEET = 2;
 
 // Each card appears this often per cycle: five kana twice in ten draws,
@@ -157,7 +155,8 @@ export function createWorkbookExerciseFactories(): ExerciseFactories {
 }
 
 /**
- * Compiles the workbook sheets (one page for now) from the selected topics.
+ * Compiles the workbook sheets from the selected topics, one half-page per unit asked for.
+ * An odd count leaves the last sheet holding a single half-page.
  * The planner decides who sits where; the decks decide which kana and which
  * continent; the factories do the drawing.
  */
@@ -165,13 +164,18 @@ export function generateWorkbookBatch(
     factories: ExerciseFactories,
     selectedTopics: readonly TopicKey[],
     settings: TopicSettings,
+    halfPageCount: number,
     random: RandomSource = Math.random
 ): HalfPageLayout[][] {
     if (selectedTopics.length === 0) {
         throw new Error('Select at least one topic before generating a worksheet.');
     }
 
-    const plans = planHalfPages(selectedTopics, SHEETS_PER_BATCH * HALF_PAGES_PER_SHEET, random);
+    if (!Number.isInteger(halfPageCount) || halfPageCount < 1) {
+        throw new Error(`Cannot print ${halfPageCount} half-pages.`);
+    }
+
+    const plans = planHalfPages(selectedTopics, halfPageCount, random);
     const decks = createContentDecks(random, settings);
 
     const workbookBatch: HalfPageLayout[][] = [];
@@ -184,6 +188,11 @@ export function generateWorkbookBatch(
             currentSheetHalfPages = [];
         }
     });
+
+    // An odd count leaves one half-page waiting for a partner that is not coming
+    if (currentSheetHalfPages.length > 0) {
+        workbookBatch.push(currentSheetHalfPages);
+    }
 
     return workbookBatch;
 }

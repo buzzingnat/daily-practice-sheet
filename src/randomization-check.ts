@@ -11,6 +11,13 @@
  */
 import { planHalfPages } from './half-page-planner';
 import { createShuffledDeck } from './shuffled-deck';
+import {
+    clampHalfPageCount,
+    DEFAULT_HALF_PAGES,
+    describePrintSize,
+    MAXIMUM_HALF_PAGES,
+    MINIMUM_HALF_PAGES
+} from './print-size';
 import { QuadrantTopics, RandomSource, TOPIC_KEYS, TopicKey } from './types';
 
 const SEEDS_PER_SELECTION = 30;
@@ -188,7 +195,27 @@ function checkDeck(itemCount: number, copiesPerCycle: number): void {
     console.log(`Deck: ${itemCount} items x ${copiesPerCycle} copies, ${DECK_SEEDS} seeds, all rules held.`);
 }
 
+function checkPrintSize(): void {
+    assert(clampHalfPageCount(0) === MINIMUM_HALF_PAGES, 'zero should clamp up to the minimum.');
+    assert(clampHalfPageCount(-4) === MINIMUM_HALF_PAGES, 'a negative should clamp up to the minimum.');
+    assert(clampHalfPageCount(99) === MAXIMUM_HALF_PAGES, 'a huge count should clamp down to the maximum.');
+    assert(clampHalfPageCount(2.6) === 3, 'a fraction should round.');
+    assert(clampHalfPageCount(Number.NaN) === DEFAULT_HALF_PAGES, 'not-a-number should fall back to the default.');
+
+    let halfPageCount = MINIMUM_HALF_PAGES;
+    while (halfPageCount <= MAXIMUM_HALF_PAGES) {
+        const description = describePrintSize(halfPageCount);
+        assert(description.pageCount === Math.ceil(halfPageCount / 2), `${halfPageCount}: wrong page count.`);
+        assert(description.hasHalfPageRemainder === (halfPageCount % 2 === 1), `${halfPageCount}: wrong remainder flag.`);
+        assert(description.caption.length > 0, `${halfPageCount}: empty caption.`);
+        assert(clampHalfPageCount(halfPageCount) === halfPageCount, `${halfPageCount}: a valid count was altered.`);
+        halfPageCount = halfPageCount + 1;
+    }
+    console.log(`Print size: counts ${MINIMUM_HALF_PAGES} to ${MAXIMUM_HALF_PAGES} described and clamped correctly.`);
+}
+
 checkPlanner();
+checkPrintSize();
 checkDeck(5, 2);  // hiragana: five kana, each twice per ten draws
 checkDeck(7, 2);  // continents: seven continents, each twice per fourteen draws
 checkDeck(2, 1);  // the tightest seam: two items, one copy each
