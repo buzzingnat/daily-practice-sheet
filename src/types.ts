@@ -25,3 +25,26 @@ export type PopulatedRegion = typeof POPULATED_REGIONS[number];
 
 // Degrees on the globe, longitude first, the way d3 insists on having them.
 export type GeographicPoint = readonly [longitude: number, latitude: number];
+
+// One chip per row of the hiragana chart. The last row is wa, wo and the lone n.
+export const KANA_ROWS = [
+    'vowels', 'k', 's', 't', 'n', 'h', 'm', 'y', 'r', 'wn'
+] as const;
+
+export type KanaRow = typeof KANA_ROWS[number];
+
+// Topics that come with a settings panel
+export const CONFIGURABLE_TOPICS = [
+    'fractions', 'addition', 'subtraction', 'hiragana', 'countries'
+] as const;
+
+export type ConfigurableTopic = typeof CONFIGURABLE_TOPICS[number];
+
+// What the generator reads: validated, typed, and never empty
+export interface TopicSettings {
+    fractions: { level: GradeLevel };
+    addition: { level: GradeLevel };
+    subtraction: { level: GradeLevel };
+    hiragana: { rows: readonly KanaRow[] };
+    countries: { regions: readonly PopulatedRegion[] };
+}

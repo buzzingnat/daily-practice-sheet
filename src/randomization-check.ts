@@ -5,8 +5,8 @@
  * Not part of the bundle: the build starts from main.ts and never imports this.
  * It throws on the first broken rule, and prints a summary when all hold.
  *
- * The deck checks use stand-in items of the right count (five for the kana,
- * seven for the continents), because the real lists live in modules that
+ * The deck checks use stand-in items of the right count (from one to 46 kana,
+ * seven continents, one to six regions), because the real lists live in modules that
  * need a browser to load.
  */
 import { planHalfPages } from './half-page-planner';
@@ -193,4 +193,10 @@ checkDeck(5, 2);  // hiragana: five kana, each twice per ten draws
 checkDeck(7, 2);  // continents: seven continents, each twice per fourteen draws
 checkDeck(2, 1);  // the tightest seam: two items, one copy each
 checkDeck(1, 3);  // a lone item has no choice but to repeat itself
+checkDeck(1, 2);  // one region, or one kana: the deck sizes the settings panels can produce
+checkDeck(3, 2);  // the y row, or the w and n row
+checkDeck(10, 2);
+checkDeck(23, 2);
+checkDeck(46, 2); // every basic hiragana character
+checkDeck(6, 2);  // all six regions
 console.log('All randomization checks passed.');

@@ -127,3 +127,14 @@ This file tracks development states, architectural configurations, and upcoming 
     * Land outside the focused region is filled `#D1D5DB` and loses its country borders; coastlines stay. Borders are drawn only where they touch the region. `region-map-data.ts` now builds a `RegionDrawing` per region (`surroundingLand`, `borders`, `clippedRussianBorders`) and `RegionMapData.borders` is gone. French Guiana and Europe-side France are registered as separate shapes so South America and Europe each grey out the right pieces.
     * Europe and Asia views: all of Russia is grey, then wiped white on the view's side of the Urals. Russia's borders with countries in the view are drawn in full; its borders with countries outside the view are drawn on Russia's side only.
 * **Open Issues:** Foreign coastlines are still black; say if they should be lighter.
+
+### 2026-10-12 - Per-topic settings panels (Claude)
+* **Status:** Implemented. `npx tsc --noEmit`, `npm run build` and `npx tsx src/randomization-check.ts` pass. Panels, chips, summaries, the one-must-stay rule and the generate click were exercised in the browser; no generated PDF was opened. Not committed.
+* **Accomplished:**
+    * Selecting addition, subtraction, fractions, hiragana or countries opens a fieldset below the topic buttons. Levels are radio segments labeled by content (addition: single, double, triple digit; subtraction: up to 20, double, triple digit; fractions: up to fourths, eighths, twelfths). Hiragana has one chip per chart row (wa, wo and n share one chip) plus All; countries has one chip per region plus All. The last chip in a group cannot be switched off. Each selected topic's button shows a summary.
+    * `topic-settings.ts` (panel specifications, defaults, `resolveTopicSettings`, `summarizeSelection`), `topic-settings-panel.ts` (DOM), `kana-rows.ts` (all 46 characters with pronunciation hints), `types.ts` (`KANA_ROWS`, `CONFIGURABLE_TOPICS`, `TopicSettings`). The generator takes `TopicSettings`: decks are built from the chosen rows and regions, and the arithmetic and fractions factories take the chosen level. `randomization-check.ts` gained deck sizes 1, 3, 6, 10, 23 and 46.
+* **Open Issues:**
+    * The 41 new pronunciation hints are mine and deserve a native-speaker or teacher pass, especially を, ん, ふ and つ.
+    * Settings live in memory and reset on reload; local storage is still to do. The countries topic still picks its target at random per quadrant with `Math.random()`.
+    * Chart `build.js` copies `public/` to `dist/` and `npm run build` does not, so run `node build.js` (or the dev server) to refresh the stylesheet in `dist/`.
+    * Frequency weights are not implemented.

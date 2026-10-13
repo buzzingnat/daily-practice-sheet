@@ -92,3 +92,64 @@ header hr {
     cursor: not-allowed;
     opacity: .6;
 }
+
+#topic-choices>button .topic-summary {
+    display: block;
+    font-size: .7em;
+    margin-top: .1em;
+}
+
+#topic-choices>button {
+    height: auto;
+    min-height: 2.5em;
+}
+
+#topic-settings {
+    display: flex;
+    flex-flow: column;
+    gap: 8px;
+    margin: 8px;
+}
+
+#topic-settings .settings-panel {
+    border: thin silver solid;
+    padding: 4px 8px 8px;
+}
+
+#topic-settings .choice-row {
+    display: flex;
+    flex-flow: wrap;
+    gap: 6px;
+}
+
+#topic-settings .chip,
+#topic-settings .segment {
+    border: thin silver solid;
+    border-radius: 1em;
+    padding: 4px 12px;
+    background: #fff;
+    cursor: pointer;
+    font: inherit;
+}
+
+#topic-settings .chip:hover,
+#topic-settings .segment:hover {
+    background: #9d9d9d;
+}
+
+#topic-settings .chip[aria-pressed="true"],
+#topic-settings .segment:has(input:checked) {
+    background: #9dadfd;
+    border: solid 2px #9dfdfd;
+    padding: 3px 11px;
+}
+
+#topic-settings .segment input {
+    position: absolute;
+    opacity: 0;
+}
+
+#topic-settings .segment:has(input:focus-visible),
+#topic-settings .chip:focus-visible {
+    outline: 2px solid #000;
+}

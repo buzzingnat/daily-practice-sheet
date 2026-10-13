@@ -8,12 +8,8 @@ import { CONTINENTS, Continent, createGeographyExercise } from './geography-exer
 import { planHalfPages } from './half-page-planner';
 import { ShuffledDeck, createShuffledDeck } from './shuffled-deck';
 import { createRegionMapExercise, listRegionTargets } from './region-map-exercise';
-import { POPULATED_REGIONS, PopulatedRegion, QuadrantTopics, RandomSource, TopicKey } from './types';
-
-export interface KanaCard {
-    character: string;
-    pronunciationHint: string;
-}
+import { KanaCard, listKanaCards } from './kana-rows';
+import { GradeLevel, PopulatedRegion, QuadrantTopics, RandomSource, TopicKey, TopicSettings } from './types';
 
 // Content that must take turns rather than trust to luck.
 export interface ContentDecks {
@@ -26,10 +22,10 @@ export interface ContentDecks {
 // content receive the card already dealt; the rest roll their own numbers.
 export interface ExerciseFactories {
     createClockExercise(clockType: ClockType): QuadrantExercise;
-    createSubtractionExercise(): QuadrantExercise;
-    createAdditionExercise(): QuadrantExercise;
+    createSubtractionExercise(level: GradeLevel): QuadrantExercise;
+    createAdditionExercise(level: GradeLevel): QuadrantExercise;
     createKanaExercise(card: KanaCard): QuadrantExercise;
-    createFractionsExercise(): QuadrantExercise;
+    createFractionsExercise(level: GradeLevel): QuadrantExercise;
     createGeographyExercise(continent: Continent): QuadrantExercise;
     createCountryExercise(region: PopulatedRegion): QuadrantExercise;
 }
@@ -42,23 +38,15 @@ const HALF_PAGES_PER_SHEET = 2;
 // seven continents twice in fourteen.
 const COPIES_PER_CYCLE = 2;
 
-const KANA_CARDS: readonly KanaCard[] = [
-    { character: 'お', pronunciationHint: '"o" pronounce "oa", as in boat.' },
-    { character: 'あ', pronunciationHint: '"a" pronounce "ah", as in father.' },
-    { character: 'い', pronunciationHint: '"i" pronounce "ee", as in meet.' },
-    { character: 'う', pronunciationHint: '"u" pronounce "oo", as in boot.' },
-    { character: 'え', pronunciationHint: '"e" pronounce "eh", as in bet.' }
-];
-
 /**
  * Builds fresh decks for one batch. Exported so a later task can keep one
  * set alive across clicks; for now every click starts with a new shuffle.
  */
-export function createContentDecks(random: RandomSource): ContentDecks {
+export function createContentDecks(random: RandomSource, settings: TopicSettings): ContentDecks {
     return {
-        kana: createShuffledDeck(KANA_CARDS, COPIES_PER_CYCLE, random),
+        kana: createShuffledDeck(listKanaCards(settings.hiragana.rows), COPIES_PER_CYCLE, random),
         continents: createShuffledDeck(CONTINENTS, COPIES_PER_CYCLE, random),
-        regions: createShuffledDeck(POPULATED_REGIONS, COPIES_PER_CYCLE, random)
+        regions: createShuffledDeck(settings.countries.regions, COPIES_PER_CYCLE, random)
     };
 }
 
@@ -70,20 +58,21 @@ export function createContentDecks(random: RandomSource): ContentDecks {
 function instantiateExercise(
     topic: TopicKey,
     factories: ExerciseFactories,
-    decks: ContentDecks
+    decks: ContentDecks,
+    settings: TopicSettings
 ): QuadrantExercise {
     if (topic === 'tellTime') {
         return factories.createClockExercise('telling');
     } else if (topic === 'setTime') {
         return factories.createClockExercise('setting');
     } else if (topic === 'subtraction') {
-        return factories.createSubtractionExercise();
+        return factories.createSubtractionExercise(settings.subtraction.level);
     } else if (topic === 'addition') {
-        return factories.createAdditionExercise();
+        return factories.createAdditionExercise(settings.addition.level);
     } else if (topic === 'hiragana') {
         return factories.createKanaExercise(decks.kana.drawNext());
     } else if (topic === 'fractions') {
-        return factories.createFractionsExercise();
+        return factories.createFractionsExercise(settings.fractions.level);
     } else if (topic === 'continents') {
         return factories.createGeographyExercise(decks.continents.drawNext());
     } else if (topic === 'countries') {
@@ -101,13 +90,14 @@ function instantiateExercise(
 function buildHalfPageLayout(
     topics: QuadrantTopics,
     factories: ExerciseFactories,
-    decks: ContentDecks
+    decks: ContentDecks,
+    settings: TopicSettings
 ): HalfPageLayout {
     const [topLeftTopic, topRightTopic, bottomLeftTopic, bottomRightTopic] = topics;
-    const topLeft = instantiateExercise(topLeftTopic, factories, decks);
-    const topRight = instantiateExercise(topRightTopic, factories, decks);
-    const bottomLeft = instantiateExercise(bottomLeftTopic, factories, decks);
-    const bottomRight = instantiateExercise(bottomRightTopic, factories, decks);
+    const topLeft = instantiateExercise(topLeftTopic, factories, decks, settings);
+    const topRight = instantiateExercise(topRightTopic, factories, decks, settings);
+    const bottomLeft = instantiateExercise(bottomLeftTopic, factories, decks, settings);
+    const bottomRight = instantiateExercise(bottomRightTopic, factories, decks, settings);
     return { topLeft, topRight, bottomLeft, bottomRight };
 }
 
@@ -129,14 +119,14 @@ export function createWorkbookExerciseFactories(): ExerciseFactories {
             const randomMinute = Math.floor(Math.random() * 12) * 5;
             return createClockExercise(clockType, title, { hours: randomHour, minutes: randomMinute });
         },
-        createFractionsExercise: (): QuadrantExercise => {
-            return createFractionsExercise('1st', 'FRACTIONS');
+        createFractionsExercise: (level: GradeLevel): QuadrantExercise => {
+            return createFractionsExercise(level, 'FRACTIONS');
         },
-        createSubtractionExercise: (): QuadrantExercise => {
-            return createSubtractionExercise('1st');
+        createSubtractionExercise: (level: GradeLevel): QuadrantExercise => {
+            return createSubtractionExercise(level);
         },
-        createAdditionExercise: (): QuadrantExercise => {
-            return createAdditionExercise('1st');
+        createAdditionExercise: (level: GradeLevel): QuadrantExercise => {
+            return createAdditionExercise(level);
         },
         createKanaExercise: (card: KanaCard): QuadrantExercise => {
             return createKanaExercise('HIRAGANA PRACTICE', card.character, card.pronunciationHint);
@@ -165,6 +155,7 @@ export function createWorkbookExerciseFactories(): ExerciseFactories {
 export function generateWorkbookBatch(
     factories: ExerciseFactories,
     selectedTopics: readonly TopicKey[],
+    settings: TopicSettings,
     random: RandomSource = Math.random
 ): HalfPageLayout[][] {
     if (selectedTopics.length === 0) {
@@ -172,13 +163,13 @@ export function generateWorkbookBatch(
     }
 
     const plans = planHalfPages(selectedTopics, SHEETS_PER_BATCH * HALF_PAGES_PER_SHEET, random);
-    const decks = createContentDecks(random);
+    const decks = createContentDecks(random, settings);
 
     const workbookBatch: HalfPageLayout[][] = [];
     let currentSheetHalfPages: HalfPageLayout[] = [];
 
     plans.forEach((topics) => {
-        currentSheetHalfPages.push(buildHalfPageLayout(topics, factories, decks));
+        currentSheetHalfPages.push(buildHalfPageLayout(topics, factories, decks, settings));
         if (currentSheetHalfPages.length === HALF_PAGES_PER_SHEET) {
             workbookBatch.push(currentSheetHalfPages);
             currentSheetHalfPages = [];

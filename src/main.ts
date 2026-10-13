@@ -13,6 +13,13 @@ import { loadRegionMapData } from './region-map-data';
 import { createRegionMapExercise } from './region-map-exercise';
 import { GradeLevel, PopulatedRegion, TOPIC_KEYS, TopicKey } from './types';
 import { KANA_IMAGE_URL } from './constants';
+import {
+    createDefaultSelections,
+    findConfigurableTopic,
+    resolveTopicSettings,
+    summarizeSelection
+} from './topic-settings';
+import { renderSettingsPanels } from './topic-settings-panel';
 
 // for storing user selections for worksheet settings
 // the number can be used to hold difficulty level of each exercise
@@ -32,6 +39,10 @@ const localState: Record<TopicKey, number>= {
     continents: 0,
     countries: 0,
 };
+
+// What each settings panel currently holds. Kept when a topic is toggled off, so
+// changing one's mind does not cost the choices.
+const panelSelections = createDefaultSelections();
 
 // a placeholder, this needs to become "generate single sample page" later
 function renderTestWorksheetButton() {
@@ -59,7 +70,11 @@ function renderRandomizedWorksheetBatchButton() {
     randomBatchButton.disabled = countSelectedTopics() === 0;
     randomBatchButton.addEventListener('click', () => {
         buildAndDownloadWorksheetBatch(
-            generateWorkbookBatch(createWorkbookExerciseFactories(), getSelectedTopics())
+            generateWorkbookBatch(
+                createWorkbookExerciseFactories(),
+                getSelectedTopics(),
+                resolveTopicSettings(panelSelections)
+            )
         );
     });
     const introSection = document.getElementById('intro-section');
@@ -220,11 +235,37 @@ function refreshTopicAvailability(): void {
     }
 }
 
+const TOPIC_SETTINGS_ID = 'topic-settings';
+
+// A few words beside each selected topic's name: its level, or how much of its list is chosen
+function refreshTopicSummaries(): void {
+    TOPIC_KEYS.forEach((key) => {
+        const summary = document.getElementById(`${key}-summary`);
+        if (!summary) {
+            return;
+        }
+        const configurableTopic = findConfigurableTopic(key);
+        const isSelected = localState[key] > 0;
+        summary.textContent = configurableTopic && isSelected
+            ? summarizeSelection(configurableTopic, panelSelections)
+            : '';
+    });
+}
+
+function refreshSettingsPanels(): void {
+    const container = document.getElementById(TOPIC_SETTINGS_ID);
+    if (container) {
+        renderSettingsPanels(container, getSelectedTopics(), panelSelections, refreshTopicSummaries);
+    }
+    refreshTopicSummaries();
+}
+
 function clickTopicChoice(button: HTMLButtonElement, key: TopicKey): void {
     localState[key] = localState[key] === 0 ? 1 : 0;
     button.classList.toggle('selected');
     button.setAttribute('aria-pressed', String(localState[key] === 1));
     refreshTopicAvailability();
+    refreshSettingsPanels();
 }
 
 function renderMainInitial() {
@@ -239,13 +280,23 @@ function renderMainInitial() {
     const topicChoicesContainer = document.createElement('div');
     topicChoicesContainer.id = 'topic-choices';
     introSection.appendChild(instructionPara);
+    const topicSettingsContainer = document.createElement('div');
+    topicSettingsContainer.id = TOPIC_SETTINGS_ID;
     introSection.appendChild(topicChoicesContainer);
+    introSection.appendChild(topicSettingsContainer);
     mainElement.appendChild(introSection);
 
     for(const title of TOPIC_KEYS) {
         const newTopic = document.createElement('button');
         newTopic.classList.add('topic-choice');
-        newTopic.innerText = title;
+        const topicName = document.createElement('span');
+        topicName.classList.add('topic-name');
+        topicName.textContent = title;
+        const topicSummary = document.createElement('span');
+        topicSummary.classList.add('topic-summary');
+        topicSummary.id = `${title}-summary`;
+        newTopic.appendChild(topicName);
+        newTopic.appendChild(topicSummary);
         newTopic.id = title;
         newTopic.addEventListener('click', () => clickTopicChoice(newTopic, title));
         topicChoicesContainer.appendChild(newTopic);
