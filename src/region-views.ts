@@ -30,6 +30,14 @@ const FRAME_PADDING = 5;
 // Hand-placed and tuned by eye. A point on the far side of the globe is dropped
 // by the fit without complaint, so a frame point that vanishes is a frame point to move.
 const REGION_VIEWS: Record<PopulatedRegion, RegionView> = {
+    'Central America': {
+        centerLongitude: -88,
+        centerLatitude: 18,
+        frame: [
+            [-117, 32], [-110, 23], [-92, 14.5], [-83.7, 8.5], [-77.5, 7.2],
+            [-60.9, 10.8], [-65, 18.5], [-73, 22], [-77, 26.7], [-97, 26]
+        ]
+    },
     'Europe': {
         centerLongitude: 15,
         centerLatitude: 52,

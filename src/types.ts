@@ -16,9 +16,10 @@ export type RandomSource = () => number;
 // Four topics in reading order: top left, top right, bottom left, bottom right.
 export type QuadrantTopics = readonly [TopicKey, TopicKey, TopicKey, TopicKey];
 
-// The six continents where people live. Antarctica is left to the penguins.
+// The continents where people live, with Central America and the Caribbean given a view of
+// their own. Antarctica is left to the penguins.
 export const POPULATED_REGIONS = [
-    'Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'
+    'Africa', 'Asia', 'Central America', 'Europe', 'North America', 'Oceania', 'South America'
 ] as const;
 
 export type PopulatedRegion = typeof POPULATED_REGIONS[number];

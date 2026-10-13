@@ -56,19 +56,40 @@ const ISO_CODES_URL = '/maps/ISO-3166.csv';
 // These repeat constants in geography-exercise.ts, which keeps them to itself.
 const RUSSIA_COUNTRY_CODE = 643;
 const FRANCE_COUNTRY_CODE = 250;
+const MEXICO_COUNTRY_CODE = 484;
 
 // French Guiana arrives inside France's shape but has an ISO code of its own.
 const FRENCH_GUIANA_IDENTIFIER = '254';
 
 // A country must show at least this many square pixels inside the map box to be asked
 // about. Below it, Luxembourg is a rumour. Russia is exempt, because it is always large.
-const MINIMUM_TARGET_AREA = 30;
+const MINIMUM_TARGET_AREA = 20;
 
 // Loaded once at startup. Rendering stays synchronous, as the pipeline requires.
 let cachedRegionMapData: RegionMapData | null = null;
 
 function toPopulatedRegion(continent: Continent): PopulatedRegion | undefined {
     return POPULATED_REGIONS.find((region) => region === continent);
+}
+
+/**
+ * The regions a country counts toward. The UN file files the Caribbean and Central
+ * America under the Americas, and the continent exercise lumps them into North America.
+ * Here they get a view of their own. Mexico belongs to both, as it does in most atlases.
+ */
+function findHomeRegions(
+    continent: Continent | undefined,
+    subRegion: string | undefined,
+    code: number | undefined
+): PopulatedRegion[] {
+    const region = continent === undefined ? undefined : toPopulatedRegion(continent);
+    if (!region) {
+        return [];
+    }
+    if (region === 'North America' && (subRegion === 'Central America' || subRegion === 'Caribbean')) {
+        return code === MEXICO_COUNTRY_CODE ? ['North America', 'Central America'] : ['Central America'];
+    }
+    return [region];
 }
 
 function formatIdentifier(code: string | number): string {
@@ -180,6 +201,9 @@ export function buildRegionMapData(
         }
     });
 
+    const subRegionByCode = new Map<number, string>();
+    isoRows.forEach((row) => subRegionByCode.set(+row['country-code'], row['sub-region'].trim()));
+
     const candidatesByRegion = new Map<PopulatedRegion, RegionCountry[]>();
     POPULATED_REGIONS.forEach((region) => candidatesByRegion.set(region, []));
 
@@ -203,7 +227,11 @@ export function buildRegionMapData(
             continue;
         }
         // Drawn even without a code or a continent, so that no coastline goes missing
-        const homeRegion = continent === undefined ? undefined : toPopulatedRegion(continent);
+        const homeRegions = findHomeRegions(
+            continent,
+            geometry.id === undefined ? undefined : subRegionByCode.get(+geometry.id),
+            geometry.id === undefined ? undefined : +geometry.id
+        );
         const isRussiaShape = geometry.id !== undefined && +geometry.id === RUSSIA_COUNTRY_CODE;
         const isFranceShape = geometry.id !== undefined && +geometry.id === FRANCE_COUNTRY_CODE;
         if (isRussiaShape) {
@@ -211,7 +239,7 @@ export function buildRegionMapData(
         } else if (!isFranceShape) {
             landShapes.push({
                 geometry: stripShape(geometry),
-                regions: homeRegion ? [homeRegion] : [],
+                regions: homeRegions,
                 isRussia: false
             });
         }
@@ -254,10 +282,8 @@ export function buildRegionMapData(
                 feature: toFeature(topology, { type: 'MultiPolygon', arcs: europeanArcs })
             });
         } else {
-            const region = toPopulatedRegion(continent);
-            if (region) {
-                addCandidate(region, { identifier, name, feature: toFeature(topology, geometry) });
-            }
+            const feature = toFeature(topology, geometry);
+            homeRegions.forEach((region) => addCandidate(region, { identifier, name, feature }));
         }
     }
 

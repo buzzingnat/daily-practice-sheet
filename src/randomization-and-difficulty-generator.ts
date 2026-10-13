@@ -16,6 +16,8 @@ export interface ContentDecks {
     kana: ShuffledDeck<KanaCard>;
     continents: ShuffledDeck<Continent>;
     regions: ShuffledDeck<PopulatedRegion>;
+    // One deck of country identifiers per chosen region, so each region cycles through its own countries
+    countriesByRegion: Map<PopulatedRegion, ShuffledDeck<string>>;
 }
 
 // Factories for instantiating quadrant exercises. Topics with rotating
@@ -27,7 +29,7 @@ export interface ExerciseFactories {
     createKanaExercise(card: KanaCard): QuadrantExercise;
     createFractionsExercise(level: GradeLevel): QuadrantExercise;
     createGeographyExercise(continent: Continent): QuadrantExercise;
-    createCountryExercise(region: PopulatedRegion): QuadrantExercise;
+    createCountryExercise(region: PopulatedRegion, countryIdentifier: string): QuadrantExercise;
 }
 
 // The page count lives in one place, so the coming page-count selector has one number to change.
@@ -43,10 +45,17 @@ const COPIES_PER_CYCLE = 2;
  * set alive across clicks; for now every click starts with a new shuffle.
  */
 export function createContentDecks(random: RandomSource, settings: TopicSettings): ContentDecks {
+    const countriesByRegion = new Map<PopulatedRegion, ShuffledDeck<string>>();
+    settings.countries.regions.forEach((region) => {
+        const identifiers = listRegionTargets(region).map((country) => country.identifier);
+        countriesByRegion.set(region, createShuffledDeck(identifiers, COPIES_PER_CYCLE, random));
+    });
+
     return {
         kana: createShuffledDeck(listKanaCards(settings.hiragana.rows), COPIES_PER_CYCLE, random),
         continents: createShuffledDeck(CONTINENTS, COPIES_PER_CYCLE, random),
-        regions: createShuffledDeck(settings.countries.regions, COPIES_PER_CYCLE, random)
+        regions: createShuffledDeck(settings.countries.regions, COPIES_PER_CYCLE, random),
+        countriesByRegion
     };
 }
 
@@ -76,7 +85,13 @@ function instantiateExercise(
     } else if (topic === 'continents') {
         return factories.createGeographyExercise(decks.continents.drawNext());
     } else if (topic === 'countries') {
-        return factories.createCountryExercise(decks.regions.drawNext());
+        // The region deck says where; that region's own deck says which country
+        const region = decks.regions.drawNext();
+        const countryDeck = decks.countriesByRegion.get(region);
+        if (!countryDeck) {
+            throw new Error(`No country deck was built for ${region}.`);
+        }
+        return factories.createCountryExercise(region, countryDeck.drawNext());
     } else {
         const unhandledTopic: never = topic;
         throw new Error(`No exercise factory for ${String(unhandledTopic)}`);
@@ -135,14 +150,8 @@ export function createWorkbookExerciseFactories(): ExerciseFactories {
             // Map data was preloaded at startup, so this stays synchronous
             return createGeographyExercise(continent);
         },
-        createCountryExercise: (region: PopulatedRegion): QuadrantExercise => {
-            // The deck picks the region; any country large enough to see is fair game within it
-            const targets = listRegionTargets(region);
-            const target = targets[Math.floor(Math.random() * targets.length)];
-            if (!target) {
-                throw new Error(`No countries are large enough to ask about in ${region}.`);
-            }
-            return createRegionMapExercise(region, target.identifier);
+        createCountryExercise: (region: PopulatedRegion, countryIdentifier: string): QuadrantExercise => {
+            return createRegionMapExercise(region, countryIdentifier);
         }
     };
 }

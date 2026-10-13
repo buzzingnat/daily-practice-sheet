@@ -138,3 +138,16 @@ This file tracks development states, architectural configurations, and upcoming 
     * Settings live in memory and reset on reload; local storage is still to do. The countries topic still picks its target at random per quadrant with `Math.random()`.
     * Chart `build.js` copies `public/` to `dist/` and `npm run build` does not, so run `node build.js` (or the dev server) to refresh the stylesheet in `dist/`.
     * Frequency weights are not implemented.
+
+### 2026-10-12 - Countries cycle through each region's list (Claude)
+* **Status:** Implemented; type check, build and `randomization-check.ts` pass. Not committed.
+* **Accomplished:** `createContentDecks` now also builds one shuffled deck of country identifiers per chosen region (`countriesByRegion`), each country twice per cycle, the same scheme as the kana. A countries quadrant deals a region from the region deck, then the next country from that region's own deck. `createCountryExercise` takes the identifier instead of choosing at random. Checked against the real map data in a scratch script: Europe's 25 targets each came up exactly twice in 50 draws, with no immediate repeats.
+* **Open Issues:** Decks are rebuilt on every click, so with one page per click a region's cycle rarely completes. The deck check in `randomization-check.ts` already covers the sizes involved (1 to 46).
+
+### 2026-10-12 - Central America and the Caribbean as a region (Claude)
+* **Status:** Implemented; type check and build pass, the new view checked by eye. Not committed.
+* **Accomplished:** `POPULATED_REGIONS` gained `'Central America'`, so the countries panel gets its chip automatically. The region holds the UN sub-regions Central America and Caribbean, and Mexico counts toward both it and North America. Other Central American and Caribbean countries moved out of North America (they were all below the target threshold there, so its pool is unchanged at 4). `findHomeRegions` in `region-map-data.ts` does the sorting; the continent exercise is untouched. The view is centered at 88W 18N with a frame from Baja to Trinidad, and `main.ts` has a seventh example (Cuba).
+* **Open Issues:** At 30 px the Central America pool is 8: Mexico, Cuba, Dominican Rep., Panama, Costa Rica, Nicaragua, Honduras, Guatemala. Haiti (28), Belize (23), El Salvador (21), Jamaica, the Bahamas, Puerto Rico and Trinidad miss the cut; the 110m file also lacks most of the smaller Caribbean islands.
+
+### 2026-10-12 - Minimum target area lowered to 20 (Claude)
+* **Status:** Done; type check and build pass. `MINIMUM_TARGET_AREA` in `region-map-data.ts` was 24 when I picked it up (changed by the human) and is now 20. Target pools at 20: Africa 35, Asia 24, Central America 11, Europe 31, North America 4, Oceania 3, South America 12.

@@ -126,6 +126,7 @@ const DEFAULT_EXAMPLES: ExampleSpecification[] = [
     { type: 'regionCountry', region: 'North America', targetIdentifier: '484' },
     { type: 'regionCountry', region: 'South America', targetIdentifier: '076' },
     { type: 'regionCountry', region: 'Oceania', targetIdentifier: '554' },
+    { type: 'regionCountry', region: 'Central America', targetIdentifier: '192' },
     { type: 'subtraction', grade: '2nd' },
     { type: 'addition', grade: '1st' },
     {
