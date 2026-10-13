@@ -68,7 +68,7 @@ function drawFractionCircle(
     context.strokeStyle = COLOR_BLACK;
     context.lineWidth = 1;
     let cutIndex = 0;
-    while (cutIndex < denominator) {
+    while (denominator > 1 && cutIndex < denominator) {
         const angle = cutIndex * sliceAngle - Math.PI / 2;
         context.beginPath();
         context.moveTo(coordinateX, coordinateY);
