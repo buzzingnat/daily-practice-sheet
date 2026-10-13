@@ -1,19 +1,18 @@
 import * as d3 from 'd3';
+import * as d3_geo from "d3-geo";
+// "d3-geo-projection@4")
 import * as topojson from 'topojson-client';
 import {
+    GeometryCollection as TopologyGeometryCollection,
     GeometryObject,
     MultiPolygon as TopologyMultiPolygon,
     Polygon as TopologyPolygon,
     Topology
 } from 'topojson-specification';
-import { GeoJsonProperties, GeometryCollection, MultiPolygon } from 'geojson';
+import { GeoJsonProperties, GeometryCollection, MultiLineString, MultiPolygon } from 'geojson';
 import { QuadrantExercise, QuadrantContext } from './worksheet-layout';
 import { SANS_SERIF_FONT } from './constants';
-import {
-    traceAsiaSideRegion,
-    traceEuropeSideRegion,
-    traceUralBoundary
-} from './europe-asia-boundary';
+import { traceAsiaSideRegion, traceEuropeSideRegion, traceUralBoundary } from './europe-asia-boundary';
 
 export const CONTINENTS = [
     'Africa',
@@ -37,6 +36,15 @@ interface IsoCountryRow {
 interface GeographyData {
     landmassByContinent: Map<Continent, MultiPolygon>;
     world: GeometryCollection;
+    // Coastlines plus borders between continents, with Russia's Asian borders left out
+    outlineLines: MultiLineString;
+    // Russia's borders with Asian countries, kept apart so only the western stretch is drawn
+    russianAsianBorder: MultiLineString;
+}
+
+interface ContinentalGeometry {
+    geometry: PlainPolygonalGeometry;
+    continent: Continent;
 }
 
 type SourcePolygonalGeometry =
@@ -47,8 +55,15 @@ type PlainPolygonalGeometry = TopologyPolygon | TopologyMultiPolygon;
 
 const TOPOLOGY_URL = '/maps/countries-110m.json';
 const ISO_CODES_URL = '/maps/ISO-3166.csv';
+
 // Russia is filed under Europe, and the Ural cut is made inside that shape at draw time.
 const RUSSIA_COUNTRY_CODE = 643;
+
+// France owns a piece of South America, and the map should know whose it is.
+const FRANCE_COUNTRY_CODE = 250;
+
+// Any French polygon west of this longitude belongs to the Americas, not to Paris.
+const AMERICAS_EASTERN_LIMIT = -30;
 
 const HIGHLIGHT_FILL = '#999999';
 const OUTLINE_STROKE = '#000000';
@@ -91,7 +106,7 @@ export function assignContinent(row: IsoCountryRow): Continent | null {
     }
 }
 
-function isPolygonal(geometry: GeometryObject<GeoJsonProperties>): geometry is SourcePolygonalGeometry {
+export function isPolygonal(geometry: GeometryObject<GeoJsonProperties>): geometry is SourcePolygonalGeometry {
     return geometry.type === 'Polygon' || geometry.type === 'MultiPolygon';
 }
 
@@ -99,7 +114,7 @@ function isPolygonal(geometry: GeometryObject<GeoJsonProperties>): geometry is S
  * Looks up a country's continent by numeric code, falling back to the
  * shape's name for the handful of disputed territories without a code.
  */
-function findContinent(
+export function findContinent(
     geometry: SourcePolygonalGeometry,
     continentByCode: Map<number, Continent>
 ): Continent | undefined {
@@ -128,9 +143,32 @@ function stripProperties(geometry: SourcePolygonalGeometry): PlainPolygonalGeome
 }
 
 /**
+ * Splits France into its pieces and sends each to the right continent.
+ * Each polygon is judged by where its centre sits, so the rule survives
+ * a reshuffled data file better than a hard-coded polygon index would.
+ */
+export function separateFrenchTerritories(
+    topology: Topology,
+    geometry: SourcePolygonalGeometry
+): ContinentalGeometry[] {
+    if (geometry.type === 'Polygon') {
+        return [{ geometry: stripProperties(geometry), continent: 'Europe' }];
+    }
+
+    return geometry.arcs.map((polygonArcs) => {
+        const polygon: TopologyPolygon = { type: 'Polygon', arcs: polygonArcs };
+        const [longitude] = d3.geoCentroid(topojson.feature(topology, polygon));
+        const continent: Continent = longitude < AMERICAS_EASTERN_LIMIT ? 'South America' : 'Europe';
+        return { geometry: polygon, continent };
+    });
+}
+
+/**
  * Fetches the map data, sorts every country into its continent, and welds
- * each continent into a single landmass. Call once at startup, then let
- * the quadrants render from memory.
+ * each continent into a single landmass for filling. Outlines come from a
+ * border mesh instead, because the Russian border east of the Urals divides
+ * nothing and must not be drawn. Call once at startup, then let the
+ * quadrants render from memory.
  */
 export async function loadGeographyData(): Promise<void> {
     if (cachedGeographyData) {
@@ -165,22 +203,49 @@ export async function loadGeographyData(): Promise<void> {
             continentByCode.set(+row['country-code'], continent);
         }
     });
+
     // Pinned rather than trusted to the CSV, because the Ural cut depends on it.
     continentByCode.set(RUSSIA_COUNTRY_CODE, 'Europe');
 
     const geometriesByContinent = new Map<Continent, PlainPolygonalGeometry[]>();
-    countries.geometries.forEach((geometry) => {
+    const continentByGeometry = new Map<GeometryObject, Continent>();
+    const russiaGeometries = new Set<GeometryObject>();
+    const allGeometries: PlainPolygonalGeometry[] = [];
+
+    const registerGeometry = (geometry: PlainPolygonalGeometry, continent: Continent): void => {
+        allGeometries.push(geometry);
+        continentByGeometry.set(geometry, continent);
+        const existingGeometries = geometriesByContinent.get(continent) || [];
+        existingGeometries.push(geometry);
+        geometriesByContinent.set(continent, existingGeometries);
+    };
+
+    for (const geometry of countries.geometries) {
         if (!isPolygonal(geometry)) {
-            return;
+            continue;
         }
         const continent = findContinent(geometry, continentByCode);
         if (!continent) {
-            return;
+            continue;
         }
-        const existingGeometries = geometriesByContinent.get(continent) || [];
-        existingGeometries.push(stripProperties(geometry));
-        geometriesByContinent.set(continent, existingGeometries);
-    });
+
+        if (geometry.id !== undefined && +geometry.id === FRANCE_COUNTRY_CODE) {
+            separateFrenchTerritories(topology, geometry).forEach((territory) => {
+                registerGeometry(territory.geometry, territory.continent);
+            });
+            continue;
+        }
+
+        const plainGeometry = stripProperties(geometry);
+        registerGeometry(plainGeometry, continent);
+        if (geometry.id !== undefined && +geometry.id === RUSSIA_COUNTRY_CODE) {
+            russiaGeometries.add(plainGeometry);
+        }
+    }
+
+    if (russiaGeometries.size === 0) {
+        throw new Error('Russia is missing from the geography data, so the Ural line has nothing to divide.');
+    }
 
     const landmassByContinent = new Map<Continent, MultiPolygon>();
     geometriesByContinent.forEach((geometries, continent) => {
@@ -192,7 +257,36 @@ export async function loadGeographyData(): Promise<void> {
         geometries: Array.from(landmassByContinent.values())
     };
 
-    cachedGeographyData = { landmassByContinent, world };
+    // A border involving Russia and an Asian country is a Europe/Asia border only
+    // west of the Urals, so it is pulled out here and clipped at draw time.
+    const isRussianAsianBorder = (first: GeometryObject, second: GeometryObject): boolean => {
+        const involvesRussia = russiaGeometries.has(first) || russiaGeometries.has(second);
+        const involvesAsia = continentByGeometry.get(first) === 'Asia'
+            || continentByGeometry.get(second) === 'Asia';
+        return involvesRussia && involvesAsia;
+    };
+
+    const allLand: TopologyGeometryCollection = {
+        type: 'GeometryCollection',
+        geometries: allGeometries
+    };
+
+    // Equal geometries mean an exterior arc, which is to say a coastline.
+    const outlineLines = topojson.mesh(topology, allLand, (first, second) => {
+        if (first === second) {
+            return true;
+        }
+        if (continentByGeometry.get(first) === continentByGeometry.get(second)) {
+            return false;
+        }
+        return !isRussianAsianBorder(first, second);
+    });
+
+    const russianAsianBorder = topojson.mesh(topology, allLand, (first, second) => {
+        return first !== second && isRussianAsianBorder(first, second);
+    });
+
+    cachedGeographyData = { landmassByContinent, world, outlineLines, russianAsianBorder };
 }
 
 /**
@@ -232,10 +326,16 @@ export function createGeographyExercise(
             const mapTop = 34;
             const mapBottom = height - 34;
 
+
             const projection = d3.geoNaturalEarth1().fitExtent(
                 [[mapLeft, mapTop], [mapRight, mapBottom]],
                 geographyData.world
             );
+
+            // the following projection doesn't work because it is not included in base d3
+            // it does not work with a simple switch to d3-geo
+            // should try other things to get it to work
+            // const projection = d3.geoInterruptedMollweideHemispheres();
             const path = d3.geoPath(projection, context);
 
             context.strokeStyle = OUTLINE_STROKE;
@@ -272,16 +372,37 @@ export function createGeographyExercise(
                         path(europeLandmass);
                         context.fill();
                         context.restore();
+
+                        // Two fills meeting at an edge leave a hairline of white between them.
+                        // A stroke in the fill colour, east of the Urals only, sews the seam shut.
+                        context.save();
+                        context.strokeStyle = HIGHLIGHT_FILL;
+                        context.lineWidth = 1.5;
+                        context.beginPath();
+                        path(geographyData.russianAsianBorder);
+                        context.stroke();
+                        context.restore();
                     }
                 }
             }
 
-            // Outlines for every landmass, target included
-            geographyData.landmassByContinent.forEach((landmass) => {
-                context.beginPath();
-                path(landmass);
-                context.stroke();
-            });
+            // Coastlines and continental borders, drawn once each
+            context.strokeStyle = OUTLINE_STROKE;
+            context.lineWidth = 0.75;
+
+            context.beginPath();
+            path(geographyData.outlineLines);
+            context.stroke();
+
+            // Russia's border with Asian countries counts only west of the Urals
+            context.save();
+            context.beginPath();
+            traceEuropeSideRegion(context, projection);
+            context.clip();
+            context.beginPath();
+            path(geographyData.russianAsianBorder);
+            context.stroke();
+            context.restore();
 
             // The Ural line, clipped to Europe's landmass so it appears only inside Russia
             context.save();

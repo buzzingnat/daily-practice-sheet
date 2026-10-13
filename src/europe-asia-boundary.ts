@@ -1,7 +1,9 @@
 import { GeoProjection } from 'd3';
+import { Feature, LineString, Polygon } from 'geojson';
+import { GeographicPoint } from './types';
 
-// Degrees on the globe, longitude first, the way d3 insists on having them.
-type GeographicPoint = readonly [longitude: number, latitude: number];
+// The northern world, as a frame to subtract Europe from. Nothing in the Europe
+// landmass lies south of 20 degrees north, so this frame is generous enough.
 
 // Long edges are cut into steps this short, so the line bends the way the map bends.
 const MAXIMUM_STEP_DEGREES = 2;
@@ -155,4 +157,44 @@ export function traceUralBoundary(
     projection: GeoProjection
 ): void {
     appendProjectedPoints(context, projection, URAL_BOUNDARY_POINTS);
+}
+
+function toCoordinates(points: readonly GeographicPoint[]): number[][] {
+    return densifyPath(points).map((point) => [point[0], point[1]]);
+}
+
+/**
+ * The Europe side as a GeoJSON polygon. d3 reads a clockwise ring as the small
+ * region it encloses, and this ring runs clockwise, so it means what it says.
+ */
+export function createEuropeSidePolygon(): Feature<Polygon> {
+    return {
+        type: 'Feature',
+        properties: {},
+        geometry: { type: 'Polygon', coordinates: [toCoordinates(EUROPE_SIDE_RING)] }
+    };
+}
+
+/**
+ * The Asia side: the same ring walked backwards, which d3 reads as everything
+ * outside it. No frame ring is needed, so no point has to land on the far side of the globe.
+ */
+export function createAsiaSidePolygon(): Feature<Polygon> {
+    return {
+        type: 'Feature',
+        properties: {},
+        geometry: { type: 'Polygon', coordinates: [toCoordinates(EUROPE_SIDE_RING).reverse()] }
+    };
+}
+
+/**
+ * The open line itself as GeoJSON, for stroking. Clip it to Russia first,
+ * so that it shows only where it has a country to divide.
+ */
+export function createUralBoundaryLine(): Feature<LineString> {
+    return {
+        type: 'Feature',
+        properties: {},
+        geometry: { type: 'LineString', coordinates: toCoordinates(URAL_BOUNDARY_POINTS) }
+    };
 }

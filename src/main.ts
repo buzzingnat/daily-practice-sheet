@@ -9,7 +9,9 @@ import { createKanaExercise } from './kana-exercise';
 import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWorksheetBatch } from './worksheet-layout';
 import { createPlaceholderExercise, createBlankExercise } from './utils';
 import { loadGeographyData, createGeographyExercise, Continent } from './geography-exercise';
-import { GradeLevel, TOPIC_KEYS, TopicKey } from './types';
+import { loadRegionMapData } from './region-map-data';
+import { createRegionMapExercise } from './region-map-exercise';
+import { GradeLevel, PopulatedRegion, TOPIC_KEYS, TopicKey } from './types';
 import { KANA_IMAGE_URL } from './constants';
 
 // for storing user selections for worksheet settings
@@ -91,6 +93,7 @@ export type ExampleSpecification =
     | { type: 'addition'; grade: GradeLevel; title?: string }
     | { type: 'kana'; title: string; character: string; pronunciation: string }
     | { type: 'geography'; continent: Continent; title?: string }
+    | { type: 'regionCountry'; region: PopulatedRegion; targetIdentifier: string; title?: string }
     | { type: 'placeholder'; title: string }
     | { type: 'blank';};
 
@@ -100,7 +103,13 @@ const DEFAULT_EXAMPLES: ExampleSpecification[] = [
     { type: 'fractions', title: 'FRACTIONS', grade: '1st' },
     { type: 'geography', continent: 'Europe' },
     { type: 'geography', continent: 'Asia' },
-    { type: 'geography', continent: 'North America' },
+    { type: 'geography', continent: 'South America' },
+    { type: 'regionCountry', region: 'Europe', targetIdentifier: '643' },
+    { type: 'regionCountry', region: 'Asia', targetIdentifier: '643' },
+    { type: 'regionCountry', region: 'Africa', targetIdentifier: '404' },
+    { type: 'regionCountry', region: 'North America', targetIdentifier: '484' },
+    { type: 'regionCountry', region: 'South America', targetIdentifier: '076' },
+    { type: 'regionCountry', region: 'Oceania', targetIdentifier: '554' },
     { type: 'subtraction', grade: '2nd' },
     { type: 'addition', grade: '1st' },
     {
@@ -144,6 +153,12 @@ function createExerciseFromSpecification(specification: ExampleSpecification): Q
         );
     } else if (specification.type === 'geography') {
         return createGeographyExercise(specification.continent, specification.title);
+    } else if (specification.type === 'regionCountry') {
+        return createRegionMapExercise(
+            specification.region,
+            specification.targetIdentifier,
+            specification.title
+        );
     } else if (specification.type === 'placeholder') {
         return createPlaceholderExercise(specification.title);
     }  else if (specification.type === 'blank') {
@@ -264,7 +279,8 @@ async function initializeApp() {
         // preload all image assets
         const [kanaGuide] = await Promise.all([
             getSharedImage(KANA_IMAGE_URL),
-            loadGeographyData()
+            loadGeographyData(),
+            loadRegionMapData()
         ]);
 
         console.log("Assets ready! Assembling worksheet preview...", {kanaGuide});

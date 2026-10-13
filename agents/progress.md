@@ -94,3 +94,36 @@ This file tracks development states, architectural configurations, and upcoming 
     * Russia needs to be split between Europe and Asia, or placed in Asia. See the Geography To Do above.
     * The button reads "Make Randomized Batch" in `main.ts`; the earlier ledger entry calls it "Make Randomized Page".
     * `educational-worksheet-batch.pdf` filename and the "batch of 20" wording in `projectBrief.md` are unchanged (carried over).
+
+### 2026-10-08 - Russia split along the Urals (Claude)
+* **Status:** Implemented; awaiting human type check, build, and manual map and PDF verification.
+* **Accomplished:**
+    * `europe-asia-boundary.ts` (new): hand-placed Ural boundary polyline, Europe-side and Asia-side clip regions, and a boundary tracer. All points are densified before projection.
+    * `geography-exercise.ts`: Russia pinned to Europe in the continent assignment. Europe fills clip to the western side, and Asia also fills the eastern part of the Europe landmass. A thin Ural line, clipped to the Europe landmass, appears on all seven maps. Fills now come before outlines.
+    * `geography-exercise.ts` (later change): outlines now come from a `topojson.mesh` border set (coastlines plus borders between continents). Russia's borders with Asian countries are held apart and drawn only inside the Europe-side clip, which removes the false southern border east of the Urals. French Guiana is split out of France's MultiPolygon by centroid longitude and joins South America.
+* **Open Issues:**
+    * Boundary points are approximate and may need tuning by eye.
+    * `scripts/compile-geography.ts` was not touched and was not seen.
+
+### 2026-10-12 - Six orthographic region maps, "name this country" exercise (Claude)
+* **Status:** Implemented. `npm run dev:types` and `npm run build` pass, and the six example quadrants were checked by eye in the browser. Not yet checked in a generated PDF, because the exercise is not wired into topic selection or the generator. Not committed to git by Claude.
+* **Accomplished:**
+    * `region-views.ts` (new): one `d3.geoOrthographic` per region, turned to a hand-set center and fitted to a hand-placed frame (5 px inside the map box), then clipped to the box. The box runs from y=28 to height minus 24 (about 103 px).
+    * `region-map-data.ts` (new): `buildRegionMapData` (pure), `loadRegionMapData`, `getRegionMapData`. Any shape with an ISO code is a candidate, dependencies and French Guiana (254) included. Somaliland, Kosovo and N. Cyprus are drawn and never asked. A candidate becomes a target if it shows at least 30 square pixels inside its region's map box (`MINIMUM_TARGET_AREA`); Russia is exempt and belongs to both Europe and Asia.
+    * `region-map-exercise.ts` (new): `createRegionMapExercise` and `listRegionTargets`. All land is outlined from one border mesh, and only the target is filled `#999999`. In the Europe and Asia views, Russia is filled on that view's side of the Urals only, and the Ural line is drawn across Russia in those two views only. A light grey globe edge and a black box frame were added.
+    * `europe-asia-boundary.ts`: added `createEuropeSidePolygon`, `createAsiaSidePolygon` and `createUralBoundaryLine` (GeoJSON). The existing exports are untouched. `GeographicPoint` moved to `types.ts`, which also gained `POPULATED_REGIONS` and `PopulatedRegion`.
+    * `geography-exercise.ts`: three `export` keywords (`isPolygonal`, `findContinent`, `separateFrenchTerritories`) and nothing else.
+    * `main.ts`: `regionCountry` example specification, `loadRegionMapData()` at startup, six example quadrants (Russia in Europe and in Asia, Kenya, Mexico, Brazil, New Zealand).
+* **Open Issues:**
+    * Target pools at a 30 px threshold: Africa 33, Europe 25, Asia 19, South America 10, North America 4, Oceania 3. Puerto Rico and the Falklands do not clear even 8 px, and French Guiana clears only at 8 to 14. Lower `MINIMUM_TARGET_AREA`, or zoom the North America and Oceania frames, if the pools feel thin.
+    * Frames are hand-tuned by eye and may want another pass, especially Asia and Oceania.
+    * Not wired into `TopicKey`, the randomizer or the planner; the "continents" topic still means the continent exercise.
+    * `region-map-data.ts` repeats the topology and CSV URLs and the Russia and France codes from `geography-exercise.ts`, which does not export them.
+    * Node 14 is the default in this shell; `tsc` and `build.js` need a newer Node (22 was used).
+
+### 2026-10-12 - Region maps: grey foreign land, no foreign borders (Claude)
+* **Status:** Implemented; type check and build pass, six examples checked by eye. Not committed.
+* **Accomplished:**
+    * Land outside the focused region is filled `#D1D5DB` and loses its country borders; coastlines stay. Borders are drawn only where they touch the region. `region-map-data.ts` now builds a `RegionDrawing` per region (`surroundingLand`, `borders`, `clippedRussianBorders`) and `RegionMapData.borders` is gone. French Guiana and Europe-side France are registered as separate shapes so South America and Europe each grey out the right pieces.
+    * Europe and Asia views: all of Russia is grey, then wiped white on the view's side of the Urals. Russia's borders with countries in the view are drawn in full; its borders with countries outside the view are drawn on Russia's side only.
+* **Open Issues:** Foreign coastlines are still black; say if they should be lighter.

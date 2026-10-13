@@ -38,6 +38,7 @@
     "@types/d3-path": "^3.1.1",
     "@types/topojson-client": "^3.1.5",
     "@types/topojson-specification": "^1.0.5",
+    "d3-geo": "^3.1.1",
     "geojson": "^0.5.0",
     "jspdf": "^4.2.1",
     "topojson-client": "^3.1.0"

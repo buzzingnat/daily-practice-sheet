@@ -15,3 +15,13 @@ export type RandomSource = () => number;
 
 // Four topics in reading order: top left, top right, bottom left, bottom right.
 export type QuadrantTopics = readonly [TopicKey, TopicKey, TopicKey, TopicKey];
+
+// The six continents where people live. Antarctica is left to the penguins.
+export const POPULATED_REGIONS = [
+    'Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'
+] as const;
+
+export type PopulatedRegion = typeof POPULATED_REGIONS[number];
+
+// Degrees on the globe, longitude first, the way d3 insists on having them.
+export type GeographicPoint = readonly [longitude: number, latitude: number];
