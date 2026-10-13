@@ -1,5 +1,5 @@
 import { QuadrantExercise, QuadrantContext } from './worksheet-layout';
-import { SANS_SERIF_FONT } from './constants';
+import { SANS_SERIF_FONT, COLOR_MEDIUM_GREY } from './constants';
 
 /**
  * Builds a labeled stand-in for an exercise that does not exist yet.
@@ -12,7 +12,7 @@ export function createPlaceholderExercise(label: string): QuadrantExercise {
             const width = quadrantContext.width;
             const height = quadrantContext.height;
 
-            context.fillStyle = '#999999';
+            context.fillStyle = COLOR_MEDIUM_GREY;
             context.font = `italic 11px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'middle';
             context.textAlign = 'center';

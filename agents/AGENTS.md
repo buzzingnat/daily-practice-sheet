@@ -73,10 +73,11 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 
 ### 4. Visual Identity & Styling
    * **Color Palette:** Minimalist monochrome.
+     * Canvas and jsPDF code takes every color from `src/constants.ts` (`COLOR_BLACK`, `COLOR_WHITE`, `COLOR_LIGHT_GREY`, `COLOR_MEDIUM_GREY`, `COLOR_PDF_CROSSHAIR`, `COLOR_PDF_PERFORATION`). Do not write hex values or RGB triples in other files.
      * Pure Black (`#000000`) for boundaries, grids, and outlines. Pure White (`#FFFFFF`) for backgrounds.
      * Light grey (`#D1D5DB`) for tracing, structural hints, and fraction shading.
      * Medium grey (`#999999`) for emphasis fills, such as the geography highlight, that need more contrast without heavy ink coverage when printed.
-     * The native jsPDF overlays use near-matches by design: the crosshairs use `setDrawColor(200, 200, 200)` (about `#C8C8C8`, light grey) and the perforation line uses `setDrawColor(150, 150, 150)` (about `#969696`, medium grey). Leave these as they are unless a task says otherwise.
+     * The native jsPDF overlays use near-matches by design: the crosshairs use `COLOR_PDF_CROSSHAIR` (`#C8C8C8`, light grey) and the perforation line uses `COLOR_PDF_PERFORATION` (`#969696`, medium grey). Leave these as they are unless a task says otherwise.
 * **Typography Specs:** Global font family uses Helvetica. Handwriting practice exercises are the exception and use a handwriting font (the Kana exercise uses a custom one).
   * **Exercise Main Headers:** bold 14px Helvetica, placed at padded offsets (15, 12) relative to top-left.
   * **Subtext & Tracing Rules:** normal 9px - 11px Helvetica.

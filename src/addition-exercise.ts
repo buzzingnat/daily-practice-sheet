@@ -1,6 +1,6 @@
 import { QuadrantExercise, QuadrantContext } from './worksheet-layout';
 import { GradeLevel } from './types';
-import { SANS_SERIF_FONT } from './constants';
+import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from './constants';
 
 interface AdditionProblem {
     topNumber: number;
@@ -76,7 +76,7 @@ export function createAdditionExercise(
             const width = quadrantContext.width;
 
             // Title text, with the grade tag appended
-            context.fillStyle = '#000000';
+            context.fillStyle = COLOR_BLACK;
             context.font = `bold 14px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'top';
             context.textAlign = 'left';
@@ -90,7 +90,7 @@ export function createAdditionExercise(
                 const sectionWidth = width / totalProblems;
                 const columnCenterX = (sectionWidth * problemIndex) + (sectionWidth / 2);
 
-                context.fillStyle = '#000000';
+                context.fillStyle = COLOR_BLACK;
                 context.font = `normal 18px ${SANS_SERIF_FONT}`;
                 context.textAlign = 'right';
                 context.textBaseline = 'alphabetic';
@@ -104,7 +104,7 @@ export function createAdditionExercise(
                 context.fillText(problem.bottomNumber.toString(), alignmentOffset, startCoordinateY + 46);
 
                 // Solid line beneath the sum
-                context.strokeStyle = '#000000';
+                context.strokeStyle = COLOR_BLACK;
                 context.lineWidth = 1.5;
                 context.lineCap = 'round';
                 context.beginPath();
@@ -113,7 +113,7 @@ export function createAdditionExercise(
                 context.stroke();
 
                 // Answer box in light grey: present for the student, quiet for the printer
-                context.strokeStyle = '#D1D5DB';
+                context.strokeStyle = COLOR_LIGHT_GREY;
                 context.lineWidth = 1;
                 const boxWidth = 55;
                 const boxHeight = 26;

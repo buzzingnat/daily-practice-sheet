@@ -1,6 +1,6 @@
 import { jsPDF } from "jspdf";
 import { HalfPageLayout, QuadrantContext, QuadrantExercise } from "./worksheet-layout";
-import { SANS_SERIF_FONT } from './constants';
+import { SANS_SERIF_FONT, COLOR_BLACK } from './constants';
 
 /**
  * Renders an isolated exercise quadrant onto a high-DPI hidden canvas element layer
@@ -36,7 +36,7 @@ function renderQuadrantToCanvas(
  * Draws standard native vector decorations, metadata lines, and student headers onto a PDF page surface
  */
 function overlayNativePageVectors(documentContext: jsPDF, targetWidth: number, targetHeight: number): void {
-    documentContext.setDrawColor(0, 0, 0);
+    documentContext.setDrawColor(COLOR_BLACK);
     documentContext.setLineWidth(1);
 
     const verticalMiddleX = targetWidth / 2;

@@ -1,5 +1,5 @@
 import { QuadrantExercise, QuadrantContext } from './worksheet-layout';
-import { SANS_SERIF_FONT } from './constants';
+import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY } from './constants';
 
 export type ClockType = 'telling' | 'setting';
 
@@ -19,8 +19,8 @@ const DIAL_RADIUS_RATIO = 0.85;
 const NUMBER_RING_RATIO = 0.75;
 const HOUR_HAND_LENGTH_RATIO = 0.44;
 const MINUTE_HAND_LENGTH_RATIO = 0.68;
-const HOUR_HAND_COLOR = '#999999';
-const INK_COLOR = '#000000';
+const HOUR_HAND_COLOR = COLOR_MEDIUM_GREY;
+const INK_COLOR = COLOR_BLACK;
 
 interface ClockGeometry {
     centerX: number;

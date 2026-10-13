@@ -1,16 +1,16 @@
 import * as d3 from 'd3';
 import { QuadrantExercise, QuadrantContext } from './worksheet-layout';
-import { SANS_SERIF_FONT } from './constants';
+import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY, COLOR_MEDIUM_GREY, COLOR_WHITE } from './constants';
 import { createAsiaSidePolygon, createEuropeSidePolygon, createUralBoundaryLine } from './europe-asia-boundary';
 import { getRegionMapData, RegionCountry } from './region-map-data';
 import { createRegionProjection, getMapBox } from './region-views';
 import { PopulatedRegion } from './types';
 
-const HIGHLIGHT_FILL = '#999999';
-const OUTLINE_STROKE = '#000000';
-const SURROUNDING_FILL = '#D1D5DB';
-const HORIZON_STROKE = '#D1D5DB';
-const BACKGROUND_FILL = '#FFFFFF';
+const HIGHLIGHT_FILL = COLOR_MEDIUM_GREY;
+const OUTLINE_STROKE = COLOR_BLACK;
+const SURROUNDING_FILL = COLOR_LIGHT_GREY;
+const HORIZON_STROKE = COLOR_LIGHT_GREY;
+const BACKGROUND_FILL = COLOR_WHITE;
 
 /**
  * Everyone who may be asked about in this region. Throws if the map data has
@@ -55,7 +55,7 @@ export function createRegionMapExercise(
             const { context, width, height } = quadrantContext;
 
             // Title text, placed where every other module puts theirs
-            context.fillStyle = '#000000';
+            context.fillStyle = COLOR_BLACK;
             context.font = `bold 14px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'top';
             context.textAlign = 'left';
@@ -154,7 +154,7 @@ export function createRegionMapExercise(
             // Labeled response line
             const answerBaseline = height - 10;
             const answerLabel = 'Country:';
-            context.fillStyle = '#000000';
+            context.fillStyle = COLOR_BLACK;
             context.font = `normal 11px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'alphabetic';
             context.textAlign = 'left';

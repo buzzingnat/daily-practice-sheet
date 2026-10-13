@@ -1,6 +1,6 @@
 import { QuadrantExercise, QuadrantContext, EXERCISE_HEIGHT, EXERCISE_WIDTH } from './worksheet-layout';
 import { getSharedImageSync } from './asset-manager';
-import { KANA_IMAGE_URL, SANS_SERIF_FONT } from './constants';
+import { KANA_IMAGE_URL, SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from './constants';
 
 interface SpritePosition {
     sourceX: number;
@@ -94,12 +94,12 @@ function drawTracingMatrix(context: CanvasRenderingContext2D, character: string)
             const boxCoordinateY = gridStartCoordinateY + (row * boxSize);
 
             // Structural frame
-            context.strokeStyle = '#000000';
+            context.strokeStyle = COLOR_BLACK;
             context.lineWidth = 1;
             context.strokeRect(boxCoordinateX, boxCoordinateY, boxSize, boxSize);
 
             // Dotted center crosshair, a hint for proportion
-            context.strokeStyle = '#D1D5DB';
+            context.strokeStyle = COLOR_LIGHT_GREY;
             context.lineWidth = 1;
             context.lineCap = 'butt'; // this keeps the dashed lines more spaced apart
             context.setLineDash([2, 2]);
@@ -115,7 +115,7 @@ function drawTracingMatrix(context: CanvasRenderingContext2D, character: string)
 
             // Light grey watermark to trace over, top row only
             if (row === 0) {
-                context.fillStyle = '#D1D5DB';
+                context.fillStyle = COLOR_LIGHT_GREY;
                 context.font = '38px HiraganaTracing';
                 context.textBaseline = 'middle';
                 context.textAlign = 'center';
@@ -150,7 +150,7 @@ export function createKanaExercise(
             const context = quadrantContext.context;
 
             // Header title
-            context.fillStyle = '#000000';
+            context.fillStyle = COLOR_BLACK;
             context.font = `bold 14px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'top';
             context.textAlign = 'left';
@@ -160,7 +160,7 @@ export function createKanaExercise(
             drawHiraganaGuide(context, guideImage, spritePosition);
 
             // Pronunciation note beneath the guide
-            context.fillStyle = '#000000';
+            context.fillStyle = COLOR_BLACK;
             context.font = `italic 10px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'top';
             context.textAlign = 'left';

@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import { SANS_SERIF_FONT } from './constants';
+import { SANS_SERIF_FONT, COLOR_PDF_CROSSHAIR, COLOR_PDF_PERFORATION, COLOR_WHITE } from './constants';
 
 const MARGIN_X = 40;
 const PRINTABLE_WIDTH = 612 - (MARGIN_X * 2);
@@ -66,7 +66,7 @@ async function renderQuadrantToPdf(
     context.scale(scaleMultiplier, scaleMultiplier);
 
     // Clear baseline background
-    context.fillStyle = '#FFFFFF';
+    context.fillStyle = COLOR_WHITE;
     context.fillRect(0, 0, pdfWidth, pdfHeight);
 
     // Run the element graphics loops
@@ -106,7 +106,7 @@ async function renderSingleWorksheetPage(
         await renderQuadrantToPdf(documentInstance, layout.bottomRight, marginX + quadrantWidth, gridTopCoordinateY + quadrantHeight, quadrantWidth, quadrantHeight);
 
         // Draw Section Divider Crosshairs natively over the images
-        documentInstance.setDrawColor(200, 200, 200);
+        documentInstance.setDrawColor(COLOR_PDF_CROSSHAIR);
         documentInstance.setLineWidth(1);
         documentInstance.line(marginX, gridTopCoordinateY + quadrantHeight, marginX + printableWidth, gridTopCoordinateY + quadrantHeight);
         documentInstance.line(marginX + quadrantWidth, gridTopCoordinateY, marginX + quadrantWidth, gridTopCoordinateY + (quadrantHeight * 2));
@@ -115,7 +115,7 @@ async function renderSingleWorksheetPage(
     await renderHalfSheet(topHalf, 0);
 
     // Decorative Middle Perforation Line Splitter
-    documentInstance.setDrawColor(150, 150, 150);
+    documentInstance.setDrawColor(COLOR_PDF_PERFORATION);
     documentInstance.setLineWidth(1.5);
     documentInstance.setLineDashPattern([], 0);
     documentInstance.line(20, 396, 592, 396);

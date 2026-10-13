@@ -1,6 +1,6 @@
 import { QuadrantExercise, QuadrantContext } from './worksheet-layout';
 import { GradeLevel } from './types';
-import { SANS_SERIF_FONT } from './constants';
+import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from './constants';
 
 interface FractionProblem {
     numerator: number;
@@ -18,7 +18,7 @@ function generateRandomFractionProblem(gradeLevel: GradeLevel): FractionProblem 
     } else if (gradeLevel === "2nd") {
         allowedDenominators = [2, 3, 4, 5, 6, 7, 8];
     } else if (gradeLevel === "3rd") {
-        allowedDenominators = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        allowedDenominators = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     }
 
     // Pick a random denominator from the assigned grade tier pool
@@ -49,7 +49,7 @@ function drawFractionCircle(
     const sliceAngle = (2 * Math.PI) / denominator;
 
     // Fill Shaded Portions (Slight offset counter-clockwise to start perfectly at 12 o'clock)
-    context.fillStyle = '#D1D5DB'; // light grey tone matching the styling specifications
+    context.fillStyle = COLOR_LIGHT_GREY; // light grey tone matching the styling specifications
     let fillIndex = 0;
     while (fillIndex < numerator) {
         const startAngle = fillIndex * sliceAngle - Math.PI / 2;
@@ -65,7 +65,7 @@ function drawFractionCircle(
     }
 
     // Draw Fine Separation Cut Wireframes
-    context.strokeStyle = '#000000';
+    context.strokeStyle = COLOR_BLACK;
     context.lineWidth = 1;
     let cutIndex = 0;
     while (cutIndex < denominator) {
@@ -79,7 +79,7 @@ function drawFractionCircle(
     }
 
     // Clean Dark Outer Perimeter Boundary Rim
-    context.strokeStyle = '#000000';
+    context.strokeStyle = COLOR_BLACK;
     context.lineWidth = 1.5;
     context.beginPath();
     context.arc(coordinateX, coordinateY, radius, 0, 2 * Math.PI);
@@ -98,7 +98,7 @@ function drawFractionStructureInput(
     const boxHeight = 16;
     const gapSpacing = 6;
 
-    context.strokeStyle = '#000000';
+    context.strokeStyle = COLOR_BLACK;
     context.lineWidth = 1;
 
     // Top Box (Numerator Input Frame)
@@ -134,11 +134,11 @@ export function createFractionsExercise(
         && leftProblem.denominator === rightProblem.denominator
     )
     // describe the difficulty level of the problems more accurately
-    let problemLevel = 'Quarters'; // default is 1st grade
+    let problemLevel = 'Up to Quarters'; // default is 1st grade
     if (gradeLevel === '2nd') {
-        problemLevel = 'Eighths';
+        problemLevel = 'Up to Eighths';
     } else if (gradeLevel === '3rd') {
-        problemLevel = 'Twelfths';
+        problemLevel = 'Up to Twelfths';
     }
 
     return {
@@ -147,7 +147,7 @@ export function createFractionsExercise(
             const width = quadrantContext.width;
 
             // Render Main Quadrant Header Typography
-            context.fillStyle = '#000000';
+            context.fillStyle = COLOR_BLACK;
             context.font = `bold 14px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'top';
             context.textAlign = 'left';

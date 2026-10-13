@@ -11,7 +11,7 @@ import {
 } from 'topojson-specification';
 import { GeoJsonProperties, GeometryCollection, MultiLineString, MultiPolygon } from 'geojson';
 import { QuadrantExercise, QuadrantContext } from './worksheet-layout';
-import { SANS_SERIF_FONT } from './constants';
+import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY } from './constants';
 import { traceAsiaSideRegion, traceEuropeSideRegion, traceUralBoundary } from './europe-asia-boundary';
 
 export const CONTINENTS = [
@@ -65,8 +65,8 @@ const FRANCE_COUNTRY_CODE = 250;
 // Any French polygon west of this longitude belongs to the Americas, not to Paris.
 const AMERICAS_EASTERN_LIMIT = -30;
 
-const HIGHLIGHT_FILL = '#999999';
-const OUTLINE_STROKE = '#000000';
+const HIGHLIGHT_FILL = COLOR_MEDIUM_GREY;
+const OUTLINE_STROKE = COLOR_BLACK;
 
 // A few shapes in the 110m file carry no numeric id, so their names must vouch for them.
 const CONTINENT_BY_UNNUMBERED_NAME = new Map<string, Continent>([
@@ -314,7 +314,7 @@ export function createGeographyExercise(
             const { context, width, height } = quadrantContext;
 
             // Title text, placed where every other module puts theirs
-            context.fillStyle = '#000000';
+            context.fillStyle = COLOR_BLACK;
             context.font = `bold 14px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'top';
             context.textAlign = 'left';
@@ -417,7 +417,7 @@ export function createGeographyExercise(
             // Labeled response line
             const answerBaseline = height - 10;
             const answerLabel = 'Continent:';
-            context.fillStyle = '#000000';
+            context.fillStyle = COLOR_BLACK;
             context.font = `normal 11px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'alphabetic';
             context.textAlign = 'left';

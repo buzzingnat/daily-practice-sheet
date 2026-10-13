@@ -12,7 +12,7 @@ import { loadGeographyData, createGeographyExercise, Continent } from './geograp
 import { loadRegionMapData } from './region-map-data';
 import { createRegionMapExercise } from './region-map-exercise';
 import { GradeLevel, PopulatedRegion, TOPIC_KEYS, TopicKey } from './types';
-import { KANA_IMAGE_URL } from './constants';
+import { KANA_IMAGE_URL, COLOR_MEDIUM_GREY, COLOR_WHITE } from './constants';
 import {
     createDefaultSelections,
     findConfigurableTopic,
@@ -92,8 +92,8 @@ function drawExample(exerciseType: QuadrantExercise) {
     if (!context) {
         return Error('no context to draw with');
     }
-    context.fillStyle = '#fff';
-    context.strokeStyle = '#999';
+    context.fillStyle = COLOR_WHITE;
+    context.strokeStyle = COLOR_MEDIUM_GREY;
     context.lineWidth = 4;
     const x = 0, y = 0, width = EXERCISE_WIDTH, height = EXERCISE_HEIGHT;
     context.fillRect(x, y, width, height);

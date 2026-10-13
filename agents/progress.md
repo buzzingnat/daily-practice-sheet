@@ -151,3 +151,8 @@ This file tracks development states, architectural configurations, and upcoming 
 
 ### 2026-10-12 - Minimum target area lowered to 20 (Claude)
 * **Status:** Done; type check and build pass. `MINIMUM_TARGET_AREA` in `region-map-data.ts` was 24 when I picked it up (changed by the human) and is now 20. Target pools at 20: Africa 35, Asia 24, Central America 11, Europe 31, North America 4, Oceania 3, South America 12.
+
+### 2026-10-12 - Colors moved into constants.ts (Claude)
+* **Status:** Done; type check and build pass. The jsPDF overlay colors were confirmed to emit identical PDF operators from the hex constants as from the old RGB triples. Not committed.
+* **Accomplished:** `constants.ts` now holds `COLOR_BLACK`, `COLOR_WHITE`, `COLOR_LIGHT_GREY`, `COLOR_MEDIUM_GREY`, `COLOR_PDF_CROSSHAIR` (`#C8C8C8`) and `COLOR_PDF_PERFORATION` (`#969696`). Every hex value and RGB triple in the other `src/` files now references them; the modules' own semantic names (`HIGHLIGHT_FILL`, `INK_COLOR` and so on) stay, assigned from the palette. `main.ts` used `#fff` and `#999` shorthand, which map to the same white and medium grey. One line added to the Color Palette section of `AGENTS.md`.
+* **Open Issues:** `public/css/styles.css` still has its own colors (silver, `#9d9d9d`, `#9dadfd`, `#9dfdfd` and so on). CSS cannot import TypeScript constants; moving them to CSS custom properties is a separate task. `randomization-check.ts` has no colors.
