@@ -30,6 +30,7 @@ const localState: Record<TopicKey, number>= {
     subtraction: 0,
     hiragana: 0,
     continents: 0,
+    countries: 0,
 };
 
 // a placeholder, this needs to become "generate single sample page" later

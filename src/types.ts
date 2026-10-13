@@ -4,7 +4,7 @@ export type GradeLevel = '1st' | '2nd' | '3rd';
 export const TOPIC_KEYS = [
     'fractions', 'addition', 'subtraction',
     'setTime', 'tellTime', 'hiragana',
-    'continents'
+    'continents', 'countries'
 ] as const;
 
 export type TopicKey = typeof TOPIC_KEYS[number];
