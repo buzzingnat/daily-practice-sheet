@@ -1,5 +1,6 @@
 import { QuadrantExercise, QuadrantContext } from './worksheet-layout';
 import { GradeLevel } from './types';
+import { SANS_SERIF_FONT } from './constants';
 
 interface FractionProblem {
     numerator: number;
@@ -132,6 +133,13 @@ export function createFractionsExercise(
         leftProblem.numerator === rightProblem.numerator
         && leftProblem.denominator === rightProblem.denominator
     )
+    // describe the difficulty level of the problems more accurately
+    let problemLevel = 'Quarters'; // default is 1st grade
+    if (gradeLevel === '2nd') {
+        problemLevel = 'Eighths';
+    } else if (gradeLevel === '3rd') {
+        problemLevel = 'Twelfths';
+    }
 
     return {
         render(quadrantContext: QuadrantContext): void {
@@ -140,10 +148,10 @@ export function createFractionsExercise(
 
             // Render Main Quadrant Header Typography
             context.fillStyle = '#000000';
-            context.font = 'bold 14px Helvetica';
+            context.font = `bold 14px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'top';
             context.textAlign = 'left';
-            context.fillText(`${title} (${gradeLevel} Grade)`, 15, 12);
+            context.fillText(`${title} (${problemLevel})`, 15, 12);
 
             // Math Layout Positioning Mechanics (Splitting the 266px width area space)
             const circleRadius = 32;

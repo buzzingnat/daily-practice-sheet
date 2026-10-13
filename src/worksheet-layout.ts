@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf';
+import { SANS_SERIF_FONT } from './constants';
 
 const MARGIN_X = 40;
 const PRINTABLE_WIDTH = 612 - (MARGIN_X * 2);
@@ -91,7 +92,7 @@ async function renderSingleWorksheetPage(
 
     const renderHalfSheet = async (layout: HalfPageLayout, startCoordinateY: number) => {
         // Name / Date Header Lines rendered inside native PDF vector space
-        documentInstance.setFont('Helvetica', 'bold');
+        documentInstance.setFont(SANS_SERIF_FONT, 'bold');
         documentInstance.setFontSize(12);
         documentInstance.text('Name: ___________________________', marginX, startCoordinateY + 20);
         documentInstance.text('Date: __________________', marginX + 340, startCoordinateY + 20);

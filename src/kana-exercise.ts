@@ -1,6 +1,6 @@
 import { QuadrantExercise, QuadrantContext, EXERCISE_HEIGHT, EXERCISE_WIDTH } from './worksheet-layout';
 import { getSharedImageSync } from './asset-manager';
-import { KANA_IMAGE_URL } from './constants';
+import { KANA_IMAGE_URL, SANS_SERIF_FONT } from './constants';
 
 interface SpritePosition {
     sourceX: number;
@@ -151,7 +151,7 @@ export function createKanaExercise(
 
             // Header title
             context.fillStyle = '#000000';
-            context.font = 'bold 14px Helvetica';
+            context.font = `bold 14px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'top';
             context.textAlign = 'left';
             context.fillText(title, 15, 12);
@@ -161,7 +161,7 @@ export function createKanaExercise(
 
             // Pronunciation note beneath the guide
             context.fillStyle = '#000000';
-            context.font = 'italic 10px Helvetica';
+            context.font = `italic 10px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'top';
             context.textAlign = 'left';
             context.fillText(pronunciationHint, 15, 136);

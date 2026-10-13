@@ -1,5 +1,6 @@
 import { jsPDF } from "jspdf";
 import { HalfPageLayout, QuadrantContext, QuadrantExercise } from "./worksheet-layout";
+import { SANS_SERIF_FONT } from './constants';
 
 /**
  * Renders an isolated exercise quadrant onto a high-DPI hidden canvas element layer
@@ -60,7 +61,7 @@ function overlayNativePageVectors(documentContext: jsPDF, targetWidth: number, t
         documentContext.line(paddingX, offsetAxisY + 200, targetWidth - paddingX, offsetAxisY + 200);
 
         // Student metadata information header texts
-        documentContext.setFont("Helvetica", "bold");
+        documentContext.setFont(SANS_SERIF_FONT, "bold");
         documentContext.setFontSize(10);
         documentContext.text("Name: ___________________________", paddingX, offsetAxisY + 30);
         documentContext.text("Date: ___________", targetWidth - paddingX - 90, offsetAxisY + 30);
