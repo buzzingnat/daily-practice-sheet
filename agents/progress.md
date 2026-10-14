@@ -36,7 +36,8 @@ Consolidated 2026-10-13. Entries from 2026-10-08 to 2026-10-12 were folded into 
 * [x] PDF export: batch compile, vector overlays and browser download (`generate-pdf-batch.ts`).
 * [ ] Frequency assignment controller weights (how often a chosen topic appears across the selected sheets). Plugs into the planner's ranking as uses divided by weight.
 * [ ] Native HTML5 Canvas live browser previews updating reactively before PDF generation (only example quadrants exist today).
-* [ ] Persist settings (topics, per-topic settings, print size) and deck state in local storage. Everything resets on reload, and decks reset on every click.
+* [x] Persist settings in local storage: selected topics, per-topic settings and print size, one key per setting (`saved-settings.ts`). Done 2026-10-13.
+* [ ] Persist deck state (kana, continents, each region's countries) across clicks and reloads. Decks still reset on every click. Needs a design for what a saved deck does when the chosen rows or regions change.
 * [ ] Separate Exercise Title and Exercise Type so the generator can be offered in other languages. Each exercise gets a name/id/definition in code and a separate display title.
 * [ ] Rename the "batch" button label and `educational-worksheet-batch.pdf` filename, and fix the "batch of 20" wording in `projectBrief.md`.
 
@@ -65,7 +66,6 @@ Consolidated 2026-10-13. Entries from 2026-10-08 to 2026-10-12 were folded into 
 ---
 
 ## Current State and Open Issues (as of 2026-10-13)
-* **Uncommitted:** `src/print-size.ts` and `src/print-size-panel.ts` are untracked, yet commit `e9e7cd5` ("Users can now select how many pages to create") describes them. A fresh checkout of that commit likely fails to build. Add and commit both files.
 * **Verification:** Type check, `npm run build` and `randomization-check.ts` passed at each ledger entry. PDF pages for the print-size selector were counted but not eyeballed.
 * **Dev setup:** Node 14 is the shell default; `tsc` and `build.js` need a newer Node (22 was used). Run `nvm use` first. `npm run build` does not copy `public/` to `dist/`; run `node build.js` or the dev server to refresh the stylesheet.
 * **Content to review:** The 41 added hiragana pronunciation hints are unreviewed by a native speaker or teacher, especially を, ん, ふ and つ.
@@ -85,3 +85,11 @@ Consolidated 2026-10-13. Entries from 2026-10-08 to 2026-10-12 were folded into 
 * **Status:** Done. Documentation only; no code touched.
 * **Accomplished:** Folded the 2026-10-08 to 2026-10-12 ledger entries into the roadmap and "Current State" section. Added the Roman-letter print and cursive tracing goal. Corrected the module section to the flat `src/` layout.
 * **Open Issues:** See "Current State and Open Issues". Suggested next steps were given in chat, not recorded as commitments.
+
+### 2026-10-13 - Settings saved to local storage (Claude)
+* **Status:** Implemented. `npx tsc --noEmit`, `npm run build` and `npx tsx src/randomization-check.ts` pass. Checked in the browser: choices were saved, came back after a reload (buttons, panels, summaries, print size, enabled generate button), and malformed or over-limit stored values fell back cleanly. Private-window (blocked storage) behavior was not tried. Not committed.
+* **Accomplished:**
+    * `saved-settings.ts` (new): one key per setting, versioned in the key name: `daily-practice-sheet.v1.selected-topics`, `daily-practice-sheet.v1.half-page-count`, and `daily-practice-sheet.v1.panel.<topic>` for each configurable topic. `parseSavedSettings` takes a reader function, so it runs under Node; it keeps only known topics (in topic order, up to the six-topic limit), only offered panel values (one for single-choice panels, the default when none survive), and clamps the count. Storage reads and writes are wrapped, so blocked storage yields defaults and a failed write only warns.
+    * `main.ts`: `MAXIMUM_TOPIC_COUNT` moved up; `localState`, `panelSelections` and `halfPageCount` start from the saved values; restored topic buttons get `selected` and `aria-pressed`; `renderApp` refreshes availability and panels once at startup; topic clicks, panel changes and print-size changes each save their own key(s). Panel changes save all five panel keys, because the panel callback does not name the topic.
+    * `randomization-check.ts`: `checkSavedSettings` covers an empty store, malformed JSON, wrong types, unknown and duplicate values, the topic limit, single-choice trimming, panel defaults and a round trip.
+* **Open Issues:** Deck state is not saved (split into its own roadmap item). The check file's name now undersells it; it checks print size and saved settings as well as randomization.

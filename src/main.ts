@@ -14,14 +14,18 @@ import { createRegionMapExercise } from './region-map-exercise';
 import { GradeLevel, PopulatedRegion, TOPIC_KEYS, TopicKey } from './types';
 import { KANA_IMAGE_URL, COLOR_MEDIUM_GREY, COLOR_WHITE } from './constants';
 import {
-    createDefaultSelections,
     findConfigurableTopic,
     resolveTopicSettings,
     summarizeSelection
 } from './topic-settings';
 import { renderSettingsPanels } from './topic-settings-panel';
-import { DEFAULT_HALF_PAGES } from './print-size';
 import { renderPrintSizePanel } from './print-size-panel';
+import { loadSavedSettings, saveHalfPageCount, savePanelSelections, saveSelectedTopics } from './saved-settings';
+
+const MAXIMUM_TOPIC_COUNT = 6;
+
+// Whatever the human chose last visit, checked against what still exists
+const savedSettings = loadSavedSettings(MAXIMUM_TOPIC_COUNT);
 
 // for storing user selections for worksheet settings
 // the number can be used to hold difficulty level of each exercise
@@ -30,7 +34,7 @@ import { renderPrintSizePanel } from './print-size-panel';
 // of hiragana or katakana characters to be reviewing; or which region of countries
 // to be learning when countries are added in the future) would make more sense
 // but we are using numbers for now
-// later move this to local storage
+// saved to local storage as a list of selected topics
 const localState: Record<TopicKey, number>= {
     setTime: 0,
     tellTime: 0,
@@ -41,13 +45,16 @@ const localState: Record<TopicKey, number>= {
     continents: 0,
     countries: 0,
 };
+savedSettings.selectedTopics.forEach((key) => {
+    localState[key] = 1;
+});
 
 // What each settings panel currently holds. Kept when a topic is toggled off, so
 // changing one's mind does not cost the choices.
-const panelSelections = createDefaultSelections();
+const panelSelections = savedSettings.panelSelections;
 
 // How much to print, in half-pages. Two make a page.
-let halfPageCount = DEFAULT_HALF_PAGES;
+let halfPageCount = savedSettings.halfPageCount;
 
 // a placeholder, this needs to become "generate single sample page" later
 function renderTestWorksheetButton() {
@@ -218,8 +225,6 @@ function renderExamples(specifications: ExampleSpecification[] = DEFAULT_EXAMPLE
     });
 }
 
-const MAXIMUM_TOPIC_COUNT = 6;
-
 function getSelectedTopics(): TopicKey[] {
     return TOPIC_KEYS.filter((key) => localState[key] > 0);
 }
@@ -259,10 +264,15 @@ function refreshTopicSummaries(): void {
     });
 }
 
+function changePanelSelection(): void {
+    savePanelSelections(panelSelections);
+    refreshTopicSummaries();
+}
+
 function refreshSettingsPanels(): void {
     const container = document.getElementById(TOPIC_SETTINGS_ID);
     if (container) {
-        renderSettingsPanels(container, getSelectedTopics(), panelSelections, refreshTopicSummaries);
+        renderSettingsPanels(container, getSelectedTopics(), panelSelections, changePanelSelection);
     }
     refreshTopicSummaries();
 }
@@ -271,6 +281,7 @@ function clickTopicChoice(button: HTMLButtonElement, key: TopicKey): void {
     localState[key] = localState[key] === 0 ? 1 : 0;
     button.classList.toggle('selected');
     button.setAttribute('aria-pressed', String(localState[key] === 1));
+    saveSelectedTopics(getSelectedTopics());
     refreshTopicAvailability();
     refreshSettingsPanels();
 }
@@ -296,6 +307,7 @@ function renderMainInitial() {
     introSection.appendChild(printSizeContainer);
     renderPrintSizePanel(printSizeContainer, halfPageCount, (newCount) => {
         halfPageCount = newCount;
+        saveHalfPageCount(halfPageCount);
     });
     mainElement.appendChild(introSection);
 
@@ -311,6 +323,10 @@ function renderMainInitial() {
         newTopic.appendChild(topicName);
         newTopic.appendChild(topicSummary);
         newTopic.id = title;
+        if (localState[title] > 0) {
+            newTopic.classList.add('selected');
+            newTopic.setAttribute('aria-pressed', 'true');
+        }
         newTopic.addEventListener('click', () => clickTopicChoice(newTopic, title));
         topicChoicesContainer.appendChild(newTopic);
     }
@@ -331,6 +347,9 @@ export function renderApp() {
         renderMainInitial();
         renderTestWorksheetButton();
         renderRandomizedWorksheetBatchButton();
+        // Restored topics need their limit, panels and summaries before anyone clicks
+        refreshTopicAvailability();
+        refreshSettingsPanels();
         renderExamples();
     } catch (error) {
         if (error instanceof Error) {

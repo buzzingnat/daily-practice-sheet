@@ -18,7 +18,14 @@ import {
     MAXIMUM_HALF_PAGES,
     MINIMUM_HALF_PAGES
 } from './print-size';
-import { QuadrantTopics, RandomSource, TOPIC_KEYS, TopicKey } from './types';
+import {
+    HALF_PAGE_COUNT_KEY,
+    panelSelectionKey,
+    parseSavedSettings,
+    SELECTED_TOPICS_KEY
+} from './saved-settings';
+import { createDefaultSelections } from './topic-settings';
+import { CONFIGURABLE_TOPICS, QuadrantTopics, RandomSource, TOPIC_KEYS, TopicKey } from './types';
 
 const SEEDS_PER_SELECTION = 30;
 const HALF_PAGES_PER_RUN = 28;
@@ -214,8 +221,80 @@ function checkPrintSize(): void {
     console.log(`Print size: counts ${MINIMUM_HALF_PAGES} to ${MAXIMUM_HALF_PAGES} described and clamped correctly.`);
 }
 
+const SAVED_TOPIC_LIMIT = 6;
+
+function sameList(first: readonly string[], second: readonly string[]): boolean {
+    return first.length === second.length && first.every((item, index) => item === second[index]);
+}
+
+/**
+ * Feeds parseSavedSettings a Map in place of local storage. Anything stored that the
+ * app does not recognize should fall away quietly, and defaults should fill the gaps.
+ */
+function checkSavedSettings(): void {
+    const parseFrom = (entries: Record<string, string>) => {
+        const store = new Map(Object.entries(entries));
+        return parseSavedSettings((key) => store.get(key) ?? null, SAVED_TOPIC_LIMIT);
+    };
+    const defaults = createDefaultSelections();
+
+    const empty = parseFrom({});
+    assert(empty.selectedTopics.length === 0, 'an empty store should select no topics.');
+    assert(empty.halfPageCount === DEFAULT_HALF_PAGES, 'an empty store should give the default count.');
+    CONFIGURABLE_TOPICS.forEach((topic) => {
+        assert(sameList(empty.panelSelections[topic], defaults[topic]), `an empty store should give the ${topic} default.`);
+    });
+
+    const garbled = parseFrom({
+        [SELECTED_TOPICS_KEY]: '{not json',
+        [HALF_PAGE_COUNT_KEY]: '"seven"',
+        [panelSelectionKey('hiragana')]: '42',
+        [panelSelectionKey('addition')]: 'null'
+    });
+    assert(garbled.selectedTopics.length === 0, 'malformed topics should select nothing.');
+    assert(garbled.halfPageCount === DEFAULT_HALF_PAGES, 'a non-numeric count should give the default.');
+    assert(sameList(garbled.panelSelections.hiragana, defaults.hiragana), 'a non-list panel should give its default.');
+    assert(sameList(garbled.panelSelections.addition, defaults.addition), 'a null panel should give its default.');
+
+    const untidy = parseFrom({
+        [SELECTED_TOPICS_KEY]: JSON.stringify(['countries', 'katakana', 'addition', 'addition', 7]),
+        [HALF_PAGE_COUNT_KEY]: '99',
+        [panelSelectionKey('hiragana')]: JSON.stringify(['k', 'zz', 'vowels', 'k']),
+        [panelSelectionKey('fractions')]: JSON.stringify(['3rd', '1st']),
+        [panelSelectionKey('countries')]: JSON.stringify(['Atlantis'])
+    });
+    assert(sameList(untidy.selectedTopics, ['addition', 'countries']), 'topics should be known, unique and in topic order.');
+    assert(untidy.halfPageCount === MAXIMUM_HALF_PAGES, 'an oversized count should clamp to the maximum.');
+    assert(sameList(untidy.panelSelections.hiragana, ['vowels', 'k']), 'kana rows should be known, unique and in panel order.');
+    assert(untidy.panelSelections.fractions.length === 1, 'a single-choice panel should keep one value.');
+    assert(sameList(untidy.panelSelections.countries, defaults.countries), 'a panel with nothing valid should give its default.');
+
+    const crowded = parseFrom({ [SELECTED_TOPICS_KEY]: JSON.stringify(TOPIC_KEYS) });
+    assert(crowded.selectedTopics.length === SAVED_TOPIC_LIMIT, 'saved topics should stop at the limit.');
+
+    const original = {
+        selectedTopics: ['fractions', 'hiragana', 'countries'],
+        hiragana: ['s', 'wn'],
+        subtraction: ['2nd'],
+        halfPageCount: 7
+    };
+    const roundTrip = parseFrom({
+        [SELECTED_TOPICS_KEY]: JSON.stringify(original.selectedTopics),
+        [panelSelectionKey('hiragana')]: JSON.stringify(original.hiragana),
+        [panelSelectionKey('subtraction')]: JSON.stringify(original.subtraction),
+        [HALF_PAGE_COUNT_KEY]: JSON.stringify(original.halfPageCount)
+    });
+    assert(sameList(roundTrip.selectedTopics, original.selectedTopics), 'valid topics should survive a round trip.');
+    assert(sameList(roundTrip.panelSelections.hiragana, original.hiragana), 'valid kana rows should survive a round trip.');
+    assert(sameList(roundTrip.panelSelections.subtraction, original.subtraction), 'a valid level should survive a round trip.');
+    assert(roundTrip.halfPageCount === original.halfPageCount, 'a valid count should survive a round trip.');
+
+    console.log('Saved settings: defaults, malformed and stray values, limits and a round trip all behaved.');
+}
+
 checkPlanner();
 checkPrintSize();
+checkSavedSettings();
 checkDeck(5, 2);  // hiragana: five kana, each twice per ten draws
 checkDeck(7, 2);  // continents: seven continents, each twice per fourteen draws
 checkDeck(2, 1);  // the tightest seam: two items, one copy each
