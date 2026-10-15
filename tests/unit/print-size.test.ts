@@ -33,12 +33,12 @@ describe('clampHalfPageCount', () => {
         expect(clampHalfPageCount(Number.NaN)).toBe(DEFAULT_HALF_PAGES);
     });
 
-    test.each(EVERY_ALLOWED_COUNT)('leaves the valid count %i alone', (halfPageCount) => {
+    test.each(EVERY_ALLOWED_COUNT)('leaves the valid count %i alone', (halfPageCount: number) => {
         expect(clampHalfPageCount(halfPageCount)).toBe(halfPageCount);
     });
 });
 
-describe.each(EVERY_ALLOWED_COUNT)('describePrintSize(%i)', (halfPageCount) => {
+describe.each(EVERY_ALLOWED_COUNT)('describePrintSize(%i)', (halfPageCount: number) => {
     const description = describePrintSize(halfPageCount);
 
     test('counts the pages touched', () => {

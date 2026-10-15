@@ -16,6 +16,17 @@ To run the tests:
 
 `npm test` and `npm run build` type-check the code first, so a type error stops them.
 
+### Running one test file or one named test
+To run a single test file, give `npm test` part of its path after a `--`:
+`npm test -- tests/unit/print-size.test.ts` <-- one file
+`npm test -- topic-settings` <-- every file whose path contains "topic-settings"
+
+To run a single named test, add `-t` and part of the test's name. The name is matched against the `describe` titles and the test title joined together:
+`npx vitest run tests/unit/print-size.test.ts -t "rounds a fraction"` <-- one test
+`npx vitest run tests/unit/print-size.test.ts -t "clampHalfPageCount"` <-- every test under that `describe`
+
+`npx vitest run` skips the Node version check and the type check that `npm test` does first, so run `nvm use` before it.
+
 For deployment, run:
 `npm run build` <-- first runs `node build.js` which copies `public/` into `dist/`, then overwrites `dist/bundle.js` with the minified bundle
 Then use everything in the `dist` folder.
