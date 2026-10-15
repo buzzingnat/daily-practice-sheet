@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import { planHalfPages } from '../../src/generator/half-page-planner';
-import { QuadrantTopics, TOPIC_KEYS, TopicKey } from '../../src/types';
-import { countBy } from '../support/count-by';
-import { createSeededRandom } from '../support/seeded-random';
+import { planHalfPages } from '../../../src/generator/half-page-planner';
+import { QuadrantTopics, TOPIC_KEYS, TopicKey } from '../../../src/types';
+import { countBy } from '../../support/count-by';
+import { createSeededRandom } from '../../support/seeded-random';
 
 const SEEDS_PER_SELECTION = 30;
 const HALF_PAGES_PER_RUN = 28;

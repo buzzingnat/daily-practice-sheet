@@ -1,6 +1,6 @@
 # plan.md — Tidy `src/` into Folders
 
-Status: approved. Phases 1 to 4 (the moves) are done and committed; phase 5 (docs) is done. Phase 6 (mirror `tests/unit/` to `src/`) and the dependency check remain. Decisions: tests mirror `src/` (yes), one commit per phase (yes), enforce the dependency rule with a Vitest check (yes).
+Status: approved. Phases 1 to 4 (the moves) are done and committed; phase 5 (docs) is done. Phase 6 (mirror `tests/unit/` to `src/`) is done. The dependency check remains. Decisions: tests mirror `src/` (yes), one commit per phase (yes), enforce the dependency rule with a Vitest check (yes).
 
 ## Goal
 Replace the flat 27-file `src/` with a small set of folders that follow how the code depends on itself, without changing any behavior. Files move; their names, contents and exports stay the same. Only import paths change.

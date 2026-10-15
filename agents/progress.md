@@ -30,10 +30,10 @@ Open tasks are ordered by priority inside each tier: do them top to bottom unles
 * [x] **Cleanup:** the offline geography compiler (`scripts/compile-geography.ts`, `build:geo`, `d3-geo-projection`) was dead code and was removed 2026-10-14. There are no classes left in `src/`, so the old "switch from class-based to function-based" task is moot.
 
 ### In progress: tidy `src/` into folders (plan in `plan.md`)
-Phases 1 to 5 are done: the files moved into `settings/`, `ui/`, `generator/`, `worksheet/` and `exercises/` (with `kana/` and `geography/`), the imports were rewritten, and the docs describe the layout. Remaining:
-1. [ ] **Phase 6: mirror `tests/unit/` to `src/`** (for example `tests/unit/generator/shuffled-deck.test.ts`, `tests/unit/settings/print-size.test.ts`, `tests/unit/exercises/kana/kana-rows.test.ts`, and `tests/unit/topic-settings/` moving under `tests/unit/settings/`). Update the Testing section of `AGENTS.md` to match.
-2. [ ] **Folder dependency check:** a Vitest test that scans the `import` lines in `src/` and fails when a folder imports one it should not (the rule is in `AGENTS.md` section 7). Dependency-free; mutation-test it by adding a forbidden import.
-3. [ ] Clear `plan.md` and write the ledger entry when both are done.
+Phases 1 to 6 are done: the files moved into `settings/`, `ui/`, `generator/`, `worksheet/` and `exercises/` (with `kana/` and `geography/`), the imports were rewritten, and the docs describe the layout. Remaining:
+1. [x] **Phase 6: mirror `tests/unit/` to `src/`.** Done 2026-10-14: `tests/unit/{generator,settings,exercises/kana}/`, with `topic-settings/` under `settings/`. `AGENTS.md` and the readme examples use the new paths.
+1. [ ] **Folder dependency check:** a Vitest test that scans the `import` lines in `src/` and fails when a folder imports one it should not (the rule is in `AGENTS.md` section 7). Dependency-free; mutation-test it by adding a forbidden import.
+2. [ ] Clear `plan.md` and add the final ledger entry when the check is done.
 
 ### Next up: small tasks (each fits one sitting)
 1. [x] **Rename `src/run-test.ts` to `src/make-example-sheet.ts`.** Done. The function `executeTestSheetGeneration` and the "Make Test Sheet" button keep their names; rename them if "test" there is a problem.
@@ -158,3 +158,8 @@ Phases 1 to 5 are done: the files moved into `settings/`, `ui/`, `generator/`, `
 * **Status:** Phases 1 to 4 committed, one per phase; phase 5 (documentation) not yet. After each move: `npx tsc --noEmit`, `npm run test:types`, `npm test` (8 files, 268 passed, 2 skipped) and `npm run build` passed, and the bundle stayed byte-identical at 930,757 bytes. After phase 4 a browser smoke test passed: no console errors, 17 example quadrants drawn, a 514,110-byte PDF generated with six topics and four half-pages, and saved settings came back after a reload.
 * **Accomplished:** 27 files moved with `git mv` (kept as renames) by a one-off script that rewrote every relative import in `src/` and `tests/`; the script lived in the scratchpad and is not in the repo. Phase 1: `settings/` (3 files) and `ui/` (2). Phase 2: `generator/` (3). Phase 3: `worksheet/` (2). Phase 4: `exercises/` (4), `exercises/kana/` (2), `exercises/geography/` (5). Phase 5: `AGENTS.md` section 7 now holds the layout, where new files go and the dependency rule, and its two stale references to the layout file were corrected; this file's roadmap and state use the new paths.
 * **Open Issues:** Phase 6 (mirror the test folders) and the dependency check, listed under "In progress". The three files over 200 lines (`exercises/geography/geography-exercise.ts` 433, `main.ts` 380, `exercises/geography/region-map-data.ts` 346) are not split; that is a separate task.
+
+### 2026-10-14 - tests/unit mirrored to src/ (Claude)
+* **Status:** Done, not committed. `npx tsc --noEmit`, `npm run test:types` and `npm test` (8 files, 268 passed, 2 skipped) pass. Git shows renames.
+* **Accomplished:** 8 test files moved with `git mv` by the same one-off script, rewriting 23 import lines: `tests/unit/generator/` (`half-page-planner`, `shuffled-deck`), `tests/unit/settings/` (`print-size`, `saved-settings`, and the `topic-settings/` folder with `panels`, `resolve` and `summary`) and `tests/unit/exercises/kana/` (`kana-rows`). `tests/support/` stays flat. The `AGENTS.md` Testing section now states the mirroring rule; the readme's single-file examples use `tests/unit/settings/print-size.test.ts`. Path filters (`npm test -- settings/topic-settings`, `-- generator`, `-- exercises/kana`) were run and select the expected files.
+* **Open Issues:** The dependency check (next).

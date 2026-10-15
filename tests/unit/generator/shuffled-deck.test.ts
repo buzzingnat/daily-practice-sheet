@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
-import { createShuffledDeck } from '../../src/generator/shuffled-deck';
-import { countBy } from '../support/count-by';
-import { createSeededRandom } from '../support/seeded-random';
+import { createShuffledDeck } from '../../../src/generator/shuffled-deck';
+import { countBy } from '../../support/count-by';
+import { createSeededRandom } from '../../support/seeded-random';
 
 const DECK_SEEDS = 200;
 const CYCLES_PER_SEED = 10;

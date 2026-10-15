@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
-import { createDefaultSelections, resolveTopicSettings } from '../../../src/settings/topic-settings';
-import { CONFIGURABLE_TOPICS, ConfigurableTopic, GradeLevel, POPULATED_REGIONS } from '../../../src/types';
-import { GRADE_LEVELS, LEVEL_TOPICS, LevelTopics, selectionsWith } from '../../support/panel-selections';
+import { createDefaultSelections, resolveTopicSettings } from '../../../../src/settings/topic-settings';
+import { CONFIGURABLE_TOPICS, ConfigurableTopic, GradeLevel, POPULATED_REGIONS } from '../../../../src/types';
+import { GRADE_LEVELS, LEVEL_TOPICS, LevelTopics, selectionsWith } from '../../../support/panel-selections';
 
 describe('resolveTopicSettings', () => {
     test('turns the defaults into typed settings', () => {

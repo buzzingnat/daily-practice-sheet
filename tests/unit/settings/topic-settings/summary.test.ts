@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
-import { createDefaultSelections, summarizeSelection } from '../../../src/settings/topic-settings';
-import { CONFIGURABLE_TOPICS, GradeLevel, KANA_ROWS, POPULATED_REGIONS } from '../../../src/types';
-import { LevelTopics, selectionsWith } from '../../support/panel-selections';
+import { createDefaultSelections, summarizeSelection } from '../../../../src/settings/topic-settings';
+import { CONFIGURABLE_TOPICS, GradeLevel, KANA_ROWS, POPULATED_REGIONS } from '../../../../src/types';
+import { LevelTopics, selectionsWith } from '../../../support/panel-selections';
 
 describe('summarizeSelection', () => {
     test.each([

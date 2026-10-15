@@ -18,12 +18,12 @@ To run the tests:
 
 ### Running one test file or one named test
 To run a single test file, give `npm test` part of its path after a `--`:
-`npm test -- tests/unit/print-size.test.ts` <-- one file
+`npm test -- tests/unit/settings/print-size.test.ts` <-- one file
 `npm test -- topic-settings` <-- every file whose path contains "topic-settings"
 
 To run a single named test, add `-t` and part of the test's name. The name is matched against the `describe` titles and the test title joined together:
-`npx vitest run tests/unit/print-size.test.ts -t "rounds a fraction"` <-- one test
-`npx vitest run tests/unit/print-size.test.ts -t "clampHalfPageCount"` <-- every test under that `describe`
+`npx vitest run tests/unit/settings/print-size.test.ts -t "rounds a fraction"` <-- one test
+`npx vitest run tests/unit/settings/print-size.test.ts -t "clampHalfPageCount"` <-- every test under that `describe`
 
 `npx vitest run` skips the Node version check and the type check that `npm test` does first, so run `nvm use` before it.
 

@@ -5,7 +5,7 @@ import {
     findPanelSpecification,
     PanelSpecification,
     PANEL_SPECIFICATIONS
-} from '../../../src/settings/topic-settings';
+} from '../../../../src/settings/topic-settings';
 import {
     CONFIGURABLE_TOPICS,
     ConfigurableTopic,
@@ -13,8 +13,8 @@ import {
     POPULATED_REGIONS,
     TopicKey,
     TOPIC_KEYS
-} from '../../../src/types';
-import { GRADE_LEVELS, LEVEL_TOPICS, LevelTopics } from '../../support/panel-selections';
+} from '../../../../src/types';
+import { GRADE_LEVELS, LEVEL_TOPICS, LevelTopics } from '../../../support/panel-selections';
 
 describe('PANEL_SPECIFICATIONS', () => {
     test('has one panel for each configurable topic', () => {
