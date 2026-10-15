@@ -18,24 +18,30 @@ Consolidated 2026-10-13; roadmap reordered and state refreshed 2026-10-14. Entri
 Open tasks are ordered by priority inside each tier: do them top to bottom unless the human says otherwise. Tiers run from small to large. Ordering reasons are noted where the order is not obvious.
 
 ### Done
-* [x] **Foundation:** TS, `esbuild`, `concurrently` and `servor` pipelines; layout contracts (`worksheet-layout.ts`); the 3x high-DPI Canvas-to-jsPDF pipeline.
+* [x] **Foundation:** TS, `esbuild`, `concurrently` and `servor` pipelines; layout contracts (`worksheet/worksheet-layout.ts`); the 3x high-DPI Canvas-to-jsPDF pipeline.
 * [x] **Exercises:**
     * Clock (telling and setting), addition and subtraction (single, double and triple digit), and fractions (up to fourths, eighths or twelfths).
-    * Hiragana (`kana-exercise.ts`, `kana-rows.ts`): all 46 characters with pronunciation hints, selectable by chart row, traced on a hand-drawing grid with the custom handwriting font.
-    * Continents (`geography-exercise.ts`): seven continents from TopoJSON plus `ISO-3166.csv`; Russia split along the Urals (`europe-asia-boundary.ts`); French Guiana joins South America.
-    * Countries, "name this country" (`region-map-exercise.ts`, `region-map-data.ts`, `region-views.ts`): seven orthographic region views. A country is askable if it shows at least 20 square pixels (`MINIMUM_TARGET_AREA`); target pools are Africa 35, Asia 24, Central America 11, Europe 31, North America 4, Oceania 3, South America 12. Land outside the region is light grey with no borders.
-* [x] **Randomization:** `half-page-planner.ts` seats four topics per half-page (no repeats with four or more topics selected; use counts never differ by more than one). `shuffled-deck.ts` deals kana, continents and each region's countries twice per cycle with no adjacent repeats.
-* [x] **UI:** topic buttons driven by `TOPIC_KEYS` in `types.ts`; per-topic settings panels (`topic-settings.ts`, `topic-settings-panel.ts`); print-size selector, 1 to 20 half-pages (`print-size.ts`, `print-size-panel.ts`); PDF export (`generate-pdf-batch.ts`); settings saved to local storage, one key per setting (`saved-settings.ts`).
+    * Hiragana (`exercises/kana/kana-exercise.ts`, `exercises/kana/kana-rows.ts`): all 46 characters with pronunciation hints, selectable by chart row, traced on a hand-drawing grid with the custom handwriting font.
+    * Continents (`exercises/geography/geography-exercise.ts`): seven continents from TopoJSON plus `ISO-3166.csv`; Russia split along the Urals (`exercises/geography/europe-asia-boundary.ts`); French Guiana joins South America.
+    * Countries, "name this country" (`exercises/geography/region-map-exercise.ts`, `exercises/geography/region-map-data.ts`, `exercises/geography/region-views.ts`): seven orthographic region views. A country is askable if it shows at least 20 square pixels (`MINIMUM_TARGET_AREA`); target pools are Africa 35, Asia 24, Central America 11, Europe 31, North America 4, Oceania 3, South America 12. Land outside the region is light grey with no borders.
+* [x] **Randomization:** `generator/half-page-planner.ts` seats four topics per half-page (no repeats with four or more topics selected; use counts never differ by more than one). `generator/shuffled-deck.ts` deals kana, continents and each region's countries twice per cycle with no adjacent repeats.
+* [x] **UI:** topic buttons driven by `TOPIC_KEYS` in `types.ts`; per-topic settings panels (`settings/topic-settings.ts`, `ui/topic-settings-panel.ts`); print-size selector, 1 to 20 half-pages (`settings/print-size.ts`, `ui/print-size-panel.ts`); PDF export (`worksheet/generate-pdf-batch.ts`); settings saved to local storage, one key per setting (`settings/saved-settings.ts`).
 * [x] **Tooling:** Vitest in `tests/` (`unit/`, `support/`; 8 files, 268 tests); Node version guard (`scripts/check-node-version.mjs`); `pre` hooks that type-check before test and build.
 * [x] **Cleanup:** the offline geography compiler (`scripts/compile-geography.ts`, `build:geo`, `d3-geo-projection`) was dead code and was removed 2026-10-14. There are no classes left in `src/`, so the old "switch from class-based to function-based" task is moot.
 
+### In progress: tidy `src/` into folders (plan in `plan.md`)
+Phases 1 to 5 are done: the files moved into `settings/`, `ui/`, `generator/`, `worksheet/` and `exercises/` (with `kana/` and `geography/`), the imports were rewritten, and the docs describe the layout. Remaining:
+1. [ ] **Phase 6: mirror `tests/unit/` to `src/`** (for example `tests/unit/generator/shuffled-deck.test.ts`, `tests/unit/settings/print-size.test.ts`, `tests/unit/exercises/kana/kana-rows.test.ts`, and `tests/unit/topic-settings/` moving under `tests/unit/settings/`). Update the Testing section of `AGENTS.md` to match.
+2. [ ] **Folder dependency check:** a Vitest test that scans the `import` lines in `src/` and fails when a folder imports one it should not (the rule is in `AGENTS.md` section 7). Dependency-free; mutation-test it by adding a forbidden import.
+3. [ ] Clear `plan.md` and write the ledger entry when both are done.
+
 ### Next up: small tasks (each fits one sitting)
-1. [ ] **Rename `src/run-test.ts` to `src/make-example-sheet.ts`,** so "test" means only the suite. Update the import in `main.ts`, and rename `executeTestSheetGeneration` and the "Make Test Sheet" button only if the human wants. Own `plan.md`. First because later tasks name things and this one fixes the vocabulary.
-2. [x] **Unit tests for `kana-rows.ts` and `topic-settings.ts`.** Done 2026-10-14.
-3. [ ] **Rename "batch" wording:** the "Make Randomized Batch" button label (`main.ts`) and the `educational-worksheet-batch.pdf` filename (`worksheet-layout.ts`). The output is no longer a fixed batch of 20.
-4. [ ] **Share the geography constants:** `region-map-data.ts` repeats the topology and CSV URLs and the Russia and France codes from `geography-exercise.ts`. Export them from one place.
+1. [x] **Rename `src/run-test.ts` to `src/make-example-sheet.ts`.** Done. The function `executeTestSheetGeneration` and the "Make Test Sheet" button keep their names; rename them if "test" there is a problem.
+2. [x] **Unit tests for `exercises/kana/kana-rows.ts` and `settings/topic-settings.ts`.** Done 2026-10-14.
+3. [ ] **Rename "batch" wording:** the "Make Randomized Batch" button label (`main.ts`) and the `educational-worksheet-batch.pdf` filename (`worksheet/worksheet-layout.ts`). The output is no longer a fixed batch of 20.
+4. [ ] **Share the geography constants:** `exercises/geography/region-map-data.ts` repeats the topology and CSV URLs and the Russia and France codes from `exercises/geography/geography-exercise.ts`. Export them from one place.
 5. [ ] **Continuous integration:** a GitHub workflow running `npm test`, `npm run test:types` and `npm run build` (the first and last already type-check `src/`). Uses `.nvmrc` for the Node version.
-6. [ ] **Unit tests for `region-map-data.ts`:** `buildRegionMapData` against the real TopoJSON and CSV in `public/maps/`, pinning the target pool sizes. Needs `@types/node` for `fs`, with approval.
+6. [ ] **Unit tests for `exercises/geography/region-map-data.ts`:** `buildRegionMapData` against the real TopoJSON and CSV in `public/maps/`, pinning the target pool sizes. Needs `@types/node` for `fs`, with approval.
 7. [ ] **`tests/manual-checklist.md`:** what only a human with a printer can check (PDF page counts, the 396pt cut line, map frames and fonts by eye, private-window storage).
 8. [ ] **Human review of the 41 added hiragana pronunciation hints** by a native speaker or teacher, especially を, ん, ふ and つ.
 
@@ -64,6 +70,7 @@ Open tasks are ordered by priority inside each tier: do them top to bottom unles
 ---
 
 ## Core Architectural Decisions & Context
+* **Source layout:** `src/` is grouped by job: `worksheet/` (layout contract, PDF assembly), `exercises/` (with `kana/` and `geography/`), `generator/`, `settings/` (pure logic), `ui/` (DOM), and a few files at the root (app-level: `main.ts`, `make-example-sheet.ts`, `utils.ts`; shared leaves: `types.ts`, `constants.ts`, `asset-manager.ts`). Imports flow downward only. The full tree and the dependency rule are in `AGENTS.md` section 7. Paths in this file are relative to `src/`; ledger entries dated before 2026-10-14 name files by their old flat names.
 * **Horizontal Split Rule:** Each page splits perfectly at 396pt with an ornamental decoration line separating two matching half-pages. Each half contains 4 quadrants (`EXERCISE_WIDTH: 266pt`, `EXERCISE_HEIGHT: 155pt`).
 * **Strict Monochrome:** Code takes every color from `src/constants.ts` (`COLOR_BLACK`, `COLOR_WHITE`, `COLOR_LIGHT_GREY` `#D1D5DB`, `COLOR_MEDIUM_GREY` `#999999`, `COLOR_PDF_CROSSHAIR`, `COLOR_PDF_PERFORATION`). `public/css/styles.css` still has its own colors; moving them to CSS custom properties is a separate task.
 * **Randomization:** The planner and decks take an injectable `RandomSource`. Clock times, sums and fractions still use `Math.random()` inside their own modules.
@@ -71,8 +78,8 @@ Open tasks are ordered by priority inside each tier: do them top to bottom unles
 
 ---
 
-## Current State and Open Issues (as of 2026-10-14)
-* **Git:** Last commit `e9a90d5` (Vitest migration and Node guard). Uncommitted at the time of writing: removal of `scripts/compile-geography.ts`, `build:geo`, `prebuild:geo` and `d3-geo-projection`; `build` now runs `node build.js` first; a stray comment removed from `geography-exercise.ts`; `readme.md` and these docs updated.
+## Current State and Open Issues (as of 2026-10-14, after the `src/` reorganization)
+* **Git:** Phases 1 to 4 of the `src/` reorganization are committed (one commit each). Phase 5 (these documents) is uncommitted. The working tree is otherwise clean.
 * **Verification:** `npm test` (8 files, 268 passed, 2 skipped on purpose) and `npm run build` pass. PDF pages for the print-size selector were counted but not eyeballed.
 * **Commands:** `npm test` runs the suite once; `npm run test:watch` watches. `npm run dev` runs four watchers: build, server, app type check and test type check. `pretest`, `pretest:watch` and `prebuild` run `npm run check-node` and `tsc --noEmit` first, so a type error stops a test or build run. `predev` only checks the Node version, because `dev:types` already runs `tsc --watch`. `npm run build` runs `node build.js` (copies `public/` into `dist/`) and then the minified esbuild bundle.
 * **Node:** Needs 22.12 or newer (Vitest, Vite and `concurrently` all do). The shell default here is Node 14, so run `nvm use` first. `engines` and `.npmrc` guard `npm install` only; `scripts/check-node-version.mjs` guards the scripts and is written in plain syntax so an old Node can parse it and complain.
@@ -146,3 +153,8 @@ Open tasks are ordered by priority inside each tier: do them top to bottom unles
 * **Status:** Done, not committed. `npm test` (8 files, 268 passed, 2 skipped on purpose) and `npm run test:types` pass; the test count is unchanged. Two mutations (reversed level order, no "all" summary) still failed 3 tests each after the move, and the source was restored.
 * **Accomplished:** `tests/unit/topic-settings.test.ts` (247 lines, over the 200-line limit) became `tests/unit/topic-settings/panels.test.ts` (114 lines: panel definitions, `findConfigurableTopic`, `findPanelSpecification`, `createDefaultSelections`), `resolve.test.ts` (65: `resolveTopicSettings`) and `summary.test.ts` (63: `summarizeSelection`). The helpers two or more of them use moved to `tests/support/panel-selections.ts` (`selectionsWith`, `LEVEL_TOPICS`, `GRADE_LEVELS`, the `LevelTopics` type). The human's earlier edits (explicit parameter types, the "Scythia" and "bb" stray values) were kept as written. `npm test -- topic-settings` runs all three; `npm test -- topic-settings/resolve` runs one. `AGENTS.md` Testing section now says to split an over-long test file into a folder named after the module.
 * **Open Issues:** None new.
+
+### 2026-10-14 - src/ reorganized into folders, phases 1 to 5 (Claude)
+* **Status:** Phases 1 to 4 committed, one per phase; phase 5 (documentation) not yet. After each move: `npx tsc --noEmit`, `npm run test:types`, `npm test` (8 files, 268 passed, 2 skipped) and `npm run build` passed, and the bundle stayed byte-identical at 930,757 bytes. After phase 4 a browser smoke test passed: no console errors, 17 example quadrants drawn, a 514,110-byte PDF generated with six topics and four half-pages, and saved settings came back after a reload.
+* **Accomplished:** 27 files moved with `git mv` (kept as renames) by a one-off script that rewrote every relative import in `src/` and `tests/`; the script lived in the scratchpad and is not in the repo. Phase 1: `settings/` (3 files) and `ui/` (2). Phase 2: `generator/` (3). Phase 3: `worksheet/` (2). Phase 4: `exercises/` (4), `exercises/kana/` (2), `exercises/geography/` (5). Phase 5: `AGENTS.md` section 7 now holds the layout, where new files go and the dependency rule, and its two stale references to the layout file were corrected; this file's roadmap and state use the new paths.
+* **Open Issues:** Phase 6 (mirror the test folders) and the dependency check, listed under "In progress". The three files over 200 lines (`exercises/geography/geography-exercise.ts` 433, `main.ts` 380, `exercises/geography/region-map-data.ts` 346) are not split; that is a separate task.

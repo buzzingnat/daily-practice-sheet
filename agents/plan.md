@@ -1,6 +1,6 @@
 # plan.md — Tidy `src/` into Folders
 
-Status: awaiting human validation. No files have been moved.
+Status: approved. Phases 1 to 4 (the moves) are done and committed; phase 5 (docs) is done. Phase 6 (mirror `tests/unit/` to `src/`) and the dependency check remain. Decisions: tests mirror `src/` (yes), one commit per phase (yes), enforce the dependency rule with a Vitest check (yes).
 
 ## Goal
 Replace the flat 27-file `src/` with a small set of folders that follow how the code depends on itself, without changing any behavior. Files move; their names, contents and exports stay the same. Only import paths change.
@@ -44,10 +44,10 @@ Counts: root 6 (with `main.ts`, `make-example-sheet.ts`), `worksheet/` 2, `exerc
 * `settings/` versus `ui/` separates pure logic (testable under Node) from DOM code (needs jsdom). It lines up with the existing `tests/unit/` versus `tests/dom/` split.
 * `kana/` and `geography/` hold the topics that grew several files. The four single-file exercises stay directly in `exercises/`.
 * `make-example-sheet.ts` stays at the root, not in `worksheet/`, because it imports exercises and exercises import the layout contract. Putting it in `worksheet/` would make `worksheet/` and `exercises/` depend on each other.
-* `utils.ts` and `asset-manager.ts` are tiny and used from several folders, so they stay at the root beside `types.ts` and `constants.ts`.
+* `asset-manager.ts` is tiny and used from several folders, so it stays at the root beside `types.ts` and `constants.ts`. (Correction found in phase 5: `utils.ts` imports `worksheet/` and only `main.ts` and `make-example-sheet.ts` use it, so it counts as app-level, not a leaf.)
 
 **Dependency rule this layout makes visible (to be added to `AGENTS.md`)**
-`main.ts` may import from anywhere. `ui/` imports `settings/`. `generator/` imports `exercises/`, `settings/`'s types and `worksheet/`. `exercises/` imports `worksheet/` and the root leaves. `settings/` and `worksheet/` import only root leaves. Nothing imports `main.ts`, and no folder imports a folder above it in this list.
+`main.ts` may import from anywhere. `ui/` imports `settings/`. `generator/` imports `exercises/`, `worksheet/` and the root leaves. `exercises/` imports `worksheet/` and the root leaves. `settings/` and `worksheet/` import only the root leaves (`types.ts`, `constants.ts`, `asset-manager.ts`). Nothing imports `main.ts`, and no folder imports a folder above it in this list.
 
 ## Method: a script moves and rewrites, the compiler checks
 Hand-editing about 100 import lines is how misses happen, so a one-off Node script does it, kept in the scratchpad and not committed (it adds no dependencies):

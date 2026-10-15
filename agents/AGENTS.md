@@ -93,8 +93,8 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 * **Commenting, Variable Naming Personality:** Emulate a blend of the concise phrasing of Ernest Hemingway, the wry, sharp-witted humor of Jane Austen, and a touch of the folksy observation of Mark Twain. A hint of wry pun appreciation can leak through occasionally.
 
 ### 6. TypeScript & Modules
-* **Exercise Pattern:** Each exercise is a factory function that returns a `QuadrantExercise` (defined in `worksheetLayout.ts`) with an explicit return type.
-* **Layout Contracts:** Exercises must adhere strictly to these interfaces in `worksheet-layout.ts`:
+* **Exercise Pattern:** Each exercise is a factory function that returns a `QuadrantExercise` (defined in `worksheet/worksheet-layout.ts`) with an explicit return type.
+* **Layout Contracts:** Exercises must adhere strictly to these interfaces in `src/worksheet/worksheet-layout.ts`:
   ```typescript
   export interface QuadrantContext {
       context: CanvasRenderingContext2D;
@@ -116,9 +116,31 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 * **Errors:** Throw `Error`. Do not return one.
 
 ### 7. File Organization
-* Source lives in a flat `src/` folder. Keep code sections single-purpose; split a file into helpers once it passes roughly 200 lines.
-* Use relative imports for now.
-* New files use kebab-case (`clock-exercise.ts`). Existing files keep their names until a dedicated rename task with its own `plan.md`, so imports and documents change together.
+* Source lives in folders under `src/`, grouped by job. Paths below are relative to `src/`:
+  ```
+  main.ts  make-example-sheet.ts  utils.ts            app-level
+  types.ts  constants.ts  asset-manager.ts            shared leaves
+  worksheet/   worksheet-layout.ts  generate-pdf-batch.ts            layout contract and PDF assembly
+  exercises/   addition, subtraction, fractions, clock (one *-exercise.ts each)
+      kana/        kana-exercise.ts  kana-rows.ts
+      geography/   geography-exercise.ts  europe-asia-boundary.ts  region-map-exercise.ts
+                   region-map-data.ts  region-views.ts
+  generator/   half-page-planner.ts  shuffled-deck.ts  randomization-and-difficulty-generator.ts
+  settings/    topic-settings.ts  print-size.ts  saved-settings.ts     pure logic, no DOM
+  ui/          topic-settings-panel.ts  print-size-panel.ts            DOM code
+  ```
+* **Where a new file goes:** in the folder that matches its job. A topic with two or more files of its own gets a subfolder under `exercises/`. Pure logic goes in `settings/` or `generator/`; code that touches `document` goes in `ui/`. Create a new top-level folder only for a distinct job with at least two files.
+* **Dependency direction.** Imports flow downward only:
+    * The app-level files (`main.ts`, `make-example-sheet.ts`, `utils.ts`) may import from any folder. Only they use `utils.ts`, which builds on `worksheet/`.
+    * `ui/` imports `settings/` and the root leaves.
+    * `generator/` imports `exercises/`, `worksheet/` and the root leaves.
+    * `exercises/` imports `worksheet/` and the root leaves.
+    * `settings/` and `worksheet/` import only the root leaves (`types.ts`, `constants.ts`, `asset-manager.ts`).
+    * Nothing imports `main.ts`. `types.ts` and `constants.ts` import nothing.
+  `make-example-sheet.ts` stays at the root because it imports exercises, and exercises import the layout contract; putting it in `worksheet/` would make those two folders depend on each other.
+* Keep code sections single-purpose; split a file into helpers once it passes roughly 200 lines.
+* Use relative imports for now (no path aliases or index files).
+* New files use kebab-case (`clock-exercise.ts`). Existing files keep their names until a dedicated rename task with its own `plan.md`, so imports and documents change together. Moving a file is also a task with its own `plan.md`; move with `git mv` so history follows.
 
 ### 8. Testing
 * One test file per source module, named `<module>.test.ts`. A test file is held to the same roughly 200-line limit as source: once a module's tests pass it, replace the file with a folder named after the module (`tests/unit/<module>/`), holding one file per function or behavior group (`panels.test.ts`, `resolve.test.ts`), with the shared helpers in `tests/support/`. Put it in `tests/unit/` if the module is pure logic, or `tests/dom/` if it needs `document` or `window` (add `// @vitest-environment jsdom` at the top of the file). Shared helpers live in `tests/support/`; add one there only when two test files use it.
