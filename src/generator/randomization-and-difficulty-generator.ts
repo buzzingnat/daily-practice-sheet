@@ -1,4 +1,4 @@
-import { HalfPageLayout, QuadrantExercise } from '../worksheet-layout';
+import { HalfPageLayout, QuadrantExercise } from '../worksheet/worksheet-layout';
 import { createKanaExercise } from '../kana-exercise';
 import { createAdditionExercise } from '../addition-exercise';
 import { createSubtractionExercise } from '../subtraction-exercise';

@@ -6,7 +6,7 @@ import { createAdditionExercise} from './addition-exercise';
 import { createSubtractionExercise } from './subtraction-exercise';
 import { createFractionsExercise } from './fractions-exercise';
 import { createKanaExercise } from './kana-exercise';
-import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWorksheetBatch } from './worksheet-layout';
+import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWorksheetBatch } from './worksheet/worksheet-layout';
 import { createPlaceholderExercise, createBlankExercise } from './utils';
 import { loadGeographyData, createGeographyExercise, Continent } from './geography-exercise';
 import { loadRegionMapData } from './region-map-data';

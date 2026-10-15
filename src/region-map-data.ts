@@ -5,7 +5,7 @@ import { Feature, GeoJsonProperties, MultiLineString, MultiPolygon } from 'geojs
 import { assignContinent, Continent, findContinent, isPolygonal, separateFrenchTerritories } from './geography-exercise';
 import { createRegionProjection } from './region-views';
 import { POPULATED_REGIONS, PopulatedRegion } from './types';
-import { EXERCISE_HEIGHT, EXERCISE_WIDTH } from './worksheet-layout';
+import { EXERCISE_HEIGHT, EXERCISE_WIDTH } from './worksheet/worksheet-layout';
 
 type IsoCountryRow = Parameters<typeof assignContinent>[0];
 

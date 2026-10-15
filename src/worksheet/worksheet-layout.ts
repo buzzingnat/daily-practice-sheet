@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import { SANS_SERIF_FONT, COLOR_PDF_CROSSHAIR, COLOR_PDF_PERFORATION, COLOR_WHITE } from './constants';
+import { SANS_SERIF_FONT, COLOR_PDF_CROSSHAIR, COLOR_PDF_PERFORATION, COLOR_WHITE } from '../constants';
 
 const MARGIN_X = 40;
 const PRINTABLE_WIDTH = 612 - (MARGIN_X * 2);

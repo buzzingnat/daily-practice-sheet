@@ -9,7 +9,7 @@ import {
     Topology
 } from 'topojson-specification';
 import { GeoJsonProperties, GeometryCollection, MultiLineString, MultiPolygon } from 'geojson';
-import { QuadrantExercise, QuadrantContext } from './worksheet-layout';
+import { QuadrantExercise, QuadrantContext } from './worksheet/worksheet-layout';
 import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY } from './constants';
 import { traceAsiaSideRegion, traceEuropeSideRegion, traceUralBoundary } from './europe-asia-boundary';
 

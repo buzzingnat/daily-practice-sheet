@@ -1,6 +1,6 @@
 import { jsPDF } from "jspdf";
 import { HalfPageLayout, QuadrantContext, QuadrantExercise } from "./worksheet-layout";
-import { SANS_SERIF_FONT, COLOR_BLACK } from './constants';
+import { SANS_SERIF_FONT, COLOR_BLACK } from '../constants';
 
 /**
  * Renders an isolated exercise quadrant onto a high-DPI hidden canvas element layer
