@@ -4,8 +4,8 @@ import { GeometryObject, MultiPolygon as TopologyMultiPolygon, Polygon as Topolo
 import { Feature, GeoJsonProperties, MultiLineString, MultiPolygon } from 'geojson';
 import { assignContinent, Continent, findContinent, isPolygonal, separateFrenchTerritories } from './geography-exercise';
 import { createRegionProjection } from './region-views';
-import { POPULATED_REGIONS, PopulatedRegion } from './types';
-import { EXERCISE_HEIGHT, EXERCISE_WIDTH } from './worksheet/worksheet-layout';
+import { POPULATED_REGIONS, PopulatedRegion } from '../../types';
+import { EXERCISE_HEIGHT, EXERCISE_WIDTH } from '../../worksheet/worksheet-layout';
 
 type IsoCountryRow = Parameters<typeof assignContinent>[0];
 

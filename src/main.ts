@@ -1,16 +1,16 @@
 import { getSharedImage } from "./asset-manager";
 import { executeTestSheetGeneration } from './make-example-sheet';
 import { generateWorkbookBatch, createWorkbookExerciseFactories } from './generator/randomization-and-difficulty-generator';
-import { createClockExercise, ClockType } from './clock-exercise';
-import { createAdditionExercise} from './addition-exercise';
-import { createSubtractionExercise } from './subtraction-exercise';
-import { createFractionsExercise } from './fractions-exercise';
-import { createKanaExercise } from './kana-exercise';
+import { createClockExercise, ClockType } from './exercises/clock-exercise';
+import { createAdditionExercise} from './exercises/addition-exercise';
+import { createSubtractionExercise } from './exercises/subtraction-exercise';
+import { createFractionsExercise } from './exercises/fractions-exercise';
+import { createKanaExercise } from './exercises/kana/kana-exercise';
 import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWorksheetBatch } from './worksheet/worksheet-layout';
 import { createPlaceholderExercise, createBlankExercise } from './utils';
-import { loadGeographyData, createGeographyExercise, Continent } from './geography-exercise';
-import { loadRegionMapData } from './region-map-data';
-import { createRegionMapExercise } from './region-map-exercise';
+import { loadGeographyData, createGeographyExercise, Continent } from './exercises/geography/geography-exercise';
+import { loadRegionMapData } from './exercises/geography/region-map-data';
+import { createRegionMapExercise } from './exercises/geography/region-map-exercise';
 import { GradeLevel, PopulatedRegion, TOPIC_KEYS, TopicKey } from './types';
 import { KANA_IMAGE_URL, COLOR_MEDIUM_GREY, COLOR_WHITE } from './constants';
 import {

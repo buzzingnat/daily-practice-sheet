@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { KANA_ROW_CARDS, listKanaCards } from '../../src/kana-rows';
+import { KANA_ROW_CARDS, listKanaCards } from '../../src/exercises/kana/kana-rows';
 import { KANA_ROWS, KanaRow } from '../../src/types';
 
 // The basic chart, row by row, written out by hand so a swapped or lost card is noticed

@@ -1,10 +1,10 @@
 import * as d3 from 'd3';
-import { QuadrantExercise, QuadrantContext } from './worksheet/worksheet-layout';
-import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY, COLOR_MEDIUM_GREY, COLOR_WHITE } from './constants';
+import { QuadrantExercise, QuadrantContext } from '../../worksheet/worksheet-layout';
+import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY, COLOR_MEDIUM_GREY, COLOR_WHITE } from '../../constants';
 import { createAsiaSidePolygon, createEuropeSidePolygon, createUralBoundaryLine } from './europe-asia-boundary';
 import { getRegionMapData, RegionCountry } from './region-map-data';
 import { createRegionProjection, getMapBox } from './region-views';
-import { PopulatedRegion } from './types';
+import { PopulatedRegion } from '../../types';
 
 const HIGHLIGHT_FILL = COLOR_MEDIUM_GREY;
 const OUTLINE_STROKE = COLOR_BLACK;

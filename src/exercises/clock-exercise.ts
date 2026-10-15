@@ -1,5 +1,5 @@
-import { QuadrantExercise, QuadrantContext } from './worksheet/worksheet-layout';
-import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY } from './constants';
+import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
+import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY } from '../constants';
 
 export type ClockType = 'telling' | 'setting';
 

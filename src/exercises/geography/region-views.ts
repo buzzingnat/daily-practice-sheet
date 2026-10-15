@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { GeoProjection } from 'd3';
 import { MultiPoint } from 'geojson';
-import { GeographicPoint, PopulatedRegion } from './types';
+import { GeographicPoint, PopulatedRegion } from '../../types';
 
 export interface RegionView {
     centerLongitude: number;

@@ -1,6 +1,6 @@
-import { QuadrantExercise, QuadrantContext, EXERCISE_HEIGHT, EXERCISE_WIDTH } from './worksheet/worksheet-layout';
-import { getSharedImageSync } from './asset-manager';
-import { KANA_IMAGE_URL, SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from './constants';
+import { QuadrantExercise, QuadrantContext, EXERCISE_HEIGHT, EXERCISE_WIDTH } from '../../worksheet/worksheet-layout';
+import { getSharedImageSync } from '../../asset-manager';
+import { KANA_IMAGE_URL, SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from '../../constants';
 
 interface SpritePosition {
     sourceX: number;

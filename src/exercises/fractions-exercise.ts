@@ -1,6 +1,6 @@
-import { QuadrantExercise, QuadrantContext } from './worksheet/worksheet-layout';
-import { GradeLevel } from './types';
-import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from './constants';
+import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
+import { GradeLevel } from '../types';
+import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from '../constants';
 
 interface FractionProblem {
     numerator: number;

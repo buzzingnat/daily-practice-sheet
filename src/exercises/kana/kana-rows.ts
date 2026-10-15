@@ -1,4 +1,4 @@
-import { KANA_ROWS, KanaRow } from './types';
+import { KANA_ROWS, KanaRow } from '../../types';
 
 export interface KanaCard {
     character: string;

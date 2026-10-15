@@ -1,6 +1,6 @@
 import { GeoProjection } from 'd3';
 import { Feature, LineString, Polygon } from 'geojson';
-import { GeographicPoint } from './types';
+import { GeographicPoint } from '../../types';
 
 // The northern world, as a frame to subtract Europe from. Nothing in the Europe
 // landmass lies south of 20 degrees north, so this frame is generous enough.

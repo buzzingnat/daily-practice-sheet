@@ -3,8 +3,8 @@ import {
   HalfPageLayout,
   QuadrantExercise
 } from './worksheet/worksheet-layout';
-import { createClockExercise } from './clock-exercise';
-import { createKanaExercise } from './kana-exercise';
+import { createClockExercise } from './exercises/clock-exercise';
+import { createKanaExercise } from './exercises/kana/kana-exercise';
 import { createBlankExercise, createPlaceholderExercise } from './utils';
 
 /**
