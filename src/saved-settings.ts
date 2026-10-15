@@ -92,7 +92,7 @@ function readFromLocalStorage(key: string): string | null {
     }
 }
 
-// A refusal costs the human their settings on reload, not their worksheet now
+// A refusal costs the user their settings on reload, not their worksheet now
 function writeToLocalStorage(key: string, value: unknown): void {
     try {
         window.localStorage.setItem(key, JSON.stringify(value));

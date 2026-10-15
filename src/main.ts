@@ -24,7 +24,7 @@ import { loadSavedSettings, saveHalfPageCount, savePanelSelections, saveSelected
 
 const MAXIMUM_TOPIC_COUNT = 6;
 
-// Whatever the human chose last visit, checked against what still exists
+// Whatever the user chose last visit, checked against what still exists
 const savedSettings = loadSavedSettings(MAXIMUM_TOPIC_COUNT);
 
 // for storing user selections for worksheet settings

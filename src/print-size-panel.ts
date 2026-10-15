@@ -9,7 +9,7 @@ import {
 /**
  * Builds the "Print size" fieldset: a stepper, quick picks, a little diagram of
  * the sheets, and a caption saying the same thing in words. Everything updates in
- * place, so keyboard focus stays where the human left it. onChange fires with the
+ * place, so keyboard focus stays where the user left it. onChange fires with the
  * clamped count after every edit.
  */
 export function renderPrintSizePanel(
@@ -125,7 +125,7 @@ export function renderPrintSizePanel(
 
     decreaseButton.addEventListener('click', () => applyCount(currentCount - 1));
     increaseButton.addEventListener('click', () => applyCount(currentCount + 1));
-    // The change event waits for the human to finish typing, so "1" on the way to "10" is left alone
+    // The change event waits for the user to finish typing, so "1" on the way to "10" is left alone
     countInput.addEventListener('change', () => applyCount(countInput.valueAsNumber));
 
     refresh();

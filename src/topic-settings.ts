@@ -13,7 +13,7 @@ import {
 export interface ChoiceOption {
     // Compared in code
     value: string;
-    // Shown to the human; kept apart so a translation has somewhere to live
+    // Shown to the user; kept apart so a translation has somewhere to live
     label: string;
 }
 
@@ -28,7 +28,7 @@ export interface PanelSpecification {
     offersAll: boolean;
 }
 
-// What the UI stores while the human clicks. Strings in, types out, at one border.
+// What the UI stores while the user clicks. Strings in, types out, at one border.
 export type PanelSelections = Record<ConfigurableTopic, string[]>;
 
 const GRADE_LEVELS: readonly GradeLevel[] = ['1st', '2nd', '3rd'];
@@ -116,7 +116,7 @@ export function createDefaultSelections(): PanelSelections {
 }
 
 /**
- * Keeps the allowed items the human chose, in the allowed list's order. An
+ * Keeps the allowed items the user chose, in the allowed list's order. An
  * empty result means the selection holds nothing real, which is an error.
  */
 function pickChosen<Item extends string>(
