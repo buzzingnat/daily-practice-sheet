@@ -6,14 +6,25 @@
   "author": "Hillary Spratt",
   "sourceType": "module",
   "main": "main.js",
+  "engines": {"node": ">=22.12"},
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "check-node": "node scripts/check-node-version.mjs",
+    "predev": "npm run check-node",
+    "pretest": "npm run check-node && tsc --noEmit",
+    "pretest:watch": "npm run check-node && tsc --noEmit",
+    "prebuild": "npm run check-node && tsc --noEmit",
+    "prebuild:geo": "npm run check-node && tsc --noEmit",
     "dev:build": "node build.js --watch",
     "dev:server": "servor dist index.html 3000 --reload",
     "dev:types": "tsc --watch --noEmit",
-    "dev": "concurrently --kill-others -n \"BUILD,SERVE,TYPES\" -c \"cyan,green,magenta\" \"npm:dev:build\" \"npm:dev:server\" \"npm:dev:types\"",
+    "dev:test-types": "tsc --watch --noEmit -p tests",
+    "dev": "concurrently --kill-others -n \"BUILD,SERVE,TYPES,TEST-TYPES\" -c \"cyan,green,magenta,yellow\" \"npm:dev:build\" \"npm:dev:server\" \"npm:dev:types\" \"npm:dev:test-types\"",
     "build:geo": "ts-node scripts/compile-geography.ts",
-    "build": "esbuild src/main.ts --bundle --outfile=dist/bundle.js --minify --sourcemap"
+    "build": "esbuild src/main.ts --bundle --outfile=dist/bundle.js --minify --sourcemap",
+    "test:watch": "vitest",
+    "test:types": "tsc --noEmit -p tests",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@types/d3": "^7.4.3",
@@ -26,7 +37,9 @@
     "jsdom": "^30.1.0",
     "servor": "^4.0.2",
     "tsx": "^4.23.13",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.4"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,

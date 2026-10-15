@@ -16,7 +16,7 @@ This project is a Modular Educational Worksheet Generator. It produces high-reso
 * **Core Dependencies:** `jspdf` (for PDF/practice sheet generation), d3, topojson-client, topojson-specification and geojson (for geography exercise creation)
 * **Rendering Context:** The native HTML5 2D Canvas context (`CanvasRenderingContext2D`) is used uniformly for live browser previews and for PDF image compilation.
 * **Execution Style:** Vanilla TypeScript DOM manipulation / modern native Web APIs. Do NOT attempt to use React, Vue, or other component frameworks, as they are not installed.
-* **Testing:** None. This should be added at some point.
+* **Testing:** Vitest. Tests live in `tests/`, apart from `src/`, so esbuild never sees them (see the Testing section below).
 
 ---
 
@@ -119,7 +119,15 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 * Use relative imports for now.
 * New files use kebab-case (`clock-exercise.ts`). Existing files keep their names until a dedicated rename task with its own `plan.md`, so imports and documents change together.
 
-### 8. State & Styling
+### 8. Testing
+* One test file per source module, named `<module>.test.ts`. Put it in `tests/unit/` if the module is pure logic, or `tests/dom/` if it needs `document` or `window` (add `// @vitest-environment jsdom` at the top of the file). Shared helpers live in `tests/support/`; add one there only when two test files use it.
+* Tests import from `src/` with relative paths. `src/` holds no test code.
+* Tests that run over many cases (every topic selection, every seed) collect all offenders into a list and expect the list to be empty, so one failure names every case it broke.
+* Randomness is injected. Use `createSeededRandom` from `tests/support/seeded-random.ts`; never `Math.random()` in a test.
+* A new rule in a planner, deck or parser gets a test. Confirm the test can fail by breaking the rule on purpose once, then restore it.
+* `tests/tsconfig.json` extends the root config and adds `tests/` and the Vitest config. The root `tsconfig.json` stays browser-only (`types: []`, `rootDir: ./src`).
+
+### 9. State & Styling
 * **Vanilla CSS:** Mobile-first, using standard media queries. Prefer Flexbox over other positioning.
 
 ---
@@ -139,3 +147,5 @@ Whenever you are initialized or assigned a new task, you must operate within thi
 Before marking a task as complete, you are expected to run (or request the human to run) these validation blocks to verify your work:
 * **Type Check (Continuous):** `npm run dev:types`
 * **Production Build Check:** `npm run build`
+* **Tests:** `npm test` (one pass) or `npm run test:watch` (watch mode)
+* **Test Type Check:** `npm run test:types` (continuous: `npm run dev:test-types`, which `npm run dev` also starts)

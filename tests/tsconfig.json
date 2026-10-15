@@ -1,0 +1,8 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "typeRoots": ["../node_modules/@types"]
+  },
+  "include": ["../src/**/*", "./**/*", "../vitest.config.mts"]
+}
