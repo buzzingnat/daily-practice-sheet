@@ -17,10 +17,10 @@ import {
     findConfigurableTopic,
     resolveTopicSettings,
     summarizeSelection
-} from './topic-settings';
-import { renderSettingsPanels } from './topic-settings-panel';
-import { renderPrintSizePanel } from './print-size-panel';
-import { loadSavedSettings, saveHalfPageCount, savePanelSelections, saveSelectedTopics } from './saved-settings';
+} from './settings/topic-settings';
+import { renderSettingsPanels } from './ui/topic-settings-panel';
+import { renderPrintSizePanel } from './ui/print-size-panel';
+import { loadSavedSettings, saveHalfPageCount, savePanelSelections, saveSelectedTopics } from './settings/saved-settings';
 
 const MAXIMUM_TOPIC_COUNT = 6;
 

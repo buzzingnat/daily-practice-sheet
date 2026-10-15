@@ -1,6 +1,6 @@
 import { createDefaultSelections, findPanelSpecification, PanelSelections } from './topic-settings';
 import { clampHalfPageCount, DEFAULT_HALF_PAGES } from './print-size';
-import { CONFIGURABLE_TOPICS, ConfigurableTopic, TOPIC_KEYS, TopicKey } from './types';
+import { CONFIGURABLE_TOPICS, ConfigurableTopic, TOPIC_KEYS, TopicKey } from '../types';
 
 // One key per setting. The version sits in the key, so a change of shape can move to
 // v2 and leave the old values to gather dust rather than be misread.

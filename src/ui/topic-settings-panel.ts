@@ -1,5 +1,5 @@
-import { findConfigurableTopic, findPanelSpecification, PANEL_SPECIFICATIONS, PanelSelections, PanelSpecification } from './topic-settings';
-import { TopicKey } from './types';
+import { findConfigurableTopic, findPanelSpecification, PANEL_SPECIFICATIONS, PanelSelections, PanelSpecification } from '../settings/topic-settings';
+import { TopicKey } from '../types';
 
 const ALL_CHIP_LABEL = 'All';
 

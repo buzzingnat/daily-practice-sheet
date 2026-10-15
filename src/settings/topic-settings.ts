@@ -8,7 +8,7 @@ import {
     PopulatedRegion,
     TopicKey,
     TopicSettings
-} from './types';
+} from '../types';
 
 export interface ChoiceOption {
     // Compared in code

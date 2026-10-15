@@ -5,9 +5,9 @@ import {
     parseSavedSettings,
     SavedSettings,
     SELECTED_TOPICS_KEY
-} from '../../src/saved-settings';
-import { DEFAULT_HALF_PAGES, MAXIMUM_HALF_PAGES } from '../../src/print-size';
-import { createDefaultSelections } from '../../src/topic-settings';
+} from '../../src/settings/saved-settings';
+import { DEFAULT_HALF_PAGES, MAXIMUM_HALF_PAGES } from '../../src/settings/print-size';
+import { createDefaultSelections } from '../../src/settings/topic-settings';
 import { CONFIGURABLE_TOPICS, TOPIC_KEYS } from '../../src/types';
 
 const SAVED_TOPIC_LIMIT = 6;

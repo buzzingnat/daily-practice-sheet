@@ -5,7 +5,7 @@ import {
     describePrintSize,
     MAXIMUM_HALF_PAGES,
     MINIMUM_HALF_PAGES
-} from '../../src/print-size';
+} from '../../src/settings/print-size';
 
 const EVERY_ALLOWED_COUNT = Array.from(
     { length: MAXIMUM_HALF_PAGES - MINIMUM_HALF_PAGES + 1 },

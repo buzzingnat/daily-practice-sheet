@@ -4,7 +4,7 @@ import {
     MAXIMUM_HALF_PAGES,
     MINIMUM_HALF_PAGES,
     QUICK_PICK_HALF_PAGES
-} from './print-size';
+} from '../settings/print-size';
 
 /**
  * Builds the "Print size" fieldset: a stepper, quick picks, a little diagram of

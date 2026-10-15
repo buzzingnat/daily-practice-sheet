@@ -5,7 +5,7 @@ import {
     findPanelSpecification,
     PanelSpecification,
     PANEL_SPECIFICATIONS
-} from '../../../src/topic-settings';
+} from '../../../src/settings/topic-settings';
 import {
     CONFIGURABLE_TOPICS,
     ConfigurableTopic,

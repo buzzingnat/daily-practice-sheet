@@ -1,4 +1,4 @@
-import { createDefaultSelections, PanelSelections } from '../../src/topic-settings';
+import { createDefaultSelections, PanelSelections } from '../../src/settings/topic-settings';
 import { GradeLevel } from '../../src/types';
 
 export type LevelTopics = 'fractions' | 'addition' | 'subtraction';
