@@ -78,8 +78,8 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
 
 ---
 
-## Current State and Open Issues (as of 2026-10-14, after the `src/` reorganization)
-* **Git:** Phases 1 to 4 of the `src/` reorganization are committed (one commit each). Phase 5 (these documents) is uncommitted. The working tree is otherwise clean.
+## Current State and Open Issues (as of the end of 2026-10-14)
+* **Git:** Everything from this session is committed, including the `src/` reorganization, the architecture test and the documentation. The working tree was clean at the end of 2026-10-14.
 * **Verification:** `npm test` (10 files, 318 passed, 2 skipped on purpose) and `npm run build` pass. PDF pages for the print-size selector were counted but not eyeballed.
 * **Commands:** `npm test` runs the suite once; `npm run test:watch` watches. `npm run dev` runs four watchers: build, server, app type check and test type check. `pretest`, `pretest:watch` and `prebuild` run `npm run check-node` and `tsc --noEmit` first, so a type error stops a test or build run. `predev` only checks the Node version, because `dev:types` already runs `tsc --watch`. `npm run build` runs `node build.js` (copies `public/` into `dist/`) and then the minified esbuild bundle.
 * **Node:** Needs 22.12 or newer (Vitest, Vite and `concurrently` all do). The shell default here is Node 14, so run `nvm use` first. `engines` and `.npmrc` guard `npm install` only; `scripts/check-node-version.mjs` guards the scripts and is written in plain syntax so an old Node can parse it and complain.
@@ -173,3 +173,23 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * `tests/support/vite-types.d.ts` for the glob types; `AGENTS.md` section 7 says the rule is enforced and how to add a folder, and the Testing section describes `tests/architecture/`.
 * **Mutation-tested on the real code:** an exercise importing settings, settings importing a panel, a panel importing `main.ts`, and kana importing geography were each caught with a one-sentence message, and restored. A file in an unknown folder was **not** caught at first: Vitest's `fsModuleCache` kept the compiled test with the file list from the first run, so a new file went unseen. Setting `fsModuleCache: false` in `vitest.config.mts` fixed it (verified by running the test warm, adding the stray file, and watching it fail). The suite still runs in about a second.
 * **Open Issues:** None new. Disabling the module cache applies to all tests; re-enable it only if the suite grows slow and the architecture test is moved to a project of its own.
+
+### 2026-10-14 - Session summary (Claude)
+* **Status:** Everything below is done and committed. At the end: `npx tsc --noEmit`, `npm run test:types`, `npm test` (10 files, 318 passed, 2 skipped on purpose) and `npm run build` (bundle 930,757 bytes) pass. The detailed entries above hold the specifics; this is the overview.
+* **Accomplished:**
+    * **Documentation:** `progress.md` consolidated and its roadmap reordered into tiers (done, small, medium, large, decide later); the Roman-letter print and cursive tracing goal added; two moot tasks dropped. `AGENTS.md` and `readme.md` refreshed to match. The readme now explains how to run one test file or one named test, how `src/` is organized, and how to add a folder.
+    * **Local-storage persistence:** `settings/saved-settings.ts` saves the selected topics, per-topic settings and print size, one key per setting, with validation and a fallback to defaults when storage is blocked or holds bad data. Checked in the browser.
+    * **Test suite:** Vitest in `tests/` (`unit/`, `support/`, `architecture/`). `randomization-check.ts` was migrated into planner, deck, print-size and saved-settings tests; new tests for `kana-rows` (33) and `topic-settings` (102, split into three files). Rules were mutation-tested by breaking the code on purpose.
+    * **Tooling:** diagnosed failures caused by the shell's Node 14 default; `scripts/check-node-version.mjs` and `pre` hooks now stop old Node versions with a plain message (`engines` and `engine-strict` guard only `npm install`). `npm run dev` also watches the test type check. The dead `build:geo` script and `d3-geo-projection` were removed.
+    * **`src/` reorganization:** 27 source files moved into `worksheet/`, `exercises/` (`kana/`, `geography/`), `generator/`, `settings/` and `ui/`, in five committed phases, by a one-off script that rewrote every import with the compiler as the check; the bundle stayed byte-identical throughout. `tests/unit/` now mirrors `src/`. A folder dependency test (`tests/architecture/`) enforces which folders may import which, and `AGENTS.md` and the readme document the rule.
+* **Lessons recorded:**
+    * npm checks `engines` and `engine-strict` only on install, never on `npm run`.
+    * Vitest's `fsModuleCache` baked the `import.meta.glob` file list into the compiled test, so a new file went unseen; `fsModuleCache: false` in `vitest.config.mts` fixed it.
+    * Installing Vitest once pruned `d3-geo` and two type packages from `node_modules`; `npm install` restored them.
+    * The dependency rule I first wrote was wrong in two places (`utils.ts` imports `worksheet/`, and the generator does not import `settings/`); checking it against the real imports caught both.
+* **Open Issues and next steps:**
+    * Three files are over 200 lines: `exercises/geography/geography-exercise.ts` (433), `main.ts` (380) and `exercises/geography/region-map-data.ts` (346). Splitting them is a separate task.
+    * Small tasks next: rename the "batch" wording (button label and PDF filename), share the geography constants between the two geography files, add a CI workflow, and write the `region-map-data` tests (needs `@types/node`, with approval).
+    * Medium: DOM tests with jsdom, injectable randomness, frequency weights, saved deck state, separating exercise titles from types.
+    * Large: Roman-letter tracing (needs the user's font choice) and live canvas previews.
+    * Still the user's to do: a native-speaker review of the 41 added hiragana pronunciation hints.
