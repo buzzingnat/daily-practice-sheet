@@ -6,6 +6,9 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
     test: {
         include: ['tests/**/*.test.ts'],
-        environment: 'node'
+        environment: 'node',
+        // The folder dependency test lists src/ with import.meta.glob, and a cached transform
+        // would keep the list it saw first, so a new file would go unseen. The suite is fast enough.
+        fsModuleCache: false
     }
 });

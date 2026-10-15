@@ -137,6 +137,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
     * `exercises/` imports `worksheet/` and the root leaves.
     * `settings/` and `worksheet/` import only the root leaves (`types.ts`, `constants.ts`, `asset-manager.ts`).
     * Nothing imports `main.ts`. `types.ts` and `constants.ts` import nothing.
+  This rule is enforced by `tests/architecture/src-folder-dependencies.test.ts`, which reads every file in `src/` and fails with one sentence per offense. A file in a folder the rule does not know also fails it; to add a folder, update the table in `tests/support/folder-dependencies.ts` and this section together.
   `make-example-sheet.ts` stays at the root because it imports exercises, and exercises import the layout contract; putting it in `worksheet/` would make those two folders depend on each other.
 * Keep code sections single-purpose; split a file into helpers once it passes roughly 200 lines.
 * Use relative imports for now (no path aliases or index files).
@@ -145,11 +146,13 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 ### 8. Testing
 * **Tests mirror `src/`.** One test file per source module, named `<module>.test.ts`, in the same folder path under `tests/unit/` as the module has under `src/`: `src/generator/shuffled-deck.ts` is tested by `tests/unit/generator/shuffled-deck.test.ts`, and `src/exercises/kana/kana-rows.ts` by `tests/unit/exercises/kana/kana-rows.test.ts`. A module that needs `document` or `window` is tested the same way under `tests/dom/` (add `// @vitest-environment jsdom` at the top of the file); the folder path mirrors `src/` there too.
 * **Long test files split into a folder.** A test file is held to the same roughly 200-line limit as source: once a module's tests pass it, replace the file with a folder named after the module (`tests/unit/settings/topic-settings/`), holding one file per function or behavior group (`panels.test.ts`, `resolve.test.ts`).
+* **Architecture tests** live in `tests/architecture/`. They check the shape of the project, not one module, so they do not mirror `src/`. `dependency-checker.test.ts` tests the checker on made-up projects; `src-folder-dependencies.test.ts` runs it on the real `src/`.
 * **Shared helpers** live in `tests/support/`; add one there only when two test files use it.
 * Tests import from `src/` with relative paths. `src/` holds no test code.
 * Tests that run over many cases (every topic selection, every seed) collect all offenders into a list and expect the list to be empty, so one failure names every case it broke.
 * Randomness is injected. Use `createSeededRandom` from `tests/support/seeded-random.ts`; never `Math.random()` in a test.
 * A new rule in a planner, deck or parser gets a test. Confirm the test can fail by breaking the rule on purpose once, then restore it.
+* `vitest.config.mts` sets `fsModuleCache: false`, because the architecture test lists `src/` with `import.meta.glob` and a cached transform would keep the first list it saw. `tests/support/vite-types.d.ts` gives the tests Vite's `import.meta.glob` types.
 * `tests/tsconfig.json` extends the root config and adds `tests/` and the Vitest config (`vitest.config.mts`, in the project root). The root `tsconfig.json` stays browser-only (`types: []`, `rootDir: ./src`).
 
 ### 9. State & Styling
