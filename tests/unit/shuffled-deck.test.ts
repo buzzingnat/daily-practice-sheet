@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { createShuffledDeck } from '../../src/shuffled-deck';
+import { createShuffledDeck } from '../../src/generator/shuffled-deck';
 import { countBy } from '../support/count-by';
 import { createSeededRandom } from '../support/seeded-random';
 

@@ -1,4 +1,4 @@
-import { QuadrantTopics, RandomSource, TopicKey } from './types';
+import { QuadrantTopics, RandomSource, TopicKey } from '../types';
 import { shuffleInPlace } from './shuffled-deck';
 
 const QUADRANTS_PER_HALF_PAGE = 4;

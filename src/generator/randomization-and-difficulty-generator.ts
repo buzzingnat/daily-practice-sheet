@@ -1,15 +1,15 @@
-import { HalfPageLayout, QuadrantExercise } from './worksheet-layout';
-import { createKanaExercise } from './kana-exercise';
-import { createAdditionExercise } from './addition-exercise';
-import { createSubtractionExercise } from './subtraction-exercise';
-import { ClockType, createClockExercise } from './clock-exercise';
-import { createFractionsExercise } from './fractions-exercise';
-import { CONTINENTS, Continent, createGeographyExercise } from './geography-exercise';
+import { HalfPageLayout, QuadrantExercise } from '../worksheet-layout';
+import { createKanaExercise } from '../kana-exercise';
+import { createAdditionExercise } from '../addition-exercise';
+import { createSubtractionExercise } from '../subtraction-exercise';
+import { ClockType, createClockExercise } from '../clock-exercise';
+import { createFractionsExercise } from '../fractions-exercise';
+import { CONTINENTS, Continent, createGeographyExercise } from '../geography-exercise';
 import { planHalfPages } from './half-page-planner';
 import { ShuffledDeck, createShuffledDeck } from './shuffled-deck';
-import { createRegionMapExercise, listRegionTargets } from './region-map-exercise';
-import { KanaCard, listKanaCards } from './kana-rows';
-import { GradeLevel, PopulatedRegion, QuadrantTopics, RandomSource, TopicKey, TopicSettings } from './types';
+import { createRegionMapExercise, listRegionTargets } from '../region-map-exercise';
+import { KanaCard, listKanaCards } from '../kana-rows';
+import { GradeLevel, PopulatedRegion, QuadrantTopics, RandomSource, TopicKey, TopicSettings } from '../types';
 
 // Content that must take turns rather than trust to luck.
 export interface ContentDecks {

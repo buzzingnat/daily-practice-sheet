@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { planHalfPages } from '../../src/half-page-planner';
+import { planHalfPages } from '../../src/generator/half-page-planner';
 import { QuadrantTopics, TOPIC_KEYS, TopicKey } from '../../src/types';
 import { countBy } from '../support/count-by';
 import { createSeededRandom } from '../support/seeded-random';

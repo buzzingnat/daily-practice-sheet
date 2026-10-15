@@ -1,4 +1,4 @@
-import { RandomSource } from './types';
+import { RandomSource } from '../types';
 
 // Rejection sampling needs a ceiling. For the ten- and fourteen-card decks in use,
 // roughly one shuffle in three passes, so two hundred failures in a row would be
