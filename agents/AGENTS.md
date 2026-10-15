@@ -121,7 +121,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 * New files use kebab-case (`clock-exercise.ts`). Existing files keep their names until a dedicated rename task with its own `plan.md`, so imports and documents change together.
 
 ### 8. Testing
-* One test file per source module, named `<module>.test.ts`. Put it in `tests/unit/` if the module is pure logic, or `tests/dom/` if it needs `document` or `window` (add `// @vitest-environment jsdom` at the top of the file). Shared helpers live in `tests/support/`; add one there only when two test files use it.
+* One test file per source module, named `<module>.test.ts`. A test file is held to the same roughly 200-line limit as source: once a module's tests pass it, replace the file with a folder named after the module (`tests/unit/<module>/`), holding one file per function or behavior group (`panels.test.ts`, `resolve.test.ts`), with the shared helpers in `tests/support/`. Put it in `tests/unit/` if the module is pure logic, or `tests/dom/` if it needs `document` or `window` (add `// @vitest-environment jsdom` at the top of the file). Shared helpers live in `tests/support/`; add one there only when two test files use it.
 * Tests import from `src/` with relative paths. `src/` holds no test code.
 * Tests that run over many cases (every topic selection, every seed) collect all offenders into a list and expect the list to be empty, so one failure names every case it broke.
 * Randomness is injected. Use `createSeededRandom` from `tests/support/seeded-random.ts`; never `Math.random()` in a test.
