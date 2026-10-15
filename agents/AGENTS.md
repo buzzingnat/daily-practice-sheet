@@ -16,6 +16,7 @@ This project is a Modular Educational Worksheet Generator. It produces high-reso
 * **Core Dependencies:** `jspdf` (for PDF/practice sheet generation), d3, topojson-client, topojson-specification and geojson (for geography exercise creation)
 * **Rendering Context:** The native HTML5 2D Canvas context (`CanvasRenderingContext2D`) is used uniformly for live browser previews and for PDF image compilation.
 * **Execution Style:** Vanilla TypeScript DOM manipulation / modern native Web APIs. Do NOT attempt to use React, Vue, or other component frameworks, as they are not installed.
+* **Node:** 22.12 or newer (the `.nvmrc` pins 24.21.0). Run `nvm use` in every terminal window; the shell default may be far older. `engines` in `package.json` and `engine-strict` in `.npmrc` guard `npm install` only, so `predev`, `pretest`, `pretest:watch` and `prebuild` run `scripts/check-node-version.mjs` and stop with a plain message on an old Node.
 * **Testing:** Vitest. Tests live in `tests/`, apart from `src/`, so esbuild never sees them (see the Testing section below).
 
 ---
@@ -125,7 +126,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 * Tests that run over many cases (every topic selection, every seed) collect all offenders into a list and expect the list to be empty, so one failure names every case it broke.
 * Randomness is injected. Use `createSeededRandom` from `tests/support/seeded-random.ts`; never `Math.random()` in a test.
 * A new rule in a planner, deck or parser gets a test. Confirm the test can fail by breaking the rule on purpose once, then restore it.
-* `tests/tsconfig.json` extends the root config and adds `tests/` and the Vitest config. The root `tsconfig.json` stays browser-only (`types: []`, `rootDir: ./src`).
+* `tests/tsconfig.json` extends the root config and adds `tests/` and the Vitest config (`vitest.config.mts`, in the project root). The root `tsconfig.json` stays browser-only (`types: []`, `rootDir: ./src`).
 
 ### 9. State & Styling
 * **Vanilla CSS:** Mobile-first, using standard media queries. Prefer Flexbox over other positioning.
@@ -146,6 +147,6 @@ Whenever you are initialized or assigned a new task, you must operate within thi
 ## Verification Commands
 Before marking a task as complete, you are expected to run (or request the human to run) these validation blocks to verify your work:
 * **Type Check (Continuous):** `npm run dev:types`
-* **Production Build Check:** `npm run build`
-* **Tests:** `npm test` (one pass) or `npm run test:watch` (watch mode)
+* **Production Build Check:** `npm run build` (its `prebuild` hook checks the Node version and runs `tsc --noEmit` first)
+* **Tests:** `npm test` (one pass; its `pretest` hook checks the Node version and type-checks `src/` first) or `npm run test:watch` (watch mode)
 * **Test Type Check:** `npm run test:types` (continuous: `npm run dev:test-types`, which `npm run dev` also starts)

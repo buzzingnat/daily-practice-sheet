@@ -1,5 +1,5 @@
 import { getSharedImage } from "./asset-manager";
-import { executeTestSheetGeneration } from './run-test';
+import { executeTestSheetGeneration } from './make-example-sheet';
 import { generateWorkbookBatch, createWorkbookExerciseFactories } from './randomization-and-difficulty-generator';
 import { createClockExercise, ClockType } from './clock-exercise';
 import { createAdditionExercise} from './addition-exercise';

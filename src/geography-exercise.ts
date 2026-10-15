@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
 import * as d3_geo from "d3-geo";
-// "d3-geo-projection@4")
 import * as topojson from 'topojson-client';
 import {
     GeometryCollection as TopologyGeometryCollection,
