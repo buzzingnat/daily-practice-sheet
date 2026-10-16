@@ -34,6 +34,14 @@ export const KANA_ROWS = [
 
 export type KanaRow = typeof KANA_ROWS[number];
 
+// The Montessori sets for cursive lowercase, in the order they are introduced (after Cathie
+// Perolman's color-coded groups): each set but the last holds one vowel and three consonants.
+export const CURSIVE_GROUPS = [
+    's-m-a-t', 'c-r-i-p', 'b-f-o-g', 'h-j-u-l', 'd-w-e-n', 'k-q-v-x-y-z'
+] as const;
+
+export type CursiveGroup = typeof CURSIVE_GROUPS[number];
+
 // Topics that come with a settings panel
 export const CONFIGURABLE_TOPICS = [
     'fractions', 'addition', 'subtraction', 'hiragana', 'countries'

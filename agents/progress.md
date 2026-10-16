@@ -53,12 +53,9 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
 5. [ ] **Separate Exercise Title and Exercise Type** so the generator can be offered in other languages: each exercise gets a name/id/definition in code and a separate display title. Placed before the large tasks so new topics such as Roman letters are built on it instead of being retrofitted.
 
 ### Next up: large tasks
-1. [ ] **Roman letters (English) print and cursive tracing exercises.** Tracing for the Latin alphabet in print (manuscript) and cursive, uppercase and lowercase. Notes:
-    * Follow the kana pattern: a new exercise module, a new `TopicKey`, a settings panel (style: print or cursive; case: upper, lower or both; letter groups, perhaps by stroke family), a letter deck in `createContentDecks`, and a test file in `tests/unit/`.
-    * Needs a print-style handwriting font and a cursive font that ship in `public/fonts/` (only `chirufont.ttf` is there today). Licensing and the exact letterforms are for the human to choose. A font file is an asset rather than a package, but confirm first.
-    * Each letter wants a baseline, midline and topline guide (cursive adds a slant guide), a faint tracing row, and blank practice space, in `COLOR_LIGHT_GREY` and `COLOR_BLACK` like the kana quadrants. Stroke-order arrows are a stretch goal.
-    * The typography spec in AGENTS.md already allows a handwriting font for tracing exercises; update it when the fonts land.
-    * Consider letters, then short words, as two difficulty levels.
+1. [ ] **Cursive lowercase letters (Montessori order), in progress; plan in `plan.md`.** Phases 0, 2 and 3 are done (fonts, pure logic, the exercise without arrows); phase 4 (wire in the `cursiveLetters` topic) is next. Decisions: Learning Curve 4.0 Regular family, two rows, a bold model on the left, line one two solid then two dotted letters (four per line, not joined), line two blank, mid-gray guide lines, Perolman's six sets (s m a t, c r i p, b f o g, h j u l, d w e n, k q v x y z) as chips. Still to come in order: phase 4 (topic, panel, deck, saved settings, tests, a PDF check), phase 5 (docs), then the items below.
+    * [ ] **Stroke guides and arrows.** A human designs each letter's stroke order first (Montessori Cursive: bottom-left start, continuous movement); then the sketch is cleaned up and drawn on the first (bold) model only. Saved preference: bold black letters with medium-grey arrows, offset slightly toward the outside of each bend, a number at the start of each stroke.
+    * [ ] **Joined practice** (the stage after single letters), then **print letters** as the separate topic `printLetters` (own plan), capitals, and key-word pictures.
 2. [ ] **Live canvas previews** updating reactively before PDF generation (only example quadrants exist today). Touches `main.ts` heavily; best after the DOM tests exist.
 
 ### Decide later (only if the need shows up)
@@ -193,3 +190,17 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * Medium: DOM tests with jsdom, injectable randomness, frequency weights, saved deck state, separating exercise titles from types.
     * Large: Roman-letter tracing (needs the user's font choice) and live canvas previews.
     * Still the user's to do: a native-speaker review of the 41 added hiragana pronunciation hints.
+
+### 2026-10-15 - Cursive letter exercise, phases 0, 2 and 3 (Claude)
+* **Status:** Built, not committed. `npx tsc --noEmit`, `npm run test:types`, `npm test` (12 files, 361 passed, 2 skipped) and `npm run build` pass. Looked at in the real app: five example quadrants (s, m, g, k, w) draw with the fonts loaded and no console errors. Not wired into topic selection yet (phase 4), so a generated PDF does not include it. Mutation-tested: a wrong letter in a group (3 failures), a changed row pattern (1), the width fit removed (3) and baselines tied to letter size (2) were each caught and restored.
+* **Accomplished:**
+    * **Phase 0, fonts:** `public/fonts/learning-curve/` holds the Regular, Bold and Dashed `.ttf` files and the license `README.TXT` from the Learning Curve 4.0 pack; `@font-face` for `CursiveRegular`, `CursiveBold` and `CursiveDashed` in `styles.css`; the family names in `constants.ts`. The older `learning-curve-bv` folder was deleted at the user's request.
+    * **Phase 2, pure logic:** `CURSIVE_GROUPS` in `types.ts`; `exercises/cursive/cursive-cards.ts` (the six sets and `listCursiveCards`); `cursive-layout.ts` (`planCursiveLayout`, measured metrics in, positions and sizes out). Tests: `tests/unit/exercises/cursive/cursive-cards.test.ts` (26 letters across six sets, none repeated, one vowel per set except the last) and `cursive-layout.test.ts` (four slots per line; solid, solid, dotted, dotted then blank; guide order and bounds; no letter overflowing its slot; wide letters shrink; baselines the same for every letter; model inside its panel; bad input throws).
+    * **Phase 3, the exercise:** `cursive-fonts.ts` (`loadCursiveFonts`, which throws if a family is not declared, plus font and ink measuring) and `cursive-exercise.ts` (`createCursiveExercise(letter)`: title, bold model, mid-gray guide lines with a dashed midline, letters drawn one per slot). `main.ts` preloads the fonts and shows five example quadrants.
+    * **Applied from the user's spike feedback:** guide lines in `COLOR_MEDIUM_GREY` and slightly heavier (0.75); model about 5 percent smaller (limit 106pt); practice letters from about 55pt to about 59pt; exactly four letters per line, spaced, not joined.
+* **Sizes in use:** model up to 106pt; practice letters up to about 59pt (the most the 58.5pt row allows). **Wide letters draw smaller so four fit a line:** m near 44pt, w near 52pt, y near 55pt, n near 57pt; every other letter is at the full size. The guide lines follow the size drawn, so each quadrant is self-consistent and the baselines match across quadrants. The user decides after printing whether that is acceptable.
+* **Open Issues:**
+    * `public/fonts/learning_curve_4.0/` (the full 3.5 MB download, untracked) sits under `public/`, which `build.js` copies into `dist/` and so into the deployed site. Move it out of the project or add it to `.gitignore` before committing.
+    * Arrows are deferred; see the roadmap item.
+    * Nothing has been printed from the real exercise yet; sizes were set from the spike printout and the user's feedback.
+    * The topic button text will read `cursiveLetters` until the title-versus-type task lands.

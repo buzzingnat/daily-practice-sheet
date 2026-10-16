@@ -5,6 +5,28 @@
   font-weight: normal;
 }
 
+/* Learning Curve 4.0 by Jess Latham; the license is README.TXT beside the files */
+@font-face {
+  font-family: 'CursiveRegular';
+  src: url('../fonts/learning-curve/learning_curve_regular_ot_tt.ttf') format('truetype');
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'CursiveBold';
+  src: url('../fonts/learning-curve/learning_curve_bold_ot_tt.ttf') format('truetype');
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'CursiveDashed';
+  src: url('../fonts/learning-curve/learning_curve_dashed_ot_tt.ttf') format('truetype');
+  font-style: normal;
+  font-weight: normal;
+}
+
 html, body {
     height: 100%;
     margin: 0;

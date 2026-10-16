@@ -6,6 +6,8 @@ import { createAdditionExercise} from './exercises/addition-exercise';
 import { createSubtractionExercise } from './exercises/subtraction-exercise';
 import { createFractionsExercise } from './exercises/fractions-exercise';
 import { createKanaExercise } from './exercises/kana/kana-exercise';
+import { createCursiveExercise } from './exercises/cursive/cursive-exercise';
+import { loadCursiveFonts } from './exercises/cursive/cursive-fonts';
 import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWorksheetBatch } from './worksheet/worksheet-layout';
 import { createPlaceholderExercise, createBlankExercise } from './utils';
 import { loadGeographyData, createGeographyExercise, Continent } from './exercises/geography/geography-exercise';
@@ -121,6 +123,7 @@ export type ExampleSpecification =
     | { type: 'subtraction'; grade: GradeLevel; title?: string }
     | { type: 'addition'; grade: GradeLevel; title?: string }
     | { type: 'kana'; title: string; character: string; pronunciation: string }
+    | { type: 'cursive'; letter: string }
     | { type: 'geography'; continent: Continent; title?: string }
     | { type: 'regionCountry'; region: PopulatedRegion; targetIdentifier: string; title?: string }
     | { type: 'placeholder'; title: string }
@@ -153,7 +156,13 @@ const DEFAULT_EXAMPLES: ExampleSpecification[] = [
         title: 'HIRAGANA PRACTICE',
         character: 'る',
         pronunciation: '"ru" pronounce "roo", as in ruin.'
-    }
+    },
+    // Cursive letters: a narrow letter, a wide one, one with a descender, one with an ascender loop
+    { type: 'cursive', letter: 's' },
+    { type: 'cursive', letter: 'm' },
+    { type: 'cursive', letter: 'g' },
+    { type: 'cursive', letter: 'k' },
+    { type: 'cursive', letter: 'w' }
 ];
 
 /**
@@ -181,6 +190,8 @@ function createExerciseFromSpecification(specification: ExampleSpecification): Q
             specification.character,
             specification.pronunciation
         );
+    } else if (specification.type === 'cursive') {
+        return createCursiveExercise(specification.letter);
     } else if (specification.type === 'geography') {
         return createGeographyExercise(specification.continent, specification.title);
     } else if (specification.type === 'regionCountry') {
@@ -364,7 +375,8 @@ async function initializeApp() {
         const [kanaGuide] = await Promise.all([
             getSharedImage(KANA_IMAGE_URL),
             loadGeographyData(),
-            loadRegionMapData()
+            loadRegionMapData(),
+            loadCursiveFonts()
         ]);
 
         console.log("Assets ready! Assembling worksheet preview...", {kanaGuide});

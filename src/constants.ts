@@ -1,5 +1,11 @@
 export const SANS_SERIF_FONT = 'Helvetica';
 
+// Learning Curve cursive, declared with @font-face in styles.css. Bold models a letter,
+// Regular is the solid copy to trace, Dashed is the dotted copy.
+export const CURSIVE_BOLD_FONT = 'CursiveBold';
+export const CURSIVE_REGULAR_FONT = 'CursiveRegular';
+export const CURSIVE_DASHED_FONT = 'CursiveDashed';
+
 // The monochrome palette. Every colour drawn on the canvas comes from here.
 // Pure black for boundaries, grids and outlines; pure white for backgrounds.
 export const COLOR_BLACK = '#000000';
