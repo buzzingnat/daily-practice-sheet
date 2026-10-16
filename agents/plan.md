@@ -1,6 +1,6 @@
 # plan.md — Cursive Lowercase Letters in Montessori Order
 
-Status: **approved. Phases 0, 2 and 3 are being built now (fonts, pure logic, the exercise without arrows).** Stroke arrows are deferred (see "Deferred: arrows").
+Status: **phases 0 to 5 are done** (fonts, pure logic, the exercise, the `cursiveLetters` topic wired in, docs). What remains is the deferred work: stroke arrows (after a human designs the stroke order), joined practice, and `printLetters`. Each gets its own plan.
 
 ## Decisions (from the user)
 * Separate topics for print and cursive. This plan is `cursiveLetters` only; `printLetters` gets its own plan later.

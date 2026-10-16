@@ -44,6 +44,7 @@ const localState: Record<TopicKey, number>= {
     addition: 0,
     subtraction: 0,
     hiragana: 0,
+    cursiveLetters: 0,
     continents: 0,
     countries: 0,
 };

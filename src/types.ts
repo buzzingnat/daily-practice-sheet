@@ -4,7 +4,7 @@ export type GradeLevel = '1st' | '2nd' | '3rd';
 export const TOPIC_KEYS = [
     'fractions', 'addition', 'subtraction',
     'setTime', 'tellTime', 'hiragana',
-    'continents', 'countries'
+    'cursiveLetters', 'continents', 'countries'
 ] as const;
 
 export type TopicKey = typeof TOPIC_KEYS[number];
@@ -44,7 +44,7 @@ export type CursiveGroup = typeof CURSIVE_GROUPS[number];
 
 // Topics that come with a settings panel
 export const CONFIGURABLE_TOPICS = [
-    'fractions', 'addition', 'subtraction', 'hiragana', 'countries'
+    'fractions', 'addition', 'subtraction', 'hiragana', 'cursiveLetters', 'countries'
 ] as const;
 
 export type ConfigurableTopic = typeof CONFIGURABLE_TOPICS[number];
@@ -55,5 +55,6 @@ export interface TopicSettings {
     addition: { level: GradeLevel };
     subtraction: { level: GradeLevel };
     hiragana: { rows: readonly KanaRow[] };
+    cursiveLetters: { groups: readonly CursiveGroup[] };
     countries: { regions: readonly PopulatedRegion[] };
 }

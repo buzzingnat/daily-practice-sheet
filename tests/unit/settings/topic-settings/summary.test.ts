@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { createDefaultSelections, summarizeSelection } from '../../../../src/settings/topic-settings';
-import { CONFIGURABLE_TOPICS, GradeLevel, KANA_ROWS, POPULATED_REGIONS } from '../../../../src/types';
+import { CONFIGURABLE_TOPICS, CURSIVE_GROUPS, GradeLevel, KANA_ROWS, POPULATED_REGIONS } from '../../../../src/types';
 import { LevelTopics, selectionsWith } from '../../../support/panel-selections';
 
 describe('summarizeSelection', () => {
@@ -34,6 +34,18 @@ describe('summarizeSelection', () => {
     test('names the row when only one is chosen', () => {
         expect(summarizeSelection('hiragana', selectionsWith({ hiragana: ['vowels'] }))).toBe('あ vowels');
         expect(summarizeSelection('hiragana', selectionsWith({ hiragana: ['wn'] }))).toBe('わ w + n');
+    });
+
+    test('names the cursive set when only one is chosen', () => {
+        expect(summarizeSelection('cursiveLetters', selectionsWith({ cursiveLetters: ['c-r-i-p'] }))).toBe('c r i p');
+    });
+
+    test('says "all" when every cursive set is chosen', () => {
+        expect(summarizeSelection('cursiveLetters', selectionsWith({ cursiveLetters: [...CURSIVE_GROUPS] }))).toBe('all');
+    });
+
+    test('counts the cursive sets when several are chosen', () => {
+        expect(summarizeSelection('cursiveLetters', selectionsWith({ cursiveLetters: ['s-m-a-t', 'b-f-o-g'] }))).toBe('2 sets');
     });
 
     test('names the region when only one is chosen', () => {

@@ -51,11 +51,14 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
 3. [ ] **Frequency weights** (how often a chosen topic appears across the selected sheets). Plugs into the planner's ranking as uses divided by weight; needs a UI control and tests in the planner suite.
 4. [ ] **Persist deck state** (kana, continents, each region's countries) across clicks and reloads. Decks reset on every click. Needs a design for what a saved deck does when the chosen rows or regions change.
 5. [ ] **Separate Exercise Title and Exercise Type** so the generator can be offered in other languages: each exercise gets a name/id/definition in code and a separate display title. Placed before the large tasks so new topics such as Roman letters are built on it instead of being retrofitted.
+6. [ ] **Generate Exercises in Order** The Kana and Cursive activities have an order to them. The Countries might as well. Make sheets that can be generated in order in addition to the existing random option.
 
 ### Next up: large tasks
-1. [ ] **Cursive lowercase letters (Montessori order), in progress; plan in `plan.md`.** Phases 0, 2 and 3 are done (fonts, pure logic, the exercise without arrows); phase 4 (wire in the `cursiveLetters` topic) is next. Decisions: Learning Curve 4.0 Regular family, two rows, a bold model on the left, line one two solid then two dotted letters (four per line, not joined), line two blank, mid-gray guide lines, Perolman's six sets (s m a t, c r i p, b f o g, h j u l, d w e n, k q v x y z) as chips. Still to come in order: phase 4 (topic, panel, deck, saved settings, tests, a PDF check), phase 5 (docs), then the items below.
+1. [x] **Cursive lowercase letters (Montessori order), without arrows. Done 2026-10-15 (phases 0 to 5).** Topic `cursiveLetters` with six set chips (s m a t, c r i p, b f o g, h j u l, d w e n, k q v x y z), default the first set. Layout: Learning Curve 4.0 Regular family, a bold model on the left, two ruled rows on the right (two solid then two dotted letters, four per line and not joined; then a blank line), mid-gray guide lines. The follow-ups below remain:
     * [ ] **Stroke guides and arrows.** A human designs each letter's stroke order first (Montessori Cursive: bottom-left start, continuous movement); then the sketch is cleaned up and drawn on the first (bold) model only. Saved preference: bold black letters with medium-grey arrows, offset slightly toward the outside of each bend, a number at the start of each stroke.
     * [ ] **Joined practice** (the stage after single letters), then **print letters** as the separate topic `printLetters` (own plan), capitals, and key-word pictures.
+    * [ ] **Single line for practice** Make an option with a single line to practice, only tracing, allowing the letters to be larger.
+    * [ ] **Add Image** a noun that starts with the same letter as the letter it is below.
 2. [ ] **Live canvas previews** updating reactively before PDF generation (only example quadrants exist today). Touches `main.ts` heavily; best after the DOM tests exist.
 
 ### Decide later (only if the need shows up)
@@ -192,7 +195,7 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * Still the user's to do: a native-speaker review of the 41 added hiragana pronunciation hints.
 
 ### 2026-10-15 - Cursive letter exercise, phases 0, 2 and 3 (Claude)
-* **Status:** Built, not committed. `npx tsc --noEmit`, `npm run test:types`, `npm test` (12 files, 361 passed, 2 skipped) and `npm run build` pass. Looked at in the real app: five example quadrants (s, m, g, k, w) draw with the fonts loaded and no console errors. Not wired into topic selection yet (phase 4), so a generated PDF does not include it. Mutation-tested: a wrong letter in a group (3 failures), a changed row pattern (1), the width fit removed (3) and baselines tied to letter size (2) were each caught and restored.
+* **Status:** Built, not committed. `npx tsc --noEmit`, `npm run test:types`, `npm test` (12 files, 382 passed, 2 skipped) and `npm run build` pass. Looked at in the real app: five example quadrants (s, m, g, k, w) draw with the fonts loaded and no console errors. Not wired into topic selection yet (phase 4), so a generated PDF does not include it. Mutation-tested: a wrong letter in a group (3 failures), a changed row pattern (1), the width fit removed (3) and baselines tied to letter size (2) were each caught and restored.
 * **Accomplished:**
     * **Phase 0, fonts:** `public/fonts/learning-curve/` holds the Regular, Bold and Dashed `.ttf` files and the license `README.TXT` from the Learning Curve 4.0 pack; `@font-face` for `CursiveRegular`, `CursiveBold` and `CursiveDashed` in `styles.css`; the family names in `constants.ts`. The older `learning-curve-bv` folder was deleted at the user's request.
     * **Phase 2, pure logic:** `CURSIVE_GROUPS` in `types.ts`; `exercises/cursive/cursive-cards.ts` (the six sets and `listCursiveCards`); `cursive-layout.ts` (`planCursiveLayout`, measured metrics in, positions and sizes out). Tests: `tests/unit/exercises/cursive/cursive-cards.test.ts` (26 letters across six sets, none repeated, one vowel per set except the last) and `cursive-layout.test.ts` (four slots per line; solid, solid, dotted, dotted then blank; guide order and bounds; no letter overflowing its slot; wide letters shrink; baselines the same for every letter; model inside its panel; bad input throws).
@@ -204,3 +207,18 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * Arrows are deferred; see the roadmap item.
     * Nothing has been printed from the real exercise yet; sizes were set from the spike printout and the user's feedback.
     * The topic button text will read `cursiveLetters` until the title-versus-type task lands.
+
+### 2026-10-15 - Cursive letters wired in as a topic (Claude)
+* **Status:** Done, not committed. `npx tsc --noEmit`, `npm run test:types`, `npm test` (12 files, 382 passed, 2 skipped) and `npm run build` pass. In the browser: the `cursiveLetters` button and its panel appear, the six set chips and an All chip work, the button summary reads "s m a t" then "2 sets", the choices save and come back after a reload, and a PDF of four half-pages with cursive letters among six topics generated with no errors (533,335 bytes). The 3x quadrant images that go into the PDF were checked by eye: bold model left, mid-gray guide lines, two solid then two dotted letters, a blank line. The planner suite now covers nine topics (511 selections) and the whole suite still runs in about 2.5 seconds.
+* **Accomplished:**
+    * `types.ts`: `cursiveLetters` in `TOPIC_KEYS` and `CONFIGURABLE_TOPICS` (after hiragana, so the panels stay in topic order); `TopicSettings.cursiveLetters = { groups }`.
+    * `settings/topic-settings.ts`: the panel ("Cursive letters: sets", multiple choice, All chip, default the first set, labels as a teacher says them), default selection, resolve (groups kept in Montessori order, strays dropped, an empty selection throws) and summary ("N sets"). `saved-settings.ts` needed no change: it already loops over the configurable topics, so the new key `daily-practice-sheet.v1.panel.cursiveLetters` is saved and restored.
+    * `generator/randomization-and-difficulty-generator.ts`: a shuffled deck of cursive cards (each letter twice per cycle, no adjacent repeats), a factory entry and the `instantiateExercise` branch (the compiler's `never` check required it). `main.ts`: the new topic in `localState`.
+    * Tests: cursive cases added to `panels`, `resolve`, `summary` and `saved-settings` (one exact-defaults test updated). Mutation-tested: a wrong default set (2 failures), chip labels without spaces (2) and no All chip (the first run missed it; a test was added and it now fails 1) were each caught and restored.
+    * Docs: `AGENTS.md` (cursive folder in the layout, typography spec names the fonts) and this file.
+* **Open Issues:**
+    * The topic button text is the key, `cursiveLetters`, until the title-versus-type task lands.
+    * `public/fonts/learning_curve_4.0/` (the full download, untracked) still sits under `public/` and would ship; move it out or `.gitignore` it before committing.
+    * Wide letters draw smaller so four fit a line (m near 44pt, w near 52pt, y near 55pt, n near 57pt); the user decides after printing a real sheet.
+    * The generator has no unit tests (it imports canvas modules); the deck wiring was checked through the browser.
+    * Stroke guides and arrows, joined practice and print letters are the next items under the roadmap entry.

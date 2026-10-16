@@ -9,6 +9,7 @@ import {
 import {
     CONFIGURABLE_TOPICS,
     ConfigurableTopic,
+    CURSIVE_GROUPS,
     KANA_ROWS,
     POPULATED_REGIONS,
     TopicKey,
@@ -70,6 +71,26 @@ describe('PANEL_SPECIFICATIONS', () => {
 
     test('offers one chip per kana row, in chart order', () => {
         expect(findPanelSpecification('hiragana').options.map((option) => option.value)).toEqual(KANA_ROWS);
+    });
+
+    test('offers one chip per cursive set, in Montessori order', () => {
+        expect(findPanelSpecification('cursiveLetters').options.map((option) => option.value)).toEqual(CURSIVE_GROUPS);
+    });
+
+    test('labels the cursive chips the way a teacher says them', () => {
+        expect(findPanelSpecification('cursiveLetters').options.map((option) => option.label)).toEqual([
+            's m a t', 'c r i p', 'b f o g', 'h j u l', 'd w e n', 'k q v x y z'
+        ]);
+    });
+
+    test('offers an All chip for the cursive sets, and counts them as sets', () => {
+        const specification = findPanelSpecification('cursiveLetters');
+        expect(specification.offersAll).toBe(true);
+        expect(specification.summaryNoun).toBe('sets');
+    });
+
+    test('starts cursive letters on the first set only', () => {
+        expect(findPanelSpecification('cursiveLetters').defaultValues).toEqual(['s-m-a-t']);
     });
 
     test('offers one chip per populated region', () => {

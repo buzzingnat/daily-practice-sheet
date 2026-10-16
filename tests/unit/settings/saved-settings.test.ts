@@ -8,7 +8,7 @@ import {
 } from '../../../src/settings/saved-settings';
 import { DEFAULT_HALF_PAGES, MAXIMUM_HALF_PAGES } from '../../../src/settings/print-size';
 import { createDefaultSelections } from '../../../src/settings/topic-settings';
-import { CONFIGURABLE_TOPICS, TOPIC_KEYS } from '../../../src/types';
+import { CONFIGURABLE_TOPICS, TOPIC_KEYS, TopicKey, ConfigurableTopic } from '../../../src/types';
 
 const SAVED_TOPIC_LIMIT = 6;
 
@@ -31,7 +31,7 @@ describe('parseSavedSettings with an empty store', () => {
         expect(empty.halfPageCount).toBe(DEFAULT_HALF_PAGES);
     });
 
-    test.each(CONFIGURABLE_TOPICS)('gives the %s panel default', (topic) => {
+    test.each(CONFIGURABLE_TOPICS)('gives the %s panel default', (topic: ConfigurableTopic) => {
         expect(empty.panelSelections[topic]).toEqual(defaults[topic]);
     });
 });
@@ -100,14 +100,16 @@ describe('parseSavedSettings limits', () => {
 
 describe('parseSavedSettings round trip', () => {
     const original = {
-        selectedTopics: ['fractions', 'hiragana', 'countries'],
+        selectedTopics: ['fractions', 'hiragana', 'cursiveLetters', 'countries'],
         hiragana: ['s', 'wn'],
+        cursiveLetters: ['s-m-a-t', 'h-j-u-l'],
         subtraction: ['2nd'],
         halfPageCount: 7
     };
     const roundTrip = parseFrom({
         [SELECTED_TOPICS_KEY]: JSON.stringify(original.selectedTopics),
         [panelSelectionKey('hiragana')]: JSON.stringify(original.hiragana),
+        [panelSelectionKey('cursiveLetters')]: JSON.stringify(original.cursiveLetters),
         [panelSelectionKey('subtraction')]: JSON.stringify(original.subtraction),
         [HALF_PAGE_COUNT_KEY]: JSON.stringify(original.halfPageCount)
     });
@@ -118,6 +120,10 @@ describe('parseSavedSettings round trip', () => {
 
     test('keeps valid kana rows', () => {
         expect(roundTrip.panelSelections.hiragana).toEqual(original.hiragana);
+    });
+
+    test('keeps valid cursive sets', () => {
+        expect(roundTrip.panelSelections.cursiveLetters).toEqual(original.cursiveLetters);
     });
 
     test('keeps a valid level', () => {

@@ -1,6 +1,8 @@
 import {
     CONFIGURABLE_TOPICS,
     ConfigurableTopic,
+    CURSIVE_GROUPS,
+    CursiveGroup,
     GradeLevel,
     KANA_ROWS,
     KanaRow,
@@ -65,6 +67,11 @@ const KANA_ROW_OPTIONS: readonly ChoiceOption[] = [
     { value: 'wn', label: 'わ w + n' }
 ];
 
+// The Montessori sets, labeled the way a teacher says them: "s m a t"
+const CURSIVE_GROUP_OPTIONS: readonly ChoiceOption[] = CURSIVE_GROUPS.map((group) => {
+    return { value: group, label: group.split('-').join(' ') };
+});
+
 const REGION_OPTIONS: readonly ChoiceOption[] = POPULATED_REGIONS.map((region) => {
     return { value: region, label: region };
 });
@@ -86,6 +93,10 @@ export const PANEL_SPECIFICATIONS: readonly PanelSpecification[] = [
     {
         topic: 'hiragana', heading: 'Hiragana rows', kind: 'multiple',
         options: KANA_ROW_OPTIONS, defaultValues: ['vowels'], summaryNoun: 'rows', offersAll: true
+    },
+    {
+        topic: 'cursiveLetters', heading: 'Cursive letters: sets', kind: 'multiple',
+        options: CURSIVE_GROUP_OPTIONS, defaultValues: ['s-m-a-t'], summaryNoun: 'sets', offersAll: true
     },
     {
         topic: 'countries', heading: 'Countries: regions', kind: 'multiple',
@@ -111,6 +122,7 @@ export function createDefaultSelections(): PanelSelections {
         addition: [...findPanelSpecification('addition').defaultValues],
         subtraction: [...findPanelSpecification('subtraction').defaultValues],
         hiragana: [...findPanelSpecification('hiragana').defaultValues],
+        cursiveLetters: [...findPanelSpecification('cursiveLetters').defaultValues],
         countries: [...findPanelSpecification('countries').defaultValues]
     };
 }
@@ -146,11 +158,13 @@ function pickLevel(chosen: readonly string[], topic: ConfigurableTopic): GradeLe
 export function resolveTopicSettings(selections: PanelSelections): TopicSettings {
     const kanaRows: readonly KanaRow[] = KANA_ROWS;
     const regions: readonly PopulatedRegion[] = POPULATED_REGIONS;
+    const cursiveGroups: readonly CursiveGroup[] = CURSIVE_GROUPS;
     return {
         fractions: { level: pickLevel(selections.fractions, 'fractions') },
         addition: { level: pickLevel(selections.addition, 'addition') },
         subtraction: { level: pickLevel(selections.subtraction, 'subtraction') },
         hiragana: { rows: pickChosen(kanaRows, selections.hiragana, 'hiragana') },
+        cursiveLetters: { groups: pickChosen(cursiveGroups, selections.cursiveLetters, 'cursiveLetters') },
         countries: { regions: pickChosen(regions, selections.countries, 'countries') }
     };
 }

@@ -9,11 +9,14 @@ import { planHalfPages } from './half-page-planner';
 import { ShuffledDeck, createShuffledDeck } from './shuffled-deck';
 import { createRegionMapExercise, listRegionTargets } from '../exercises/geography/region-map-exercise';
 import { KanaCard, listKanaCards } from '../exercises/kana/kana-rows';
+import { createCursiveExercise } from '../exercises/cursive/cursive-exercise';
+import { CursiveCard, listCursiveCards } from '../exercises/cursive/cursive-cards';
 import { GradeLevel, PopulatedRegion, QuadrantTopics, RandomSource, TopicKey, TopicSettings } from '../types';
 
 // Content that must take turns rather than trust to luck.
 export interface ContentDecks {
     kana: ShuffledDeck<KanaCard>;
+    cursive: ShuffledDeck<CursiveCard>;
     continents: ShuffledDeck<Continent>;
     regions: ShuffledDeck<PopulatedRegion>;
     // One deck of country identifiers per chosen region, so each region cycles through its own countries
@@ -27,6 +30,7 @@ export interface ExerciseFactories {
     createSubtractionExercise(level: GradeLevel): QuadrantExercise;
     createAdditionExercise(level: GradeLevel): QuadrantExercise;
     createKanaExercise(card: KanaCard): QuadrantExercise;
+    createCursiveExercise(card: CursiveCard): QuadrantExercise;
     createFractionsExercise(level: GradeLevel): QuadrantExercise;
     createGeographyExercise(continent: Continent): QuadrantExercise;
     createCountryExercise(region: PopulatedRegion, countryIdentifier: string): QuadrantExercise;
@@ -51,6 +55,7 @@ export function createContentDecks(random: RandomSource, settings: TopicSettings
 
     return {
         kana: createShuffledDeck(listKanaCards(settings.hiragana.rows), COPIES_PER_CYCLE, random),
+        cursive: createShuffledDeck(listCursiveCards(settings.cursiveLetters.groups), COPIES_PER_CYCLE, random),
         continents: createShuffledDeck(CONTINENTS, COPIES_PER_CYCLE, random),
         regions: createShuffledDeck(settings.countries.regions, COPIES_PER_CYCLE, random),
         countriesByRegion
@@ -78,6 +83,8 @@ function instantiateExercise(
         return factories.createAdditionExercise(settings.addition.level);
     } else if (topic === 'hiragana') {
         return factories.createKanaExercise(decks.kana.drawNext());
+    } else if (topic === 'cursiveLetters') {
+        return factories.createCursiveExercise(decks.cursive.drawNext());
     } else if (topic === 'fractions') {
         return factories.createFractionsExercise(settings.fractions.level);
     } else if (topic === 'continents') {
@@ -143,6 +150,9 @@ export function createWorkbookExerciseFactories(): ExerciseFactories {
         },
         createKanaExercise: (card: KanaCard): QuadrantExercise => {
             return createKanaExercise('HIRAGANA PRACTICE', card.character, card.pronunciationHint);
+        },
+        createCursiveExercise: (card: CursiveCard): QuadrantExercise => {
+            return createCursiveExercise(card.letter);
         },
         createGeographyExercise: (continent: Continent): QuadrantExercise => {
             // Map data was preloaded at startup, so this stays synchronous

@@ -79,7 +79,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
      * Light grey (`#D1D5DB`) for tracing, structural hints, and fraction shading.
      * Medium grey (`#999999`) for emphasis fills, such as the geography highlight, that need more contrast without heavy ink coverage when printed.
      * The native jsPDF overlays use near-matches by design: the crosshairs use `COLOR_PDF_CROSSHAIR` (`#C8C8C8`, light grey) and the perforation line uses `COLOR_PDF_PERFORATION` (`#969696`, medium grey). Leave these as they are unless a task says otherwise.
-* **Typography Specs:** Global font family uses Helvetica. Handwriting practice exercises are the exception and use a handwriting font (the Kana exercise uses a custom one).
+* **Typography Specs:** Global font family uses Helvetica. Handwriting practice exercises are the exception and use a handwriting font: the Kana exercise uses a custom one, and the cursive exercise uses Learning Curve 4.0 by Jess Latham (Bold for the model, Regular for solid tracing copies, Dashed for dotted ones; files and license in `public/fonts/learning-curve/`, family names in `constants.ts`). Cursive text is sized from measured font metrics, not hard-coded numbers.
   * **Exercise Main Headers:** bold 14px Helvetica, placed at padded offsets (15, 12) relative to top-left.
   * **Subtext & Tracing Rules:** normal 9px - 11px Helvetica.
 * **Line Weights & Caps:** Frame boundaries use `lineWidth = 1` or `1.5`. Geometry lines must utilize `context.lineCap = 'round'`. An exception is made for dashed lines, which use `context.lineCap = 'butt'`.
@@ -123,6 +123,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
   worksheet/   worksheet-layout.ts  generate-pdf-batch.ts            layout contract and PDF assembly
   exercises/   addition, subtraction, fractions, clock (one *-exercise.ts each)
       kana/        kana-exercise.ts  kana-rows.ts
+      cursive/     cursive-exercise.ts  cursive-cards.ts  cursive-layout.ts  cursive-fonts.ts
       geography/   geography-exercise.ts  europe-asia-boundary.ts  region-map-exercise.ts
                    region-map-data.ts  region-views.ts
   generator/   half-page-planner.ts  shuffled-deck.ts  randomization-and-difficulty-generator.ts

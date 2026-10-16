@@ -10,6 +10,7 @@ describe('resolveTopicSettings', () => {
             addition: { level: '1st' },
             subtraction: { level: '1st' },
             hiragana: { rows: ['vowels'] },
+            cursiveLetters: { groups: ['s-m-a-t'] },
             countries: { regions: POPULATED_REGIONS }
         });
     });
@@ -30,6 +31,16 @@ describe('resolveTopicSettings', () => {
 
     test('keeps the chosen regions in list order', () => {
         expect(resolveTopicSettings(selectionsWith({ countries: ['Europe', 'Africa'] })).countries.regions).toEqual(['Africa', 'Europe']);
+    });
+
+    test('keeps the chosen cursive sets in Montessori order, whatever order they were chosen in', () => {
+        expect(resolveTopicSettings(selectionsWith({ cursiveLetters: ['d-w-e-n', 's-m-a-t', 'b-f-o-g'] })).cursiveLetters.groups)
+            .toEqual(['s-m-a-t', 'b-f-o-g', 'd-w-e-n']);
+    });
+
+    test('drops cursive sets no list contains', () => {
+        expect(resolveTopicSettings(selectionsWith({ cursiveLetters: ['x-y-z', 'c-r-i-p'] })).cursiveLetters.groups)
+            .toEqual(['c-r-i-p']);
     });
 
     test('lists a row once even when it is chosen twice', () => {
