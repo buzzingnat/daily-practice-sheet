@@ -14,6 +14,8 @@ export interface QuadrantContext {
 
 export interface QuadrantExercise {
     render(quadrantContext: QuadrantContext): void;
+    // Draws the worksheet with the answers filled in. Absent when the exercise has nothing to answer.
+    renderAnswers?(quadrantContext: QuadrantContext): void;
 }
 
 export interface HalfPageLayout {
@@ -21,6 +23,28 @@ export interface HalfPageLayout {
     topRight: QuadrantExercise;
     bottomLeft: QuadrantExercise;
     bottomRight: QuadrantExercise;
+}
+
+const HALF_PAGE_LAYOUT_SLOTS = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'] as const;
+
+/**
+ * The answer sheet shows the answers where an exercise has them and the plain exercise where it does not.
+ */
+export function drawQuadrant(exercise: QuadrantExercise, quadrantContext: QuadrantContext, showAnswers: boolean): void {
+    if (showAnswers && exercise.renderAnswers) {
+        exercise.renderAnswers(quadrantContext);
+    } else {
+        exercise.render(quadrantContext);
+    }
+}
+
+/**
+ * A key with no answers on it would only repeat the worksheet, so the batch earns one only when some quadrant can answer.
+ */
+export function batchHasAnswers(workbookBatch: HalfPageLayout[][]): boolean {
+    return workbookBatch.some((sheet) => sheet.some((halfPage) => {
+        return HALF_PAGE_LAYOUT_SLOTS.some((slot) => halfPage[slot].renderAnswers !== undefined);
+    }));
 }
 
 // Helper to fetch the raw binary font and convert it to Base64
@@ -51,7 +75,8 @@ async function renderQuadrantToPdf(
     pdfCoordinateX: number,
     pdfCoordinateY: number,
     pdfWidth: number,
-    pdfHeight: number
+    pdfHeight: number,
+    showAnswers: boolean
 ): Promise<void> {
     // Scale factor (3x) for crisp high-DPI printing text and lines
     const scaleMultiplier = 3;
@@ -70,7 +95,7 @@ async function renderQuadrantToPdf(
     context.fillRect(0, 0, pdfWidth, pdfHeight);
 
     // Run the element graphics loops
-    exercise.render({ context: context, width: pdfWidth, height: pdfHeight });
+    drawQuadrant(exercise, { context: context, width: pdfWidth, height: pdfHeight }, showAnswers);
 
     // Convert the finished offscreen canvas unit to a raw data url image blob
     const imageData = canvas.toDataURL('image/png');
@@ -83,7 +108,8 @@ async function renderQuadrantToPdf(
 async function renderSingleWorksheetPage(
     documentInstance: jsPDF,
     topHalf: HalfPageLayout,
-    bottomHalf: HalfPageLayout | undefined
+    bottomHalf: HalfPageLayout | undefined,
+    showAnswers: boolean = false
 ): Promise<void> {
     const marginX = MARGIN_X;
     const printableWidth = PRINTABLE_WIDTH; // 532pt
@@ -96,14 +122,19 @@ async function renderSingleWorksheetPage(
         documentInstance.setFontSize(12);
         documentInstance.text('Name: ___________________________', marginX, startCoordinateY + 20);
         documentInstance.text('Date: __________________', marginX + 340, startCoordinateY + 20);
+        if (showAnswers) {
+            // Small and to the right, so the key cannot be mistaken for a worksheet
+            documentInstance.setFontSize(9);
+            documentInstance.text('ANSWER KEY', marginX + printableWidth, startCoordinateY + 34, { align: 'right' });
+        }
 
         const gridTopCoordinateY = startCoordinateY + 40;
 
         // Render each component into its offscreen canvas and append it to the document
-        await renderQuadrantToPdf(documentInstance, layout.topLeft, marginX, gridTopCoordinateY, quadrantWidth, quadrantHeight);
-        await renderQuadrantToPdf(documentInstance, layout.topRight, marginX + quadrantWidth, gridTopCoordinateY, quadrantWidth, quadrantHeight);
-        await renderQuadrantToPdf(documentInstance, layout.bottomLeft, marginX, gridTopCoordinateY + quadrantHeight, quadrantWidth, quadrantHeight);
-        await renderQuadrantToPdf(documentInstance, layout.bottomRight, marginX + quadrantWidth, gridTopCoordinateY + quadrantHeight, quadrantWidth, quadrantHeight);
+        await renderQuadrantToPdf(documentInstance, layout.topLeft, marginX, gridTopCoordinateY, quadrantWidth, quadrantHeight, showAnswers);
+        await renderQuadrantToPdf(documentInstance, layout.topRight, marginX + quadrantWidth, gridTopCoordinateY, quadrantWidth, quadrantHeight, showAnswers);
+        await renderQuadrantToPdf(documentInstance, layout.bottomLeft, marginX, gridTopCoordinateY + quadrantHeight, quadrantWidth, quadrantHeight, showAnswers);
+        await renderQuadrantToPdf(documentInstance, layout.bottomRight, marginX + quadrantWidth, gridTopCoordinateY + quadrantHeight, quadrantWidth, quadrantHeight, showAnswers);
 
         // Draw Section Divider Crosshairs natively over the images
         documentInstance.setDrawColor(COLOR_PDF_CROSSHAIR);
@@ -177,6 +208,14 @@ export async function buildAndDownloadWorksheetBatch(
         await renderSingleWorksheetPage(documentInstance, topHalfLayout, bottomHalfLayout);
 
         sheetIndex = sheetIndex + 1;
+    }
+
+    // The key follows the worksheets, page for page, built from the very same exercises
+    if (batchHasAnswers(workbookBatch)) {
+        for (const sheetHalfPages of workbookBatch) {
+            documentInstance.addPage();
+            await renderSingleWorksheetPage(documentInstance, sheetHalfPages[0] as HalfPageLayout, sheetHalfPages[1], true);
+        }
     }
 
     // Trigger local client file download save execution
