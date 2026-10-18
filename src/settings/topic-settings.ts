@@ -3,9 +3,13 @@ import {
     ConfigurableTopic,
     CURSIVE_GROUPS,
     CursiveGroup,
+    CursiveLayoutName,
+    CURSIVE_LAYOUT_NAMES,
+    DEFAULT_CURSIVE_LAYOUT,
     GradeLevel,
     KANA_ROWS,
     KanaRow,
+    PanelId,
     POPULATED_REGIONS,
     PopulatedRegion,
     TopicKey,
@@ -20,6 +24,9 @@ export interface ChoiceOption {
 }
 
 export interface PanelSpecification {
+    // Names the panel in saved settings and in the DOM
+    id: PanelId;
+    // The topic whose button reveals this panel; a topic may own several panels
     topic: ConfigurableTopic;
     heading: string;
     kind: 'single' | 'multiple';
@@ -31,7 +38,7 @@ export interface PanelSpecification {
 }
 
 // What the UI stores while the user clicks. Strings in, types out, at one border.
-export type PanelSelections = Record<ConfigurableTopic, string[]>;
+export type PanelSelections = Record<PanelId, string[]>;
 
 const GRADE_LEVELS: readonly GradeLevel[] = ['1st', '2nd', '3rd'];
 
@@ -72,6 +79,11 @@ const CURSIVE_GROUP_OPTIONS: readonly ChoiceOption[] = CURSIVE_GROUPS.map((group
     return { value: group, label: group.split('-').join(' ') };
 });
 
+const CURSIVE_LAYOUT_OPTIONS: readonly ChoiceOption[] = [
+    { value: 'one-large-line', label: 'One large line' },
+    { value: 'two-lines', label: 'Two lines' }
+];
+
 const REGION_OPTIONS: readonly ChoiceOption[] = POPULATED_REGIONS.map((region) => {
     return { value: region, label: region };
 });
@@ -79,27 +91,31 @@ const REGION_OPTIONS: readonly ChoiceOption[] = POPULATED_REGIONS.map((region) =
 // In topic order, which is the order the panels appear
 export const PANEL_SPECIFICATIONS: readonly PanelSpecification[] = [
     {
-        topic: 'fractions', heading: 'Fractions', kind: 'single',
+        id: 'fractions', topic: 'fractions', heading: 'Fractions', kind: 'single',
         options: FRACTIONS_OPTIONS, defaultValues: ['1st'], summaryNoun: '', offersAll: false
     },
     {
-        topic: 'addition', heading: 'Addition', kind: 'single',
+        id: 'addition', topic: 'addition', heading: 'Addition', kind: 'single',
         options: ADDITION_OPTIONS, defaultValues: ['1st'], summaryNoun: '', offersAll: false
     },
     {
-        topic: 'subtraction', heading: 'Subtraction', kind: 'single',
+        id: 'subtraction', topic: 'subtraction', heading: 'Subtraction', kind: 'single',
         options: SUBTRACTION_OPTIONS, defaultValues: ['1st'], summaryNoun: '', offersAll: false
     },
     {
-        topic: 'hiragana', heading: 'Hiragana rows', kind: 'multiple',
+        id: 'hiragana', topic: 'hiragana', heading: 'Hiragana rows', kind: 'multiple',
         options: KANA_ROW_OPTIONS, defaultValues: ['vowels'], summaryNoun: 'rows', offersAll: true
     },
     {
-        topic: 'cursiveLetters', heading: 'Cursive letters: sets', kind: 'multiple',
+        id: 'cursiveLetters', topic: 'cursiveLetters', heading: 'Cursive letters: sets', kind: 'multiple',
         options: CURSIVE_GROUP_OPTIONS, defaultValues: ['s-m-a-t'], summaryNoun: 'sets', offersAll: true
     },
     {
-        topic: 'countries', heading: 'Countries: regions', kind: 'multiple',
+        id: 'cursiveLayout', topic: 'cursiveLetters', heading: 'Cursive letters: practice lines', kind: 'single',
+        options: CURSIVE_LAYOUT_OPTIONS, defaultValues: [DEFAULT_CURSIVE_LAYOUT], summaryNoun: '', offersAll: false
+    },
+    {
+        id: 'countries', topic: 'countries', heading: 'Countries: regions', kind: 'multiple',
         options: REGION_OPTIONS, defaultValues: POPULATED_REGIONS, summaryNoun: 'regions', offersAll: true
     }
 ];
@@ -108,12 +124,17 @@ export function findConfigurableTopic(topic: TopicKey): ConfigurableTopic | unde
     return CONFIGURABLE_TOPICS.find((candidate) => candidate === topic);
 }
 
-export function findPanelSpecification(topic: ConfigurableTopic): PanelSpecification {
-    const specification = PANEL_SPECIFICATIONS.find((candidate) => candidate.topic === topic);
+export function findPanelSpecification(id: PanelId): PanelSpecification {
+    const specification = PANEL_SPECIFICATIONS.find((candidate) => candidate.id === id);
     if (!specification) {
-        throw new Error(`No settings panel is specified for ${topic}.`);
+        throw new Error(`No settings panel is specified for ${id}.`);
     }
     return specification;
+}
+
+// Every panel a topic owns, in the order they appear
+export function findPanelSpecifications(topic: ConfigurableTopic): PanelSpecification[] {
+    return PANEL_SPECIFICATIONS.filter((candidate) => candidate.topic === topic);
 }
 
 export function createDefaultSelections(): PanelSelections {
@@ -123,6 +144,7 @@ export function createDefaultSelections(): PanelSelections {
         subtraction: [...findPanelSpecification('subtraction').defaultValues],
         hiragana: [...findPanelSpecification('hiragana').defaultValues],
         cursiveLetters: [...findPanelSpecification('cursiveLetters').defaultValues],
+        cursiveLayout: [...findPanelSpecification('cursiveLayout').defaultValues],
         countries: [...findPanelSpecification('countries').defaultValues]
     };
 }
@@ -134,19 +156,27 @@ export function createDefaultSelections(): PanelSelections {
 function pickChosen<Item extends string>(
     allowed: readonly Item[],
     chosen: readonly string[],
-    topic: ConfigurableTopic
+    panel: PanelId
 ): Item[] {
     const picked = allowed.filter((item) => chosen.includes(item));
     if (picked.length === 0) {
-        throw new Error(`The ${topic} settings hold no valid choice.`);
+        throw new Error(`The ${panel} settings hold no valid choice.`);
     }
     return picked;
 }
 
-function pickLevel(chosen: readonly string[], topic: ConfigurableTopic): GradeLevel {
-    const level = pickChosen(GRADE_LEVELS, chosen, topic)[0];
+function pickLayout(chosen: readonly string[], panel: PanelId): CursiveLayoutName {
+    const layout = pickChosen(CURSIVE_LAYOUT_NAMES, chosen, panel)[0];
+    if (!layout) {
+        throw new Error(`The ${panel} settings hold no valid layout.`);
+    }
+    return layout;
+}
+
+function pickLevel(chosen: readonly string[], panel: PanelId): GradeLevel {
+    const level = pickChosen(GRADE_LEVELS, chosen, panel)[0];
     if (!level) {
-        throw new Error(`The ${topic} settings hold no valid level.`);
+        throw new Error(`The ${panel} settings hold no valid level.`);
     }
     return level;
 }
@@ -164,17 +194,17 @@ export function resolveTopicSettings(selections: PanelSelections): TopicSettings
         addition: { level: pickLevel(selections.addition, 'addition') },
         subtraction: { level: pickLevel(selections.subtraction, 'subtraction') },
         hiragana: { rows: pickChosen(kanaRows, selections.hiragana, 'hiragana') },
-        cursiveLetters: { groups: pickChosen(cursiveGroups, selections.cursiveLetters, 'cursiveLetters') },
+        cursiveLetters: {
+            groups: pickChosen(cursiveGroups, selections.cursiveLetters, 'cursiveLetters'),
+            layout: pickLayout(selections.cursiveLayout, 'cursiveLayout')
+        },
         countries: { regions: pickChosen(regions, selections.countries, 'countries') }
     };
 }
 
-/**
- * A few words for the topic button: the level, or how much of the list is chosen.
- */
-export function summarizeSelection(topic: ConfigurableTopic, selections: PanelSelections): string {
-    const specification = findPanelSpecification(topic);
-    const chosen = selections[topic];
+// A few words for one panel: the level, or how much of its list is chosen
+function summarizePanel(specification: PanelSpecification, selections: PanelSelections): string {
+    const chosen = selections[specification.id];
     const chosenOptions = specification.options.filter((option) => chosen.includes(option.value));
 
     if (specification.kind === 'single') {
@@ -187,4 +217,14 @@ export function summarizeSelection(topic: ConfigurableTopic, selections: PanelSe
     } else {
         return `${chosenOptions.length} ${specification.summaryNoun}`;
     }
+}
+
+/**
+ * A few words for the topic button: each of the topic's panels summarized, joined by commas.
+ */
+export function summarizeSelection(topic: ConfigurableTopic, selections: PanelSelections): string {
+    return findPanelSpecifications(topic)
+        .map((specification) => summarizePanel(specification, selections))
+        .filter((summary) => summary !== '')
+        .join(', ');
 }

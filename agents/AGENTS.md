@@ -111,6 +111,8 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
       bottomRight: QuadrantExercise;
   }
   ```
+* **Emoji:** `exercises/cursive/cursive-emoji.ts` holds emoji as worksheet content, drawn at runtime in grays; that is the functional use the emoji rule permits. Keep them in that one data file, and never in comments or logs.
+* **Settings Panels:** Each panel has an `id` (it names the panel in saved settings and the DOM) and a `topic` (the button that reveals it). A topic may own several panels: `cursiveLetters` owns one for its sets and one for its layout. The topic button summary joins its panels' summaries.
 * **Shared Types:** Types used by more than one file live in `types.ts`, which imports nothing. Types used by one module stay in that module.
 * **Data Loading:** Fetching happens in dedicated loader functions called once at startup (for example `loadGeographyData`). Render functions stay synchronous and read from the cache.
 * **Errors:** Throw `Error`. Do not return one.

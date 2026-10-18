@@ -13,7 +13,7 @@ import { createPlaceholderExercise, createBlankExercise } from './utils';
 import { loadGeographyData, createGeographyExercise, Continent } from './exercises/geography/geography-exercise';
 import { loadRegionMapData } from './exercises/geography/region-map-data';
 import { createRegionMapExercise } from './exercises/geography/region-map-exercise';
-import { GradeLevel, PopulatedRegion, TOPIC_KEYS, TopicKey } from './types';
+import { CursiveLayoutName, GradeLevel, PopulatedRegion, TOPIC_KEYS, TopicKey } from './types';
 import { KANA_IMAGE_URL, COLOR_MEDIUM_GREY, COLOR_WHITE } from './constants';
 import {
     findConfigurableTopic,
@@ -124,7 +124,7 @@ export type ExampleSpecification =
     | { type: 'subtraction'; grade: GradeLevel; title?: string }
     | { type: 'addition'; grade: GradeLevel; title?: string }
     | { type: 'kana'; title: string; character: string; pronunciation: string }
-    | { type: 'cursive'; letter: string }
+    | { type: 'cursive'; letter: string; layout: CursiveLayoutName }
     | { type: 'geography'; continent: Continent; title?: string }
     | { type: 'regionCountry'; region: PopulatedRegion; targetIdentifier: string; title?: string }
     | { type: 'placeholder'; title: string }
@@ -159,11 +159,13 @@ const DEFAULT_EXAMPLES: ExampleSpecification[] = [
         pronunciation: '"ru" pronounce "roo", as in ruin.'
     },
     // Cursive letters: a narrow letter, a wide one, one with a descender, one with an ascender loop
-    { type: 'cursive', letter: 's' },
-    { type: 'cursive', letter: 'm' },
-    { type: 'cursive', letter: 'g' },
-    { type: 'cursive', letter: 'k' },
-    { type: 'cursive', letter: 'w' }
+    { type: 'cursive', letter: 's', layout: 'one-large-line' },
+    { type: 'cursive', letter: 'm', layout: 'one-large-line' },
+    { type: 'cursive', letter: 'g', layout: 'one-large-line' },
+    { type: 'cursive', letter: 'k', layout: 'one-large-line' },
+    { type: 'cursive', letter: 'w', layout: 'one-large-line' },
+    { type: 'cursive', letter: 'g', layout: 'two-lines' },
+    { type: 'cursive', letter: 'm', layout: 'two-lines' }
 ];
 
 /**
@@ -192,7 +194,7 @@ function createExerciseFromSpecification(specification: ExampleSpecification): Q
             specification.pronunciation
         );
     } else if (specification.type === 'cursive') {
-        return createCursiveExercise(specification.letter);
+        return createCursiveExercise(specification.letter, specification.layout);
     } else if (specification.type === 'geography') {
         return createGeographyExercise(specification.continent, specification.title);
     } else if (specification.type === 'regionCountry') {

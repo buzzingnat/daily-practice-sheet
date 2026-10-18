@@ -3,6 +3,7 @@ import {
     createDefaultSelections,
     findConfigurableTopic,
     findPanelSpecification,
+    findPanelSpecifications,
     PanelSpecification,
     PANEL_SPECIFICATIONS
 } from '../../../../src/settings/topic-settings';
@@ -10,7 +11,11 @@ import {
     CONFIGURABLE_TOPICS,
     ConfigurableTopic,
     CURSIVE_GROUPS,
+    CURSIVE_LAYOUT_NAMES,
+    DEFAULT_CURSIVE_LAYOUT,
     KANA_ROWS,
+    PANEL_IDS,
+    PanelId,
     POPULATED_REGIONS,
     TopicKey,
     TOPIC_KEYS
@@ -18,8 +23,13 @@ import {
 import { GRADE_LEVELS, LEVEL_TOPICS, LevelTopics } from '../../../support/panel-selections';
 
 describe('PANEL_SPECIFICATIONS', () => {
-    test('has one panel for each configurable topic', () => {
-        expect(PANEL_SPECIFICATIONS.map((specification) => specification.topic).sort()).toEqual([...CONFIGURABLE_TOPICS].sort());
+    test('gives each panel its own id, covering PANEL_IDS exactly', () => {
+        expect(PANEL_SPECIFICATIONS.map((specification) => specification.id).sort()).toEqual([...PANEL_IDS].sort());
+    });
+
+    test('gives every configurable topic at least one panel, and every panel a configurable topic', () => {
+        const owners = new Set<string>(PANEL_SPECIFICATIONS.map((specification) => specification.topic));
+        expect([...owners].sort()).toEqual([...CONFIGURABLE_TOPICS].sort());
     });
 
     test('lists the panels in topic order, which is the order they appear on screen', () => {
@@ -27,7 +37,7 @@ describe('PANEL_SPECIFICATIONS', () => {
         expect(positions).toEqual([...positions].sort((first, second) => first - second));
     });
 
-    describe.each(PANEL_SPECIFICATIONS)('the $topic panel', (specification: PanelSpecification) => {
+    describe.each(PANEL_SPECIFICATIONS)('the $id panel', (specification: PanelSpecification) => {
         const optionValues = specification.options.map((option) => option.value);
 
         test('offers each value once', () => {
@@ -89,6 +99,22 @@ describe('PANEL_SPECIFICATIONS', () => {
         expect(specification.summaryNoun).toBe('sets');
     });
 
+    test('gives the cursive topic two panels: the sets, then the practice lines', () => {
+        expect(findPanelSpecifications('cursiveLetters').map((panel) => panel.id)).toEqual(['cursiveLetters', 'cursiveLayout']);
+    });
+
+    test('offers the cursive layouts the generator knows, with the large line first', () => {
+        const panel = findPanelSpecification('cursiveLayout');
+        expect(panel.options.map((option) => option.value)).toEqual(CURSIVE_LAYOUT_NAMES);
+        expect(panel.options.map((option) => option.label)).toEqual(['One large line', 'Two lines']);
+        expect(panel.kind).toBe('single');
+    });
+
+    test('starts the cursive layout on the one large line, the shared default', () => {
+        expect(DEFAULT_CURSIVE_LAYOUT).toBe('one-large-line');
+        expect(findPanelSpecification('cursiveLayout').defaultValues).toEqual([DEFAULT_CURSIVE_LAYOUT]);
+    });
+
     test('starts cursive letters on the first set only', () => {
         expect(findPanelSpecification('cursiveLetters').defaultValues).toEqual(['s-m-a-t']);
     });
@@ -110,18 +136,31 @@ describe('findConfigurableTopic', () => {
 });
 
 describe('findPanelSpecification', () => {
-    test.each(CONFIGURABLE_TOPICS)('returns the %s panel', (topic: ConfigurableTopic) => {
-        expect(findPanelSpecification(topic).topic).toBe(topic);
+    test.each(PANEL_IDS)('returns the %s panel', (panel: PanelId) => {
+        expect(findPanelSpecification(panel).id).toBe(panel);
+    });
+});
+
+describe('findPanelSpecifications', () => {
+    test.each(CONFIGURABLE_TOPICS)('finds the panels %s owns, and only those', (topic: ConfigurableTopic) => {
+        const panels = findPanelSpecifications(topic);
+        expect(panels.length).toBeGreaterThan(0);
+        expect(panels.filter((panel) => panel.topic !== topic)).toEqual([]);
+    });
+
+    test('together the topics own every panel exactly once', () => {
+        const ids = CONFIGURABLE_TOPICS.flatMap((topic) => findPanelSpecifications(topic).map((panel) => panel.id));
+        expect([...ids].sort()).toEqual([...PANEL_IDS].sort());
     });
 });
 
 describe('createDefaultSelections', () => {
-    test('has a key for each configurable topic and no others', () => {
-        expect(Object.keys(createDefaultSelections()).sort()).toEqual([...CONFIGURABLE_TOPICS].sort());
+    test('has a key for each panel and no others', () => {
+        expect(Object.keys(createDefaultSelections()).sort()).toEqual([...PANEL_IDS].sort());
     });
 
-    test.each(CONFIGURABLE_TOPICS)('starts %s on its panel default', (topic: ConfigurableTopic) => {
-        expect(createDefaultSelections()[topic]).toEqual(findPanelSpecification(topic).defaultValues);
+    test.each(PANEL_IDS)('starts the %s panel on its default', (panel: PanelId) => {
+        expect(createDefaultSelections()[panel]).toEqual(findPanelSpecification(panel).defaultValues);
     });
 
     test('hands back fresh lists, so a click in one place does not edit the defaults', () => {

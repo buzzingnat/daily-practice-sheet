@@ -37,15 +37,25 @@ describe('summarizeSelection', () => {
     });
 
     test('names the cursive set when only one is chosen', () => {
-        expect(summarizeSelection('cursiveLetters', selectionsWith({ cursiveLetters: ['c-r-i-p'] }))).toBe('c r i p');
+        expect(summarizeSelection('cursiveLetters', selectionsWith({ cursiveLetters: ['c-r-i-p'] }))).toBe('c r i p, one large line');
     });
 
     test('says "all" when every cursive set is chosen', () => {
-        expect(summarizeSelection('cursiveLetters', selectionsWith({ cursiveLetters: [...CURSIVE_GROUPS] }))).toBe('all');
+        expect(summarizeSelection('cursiveLetters', selectionsWith({ cursiveLetters: [...CURSIVE_GROUPS] }))).toBe('all, one large line');
     });
 
     test('counts the cursive sets when several are chosen', () => {
-        expect(summarizeSelection('cursiveLetters', selectionsWith({ cursiveLetters: ['s-m-a-t', 'b-f-o-g'] }))).toBe('2 sets');
+        expect(summarizeSelection('cursiveLetters', selectionsWith({ cursiveLetters: ['s-m-a-t', 'b-f-o-g'] }))).toBe('2 sets, one large line');
+    });
+
+    test('always names the cursive layout, whichever it is', () => {
+        expect(summarizeSelection('cursiveLetters', selectionsWith({ cursiveLayout: ['two-lines'] }))).toBe('s m a t, two lines');
+        expect(summarizeSelection('cursiveLetters', selectionsWith({ cursiveLayout: ['one-large-line'] }))).toBe('s m a t, one large line');
+    });
+
+    test('joins the summaries of every panel a topic owns, in panel order', () => {
+        expect(summarizeSelection('cursiveLetters', selectionsWith({ cursiveLetters: ['h-j-u-l', 'd-w-e-n'], cursiveLayout: ['two-lines'] })))
+            .toBe('2 sets, two lines');
     });
 
     test('names the region when only one is chosen', () => {
