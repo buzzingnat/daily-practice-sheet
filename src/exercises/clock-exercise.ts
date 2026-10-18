@@ -123,7 +123,8 @@ function drawHands(context: CanvasRenderingContext2D, geometry: ClockGeometry, t
 function drawAnswerBox(
     context: CanvasRenderingContext2D,
     clockType: ClockType,
-    displayLabel: string
+    displayLabel: string,
+    showAnswer: boolean
 ): void {
     const boxLeft = CLOCK_LEFT + CLOCK_SIZE + INTERACTION_GAP;
     const boxCenterY = CLOCK_TOP + (CLOCK_SIZE / 2);
@@ -137,7 +138,8 @@ function drawAnswerBox(
         context.font = `bold 16px ${SANS_SERIF_FONT}`;
         context.textBaseline = 'middle';
         context.textAlign = 'center';
-        context.fillText(':', boxLeft + 32, boxCenterY);
+        // The answer sheet writes the time where the student wrote it
+        context.fillText(showAnswer ? displayLabel : ':', boxLeft + 32, boxCenterY);
     } else {
         context.strokeRect(boxLeft, boxCenterY - 15, 80, 30);
         context.fillStyle = INK_COLOR;
@@ -162,26 +164,34 @@ export function createClockExercise(
 ): QuadrantExercise {
     const displayLabel = digitalDisplayLabel ?? formatClockTime(time);
 
+    // One drawing routine serves both sheets. The key writes the time for a telling task and draws the hands for a setting task.
+    function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {
+        const context = quadrantContext.context;
+
+        const geometry: ClockGeometry = {
+            centerX: CLOCK_LEFT + (CLOCK_SIZE / 2),
+            centerY: CLOCK_TOP + (CLOCK_SIZE / 2),
+            radius: (CLOCK_SIZE / 2) * DIAL_RADIUS_RATIO
+        };
+
+        drawTitle(context, title);
+        drawDialRing(context, geometry);
+        drawHourNumbers(context, geometry);
+        drawPivot(context, geometry);
+
+        if (clockType === 'telling' || showAnswers) {
+            drawHands(context, geometry, time);
+        }
+
+        drawAnswerBox(context, clockType, displayLabel, showAnswers);
+    }
+
     return {
         render(quadrantContext: QuadrantContext): void {
-            const context = quadrantContext.context;
-
-            const geometry: ClockGeometry = {
-                centerX: CLOCK_LEFT + (CLOCK_SIZE / 2),
-                centerY: CLOCK_TOP + (CLOCK_SIZE / 2),
-                radius: (CLOCK_SIZE / 2) * DIAL_RADIUS_RATIO
-            };
-
-            drawTitle(context, title);
-            drawDialRing(context, geometry);
-            drawHourNumbers(context, geometry);
-            drawPivot(context, geometry);
-
-            if (clockType === 'telling') {
-                drawHands(context, geometry, time);
-            }
-
-            drawAnswerBox(context, clockType, displayLabel);
+            draw(quadrantContext, false);
+        },
+        renderAnswers(quadrantContext: QuadrantContext): void {
+            draw(quadrantContext, true);
         }
     };
 }

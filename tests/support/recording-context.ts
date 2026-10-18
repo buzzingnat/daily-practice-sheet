@@ -6,15 +6,23 @@ export interface RecordedText {
     y: number;
 }
 
-// A canvas stand-in that remembers what was written and shrugs at everything else
-export function createRecordingContext(): { quadrantContext: QuadrantContext; texts: RecordedText[] } {
+export interface RecordedCall {
+    name: string;
+    args: unknown[];
+}
+
+// A canvas stand-in that remembers what was written and drawn, and shrugs at everything else
+export function createRecordingContext(): { quadrantContext: QuadrantContext; texts: RecordedText[]; calls: RecordedCall[] } {
     const texts: RecordedText[] = [];
-    const target: Record<string, unknown> = {
-        fillText: (text: string, x: number, y: number) => { texts.push({ text, x, y }); }
-    };
-    const context = new Proxy(target, {
-        get: (record, property: string) => (property in record ? record[property] : () => undefined),
+    const calls: RecordedCall[] = [];
+    const context = new Proxy({}, {
+        get: (unused, property: string) => (...args: unknown[]) => {
+            calls.push({ name: property, args });
+            if (property === 'fillText') {
+                texts.push({ text: args[0] as string, x: args[1] as number, y: args[2] as number });
+            }
+        },
         set: () => true
     }) as unknown as CanvasRenderingContext2D;
-    return { quadrantContext: { context, width: 266, height: 155 }, texts };
+    return { quadrantContext: { context, width: 266, height: 155 }, texts, calls };
 }
