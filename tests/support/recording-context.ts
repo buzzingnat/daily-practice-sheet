@@ -21,6 +21,10 @@ export function createRecordingContext(): { quadrantContext: QuadrantContext; te
             if (property === 'fillText') {
                 texts.push({ text: args[0] as string, x: args[1] as number, y: args[2] as number });
             }
+            if (property === 'measureText') {
+                return { width: 40 };
+            }
+            return undefined;
         },
         set: () => true
     }) as unknown as CanvasRenderingContext2D;
