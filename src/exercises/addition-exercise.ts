@@ -1,6 +1,7 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
 import { GradeLevel } from '../types';
 import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from '../constants';
+import { pickRandomWithRareZero } from './problem-numbers';
 
 interface AdditionProblem {
     topNumber: number;
@@ -23,12 +24,13 @@ function generateAdditionProblemsBatch(gradeLevel: GradeLevel): AdditionProblem[
         if (gradeLevel === '1st') {
             // Grade 1: Single digits, no carrying into the tens place
             topNumber = Math.floor(Math.random() * 10) + 1;    // 1 to 10
-            bottomNumber = Math.floor(Math.random() * 9) + 1;  // 1 to 9
 
-            // Early learners meet carrying later; a sum of ten or more is shown the door
-            if ((topNumber % 10) + bottomNumber >= 10) {
-                bottomNumber = Math.floor(Math.random() * (10 - (topNumber % 10)));
+            // Early learners meet carrying later, so the bottom number leaves the ones place short of ten.
+            // A top of 9 leaves room only for zero, and a sheet of "9 + 0" helps nobody: draw again.
+            while (topNumber % 10 === 9) {
+                topNumber = Math.floor(Math.random() * 10) + 1;
             }
+            bottomNumber = pickRandomWithRareZero(9 - (topNumber % 10));
         } else if (gradeLevel === '2nd') {
             // Grade 2: Double digits, basic carrying allowed
             topNumber = Math.floor(Math.random() * 70) + 15;     // 15 to 84

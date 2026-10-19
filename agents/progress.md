@@ -266,3 +266,13 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * First grade can draw a denominator of 1, so a fraction of "1/1" appears. This was already so; the key just makes it visible.
     * `generate-pdf-batch.ts` and `make-example-sheet.ts` keep older copies of the PDF pipeline and have no key.
     * This branch started before the user's cursive commit on main, so `agents/AGENTS.md` and `progress.md` here are older than main's and will conflict on merge; keep both sets of edits.
+
+### 2026-10-19 - Rare zeros in first-grade addition and subtraction (Claude)
+* **Status:** Done, not committed. `npm test` (23 files, 540 passed, 2 skipped), `npm run test:types` and `npm run build` pass. No generated PDF looked at.
+* **Accomplished:**
+    * New `exercises/problem-numbers.ts`: `pickRandomWithRareZero(maxInclusive, random)`. Every value from 1 up is equally likely; 0 weighs `ZERO_WEIGHT` (0.25) as much as one of them.
+    * First-grade addition and subtraction use it for the bottom number, replacing the roll-then-clamp code that made `10 - 0`, `20 - 0` and `9 + 0` common.
+    * Tops that leave room only for zero are redrawn: addition 9; subtraction 10 and 20 (first-grade subtraction tops are now 11 to 19).
+    * Tests: `problem-numbers.test.ts` (range, every value appears, zero rarer) and `first-grade-arithmetic.test.ts` (no carrying or borrowing; zero rarer than other bottoms for the same top). Mutation-tested: `ZERO_WEIGHT` raised to 1.5 was caught and restored.
+* **Open Issues:** 2nd and 3rd grade unchanged. The generators still call `Math.random` directly; tests mock it.
+

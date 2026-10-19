@@ -1,6 +1,7 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
 import { GradeLevel } from '../types';
 import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from '../constants';
+import { pickRandomWithRareZero } from './problem-numbers';
 
 interface SubtractionProblem {
     topNumber: number;
@@ -23,12 +24,13 @@ function generateSubtractionProblemsBatch(gradeLevel: GradeLevel): SubtractionPr
         if (gradeLevel === '1st') {
             // Grade 1: Single/double digits up to 20, no borrowing/regrouping required
             topNumber = Math.floor(Math.random() * 11) + 10; // 10 to 20
-            bottomNumber = Math.floor(Math.random() * 10);   // 0 to 9
 
-            // Ensure units place won't force borrowing or regrouping sequences
-            if ((topNumber % 10) < bottomNumber) {
-                bottomNumber = Math.floor(Math.random() * ((topNumber % 10) + 1));
+            // A top of 10 or 20 leaves room only for zero, and a sheet of "10 - 0" helps nobody: draw again
+            while (topNumber % 10 === 0) {
+                topNumber = Math.floor(Math.random() * 11) + 10;
             }
+            // Keep the bottom within the units place so nothing is borrowed or regrouped
+            bottomNumber = pickRandomWithRareZero(topNumber % 10);
         } else if (gradeLevel === '2nd') {
             // Grade 2: Full double digits up to 99, occasional basic regrouping allowed
             topNumber = Math.floor(Math.random() * 80) + 20;    // 20 to 99
