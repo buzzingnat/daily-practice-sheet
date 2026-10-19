@@ -1,6 +1,6 @@
 # plan.md — Answer Sheet for the Generated Worksheet
 
-Status: **approved; phase 1 done.** Decisions: the key is appended as extra pages of the same PDF (only when some quadrant can answer); hiragana and cursive stay unchanged.
+Status: **done (phases 1 to 5).** Decisions: the key is appended as extra pages of the same PDF (only when some quadrant can answer); hiragana and cursive stay unchanged.
 
 ## Goal
 When a batch is generated, also produce an answer sheet that matches it exactly: same pages, same half-pages, same quadrants, with the answers filled in.
