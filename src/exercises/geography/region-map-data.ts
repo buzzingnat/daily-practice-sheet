@@ -50,8 +50,8 @@ interface LandShape {
     isRussia: boolean;
 }
 
-const TOPOLOGY_URL = '/maps/countries-110m.json';
-const ISO_CODES_URL = '/maps/ISO-3166.csv';
+const TOPOLOGY_URL = './maps/countries-110m.json';
+const ISO_CODES_URL = './maps/ISO-3166.csv';
 
 // These repeat constants in geography-exercise.ts, which keeps them to itself.
 const RUSSIA_COUNTRY_CODE = 643;
