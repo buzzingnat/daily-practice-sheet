@@ -13,25 +13,31 @@ describe('CURSIVE_GROUP_LETTERS', () => {
         expect(Object.keys(CURSIVE_GROUP_LETTERS).sort()).toEqual([...CURSIVE_GROUPS].sort());
     });
 
-    test('lists the six sets in the Montessori order', () => {
+    test('lists the seven sets in the order of introduction', () => {
         expect(CURSIVE_GROUPS.map((group: CursiveGroup) => CURSIVE_GROUP_LETTERS[group].join(''))).toEqual([
-            'smat', 'crip', 'bfog', 'hjul', 'dwen', 'kqvxyz'
+            'ilcn', 'smat', 'crip', 'bfog', 'hjul', 'dwen', 'kqvxyz'
         ]);
     });
 
-    test('covers the alphabet once: 26 letters, none missing, none repeated', () => {
-        const letters = allLetters();
-        expect(letters).toHaveLength(26);
-        expect([...letters].sort().join('')).toBe('abcdefghijklmnopqrstuvwxyz');
+    test('covers the alphabet: all 26 letters, none missing', () => {
+        expect([...new Set(allLetters())].sort().join('')).toBe('abcdefghijklmnopqrstuvwxyz');
+    });
+
+    test('repeats only i, l, c and n, which the first set borrows for its easy shapes', () => {
+        const counts = new Map<string, number>();
+        allLetters().forEach((letter) => counts.set(letter, (counts.get(letter) ?? 0) + 1));
+        const repeated = [...counts.entries()].filter(([unused, count]) => count > 1).map(([letter]) => letter).sort();
+        expect(repeated).toEqual(['c', 'i', 'l', 'n']);
+        expect([...counts.values()].every((count) => count <= 2)).toBe(true);
     });
 
     test.each(CURSIVE_GROUPS)('names its letters in the %s group by its own name', (group: CursiveGroup) => {
         expect(group.split('-').join('')).toBe(CURSIVE_GROUP_LETTERS[group].join(''));
     });
 
-    test('puts exactly one vowel in each of the first five sets, and none in the last', () => {
+    test('puts exactly one vowel in each of the first six sets, and none in the last', () => {
         const vowelCounts = CURSIVE_GROUPS.map((group: CursiveGroup) => CURSIVE_GROUP_LETTERS[group].filter((letter) => VOWELS.includes(letter)).length);
-        expect(vowelCounts).toEqual([1, 1, 1, 1, 1, 0]);
+        expect(vowelCounts).toEqual([1, 1, 1, 1, 1, 1, 0]);
     });
 
     test('uses only single lowercase letters', () => {
