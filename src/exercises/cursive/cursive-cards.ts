@@ -6,6 +6,7 @@ export interface CursiveCard {
 
 // Each set, as the letters a child meets together. Position in the list is the order of introduction.
 export const CURSIVE_GROUP_LETTERS: Record<CursiveGroup, readonly string[]> = {
+    'i-l-c-n': ['i', 'l', 'c', 'n'],
     's-m-a-t': ['s', 'm', 'a', 't'],
     'c-r-i-p': ['c', 'r', 'i', 'p'],
     'b-f-o-g': ['b', 'f', 'o', 'g'],

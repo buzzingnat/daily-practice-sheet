@@ -14,7 +14,7 @@ function buildSingleChoice(
 ): HTMLElement {
     const row = document.createElement('div');
     row.classList.add('choice-row');
-    const radioName = `setting-${specification.topic}`;
+    const radioName = `setting-${specification.id}`;
 
     specification.options.forEach((option) => {
         const segment = document.createElement('label');
@@ -24,9 +24,9 @@ function buildSingleChoice(
         radio.type = 'radio';
         radio.name = radioName;
         radio.value = option.value;
-        radio.checked = selections[specification.topic].includes(option.value);
+        radio.checked = selections[specification.id].includes(option.value);
         radio.addEventListener('change', () => {
-            selections[specification.topic] = [option.value];
+            selections[specification.id] = [option.value];
             onChange();
         });
 
@@ -51,19 +51,19 @@ function buildMultipleChoice(
 ): HTMLElement {
     const row = document.createElement('div');
     row.classList.add('choice-row');
-    const topic = specification.topic;
+    const panelId = specification.id;
 
     const chipByValue = new Map<string, HTMLButtonElement>();
     let allChip: HTMLButtonElement | undefined;
 
     const syncChips = (): void => {
         chipByValue.forEach((chip, value) => {
-            chip.setAttribute('aria-pressed', String(selections[topic].includes(value)));
+            chip.setAttribute('aria-pressed', String(selections[panelId].includes(value)));
         });
         if (allChip) {
             allChip.setAttribute(
                 'aria-pressed',
-                String(selections[topic].length === specification.options.length)
+                String(selections[panelId].length === specification.options.length)
             );
         }
     };
@@ -80,7 +80,7 @@ function buildMultipleChoice(
     if (specification.offersAll) {
         allChip = makeChip(ALL_CHIP_LABEL);
         allChip.addEventListener('click', () => {
-            selections[topic] = specification.options.map((option) => option.value);
+            selections[panelId] = specification.options.map((option) => option.value);
             syncChips();
             onChange();
         });
@@ -90,13 +90,13 @@ function buildMultipleChoice(
         const chip = makeChip(option.label);
         chipByValue.set(option.value, chip);
         chip.addEventListener('click', () => {
-            const isChosen = selections[topic].includes(option.value);
-            if (isChosen && selections[topic].length === 1) {
+            const isChosen = selections[panelId].includes(option.value);
+            if (isChosen && selections[panelId].length === 1) {
                 return;
             }
-            selections[topic] = isChosen
-                ? selections[topic].filter((value) => value !== option.value)
-                : [...selections[topic], option.value];
+            selections[panelId] = isChosen
+                ? selections[panelId].filter((value) => value !== option.value)
+                : [...selections[panelId], option.value];
             syncChips();
             onChange();
         });
@@ -127,10 +127,10 @@ export function renderSettingsPanels(
 
         const fieldset = document.createElement('fieldset');
         fieldset.classList.add('settings-panel');
-        fieldset.id = `settings-${specification.topic}`;
+        fieldset.id = `settings-${specification.id}`;
 
         const legend = document.createElement('legend');
-        legend.textContent = findPanelSpecification(specification.topic).heading;
+        legend.textContent = findPanelSpecification(specification.id).heading;
         fieldset.appendChild(legend);
 
         fieldset.appendChild(specification.kind === 'single'

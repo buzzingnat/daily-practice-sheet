@@ -36,11 +36,19 @@ export type KanaRow = typeof KANA_ROWS[number];
 
 // The Montessori sets for cursive lowercase, in the order they are introduced (after Cathie
 // Perolman's color-coded groups): each set but the last holds one vowel and three consonants.
+// first group is included as easier to write based on shape
 export const CURSIVE_GROUPS = [
-    's-m-a-t', 'c-r-i-p', 'b-f-o-g', 'h-j-u-l', 'd-w-e-n', 'k-q-v-x-y-z'
+    'i-l-c-n', 's-m-a-t', 'c-r-i-p', 'b-f-o-g', 'h-j-u-l', 'd-w-e-n', 'k-q-v-x-y-z'
 ] as const;
 
 export type CursiveGroup = typeof CURSIVE_GROUPS[number];
+
+// How the cursive quadrant spends its practice area: one large line, or two lines of smaller letters
+export const CURSIVE_LAYOUT_NAMES = ['one-large-line', 'two-lines'] as const;
+
+export type CursiveLayoutName = typeof CURSIVE_LAYOUT_NAMES[number];
+
+export const DEFAULT_CURSIVE_LAYOUT: CursiveLayoutName = 'one-large-line';
 
 // Topics that come with a settings panel
 export const CONFIGURABLE_TOPICS = [
@@ -49,12 +57,19 @@ export const CONFIGURABLE_TOPICS = [
 
 export type ConfigurableTopic = typeof CONFIGURABLE_TOPICS[number];
 
+// Settings panels. A topic usually has one, named for the topic, but may have several.
+export const PANEL_IDS = [
+    'fractions', 'addition', 'subtraction', 'hiragana', 'cursiveLetters', 'cursiveLayout', 'countries'
+] as const;
+
+export type PanelId = typeof PANEL_IDS[number];
+
 // What the generator reads: validated, typed, and never empty
 export interface TopicSettings {
     fractions: { level: GradeLevel };
     addition: { level: GradeLevel };
     subtraction: { level: GradeLevel };
     hiragana: { rows: readonly KanaRow[] };
-    cursiveLetters: { groups: readonly CursiveGroup[] };
+    cursiveLetters: { groups: readonly CursiveGroup[]; layout: CursiveLayoutName };
     countries: { regions: readonly PopulatedRegion[] };
 }

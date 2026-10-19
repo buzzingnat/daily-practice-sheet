@@ -11,7 +11,7 @@ import { createRegionMapExercise, listRegionTargets } from '../exercises/geograp
 import { KanaCard, listKanaCards } from '../exercises/kana/kana-rows';
 import { createCursiveExercise } from '../exercises/cursive/cursive-exercise';
 import { CursiveCard, listCursiveCards } from '../exercises/cursive/cursive-cards';
-import { GradeLevel, PopulatedRegion, QuadrantTopics, RandomSource, TopicKey, TopicSettings } from '../types';
+import { CursiveLayoutName, GradeLevel, PopulatedRegion, QuadrantTopics, RandomSource, TopicKey, TopicSettings } from '../types';
 
 // Content that must take turns rather than trust to luck.
 export interface ContentDecks {
@@ -30,7 +30,7 @@ export interface ExerciseFactories {
     createSubtractionExercise(level: GradeLevel): QuadrantExercise;
     createAdditionExercise(level: GradeLevel): QuadrantExercise;
     createKanaExercise(card: KanaCard): QuadrantExercise;
-    createCursiveExercise(card: CursiveCard): QuadrantExercise;
+    createCursiveExercise(card: CursiveCard, layout: CursiveLayoutName): QuadrantExercise;
     createFractionsExercise(level: GradeLevel): QuadrantExercise;
     createGeographyExercise(continent: Continent): QuadrantExercise;
     createCountryExercise(region: PopulatedRegion, countryIdentifier: string): QuadrantExercise;
@@ -84,7 +84,7 @@ function instantiateExercise(
     } else if (topic === 'hiragana') {
         return factories.createKanaExercise(decks.kana.drawNext());
     } else if (topic === 'cursiveLetters') {
-        return factories.createCursiveExercise(decks.cursive.drawNext());
+        return factories.createCursiveExercise(decks.cursive.drawNext(), settings.cursiveLetters.layout);
     } else if (topic === 'fractions') {
         return factories.createFractionsExercise(settings.fractions.level);
     } else if (topic === 'continents') {
@@ -151,8 +151,8 @@ export function createWorkbookExerciseFactories(): ExerciseFactories {
         createKanaExercise: (card: KanaCard): QuadrantExercise => {
             return createKanaExercise('HIRAGANA PRACTICE', card.character, card.pronunciationHint);
         },
-        createCursiveExercise: (card: CursiveCard): QuadrantExercise => {
-            return createCursiveExercise(card.letter);
+        createCursiveExercise: (card: CursiveCard, layout: CursiveLayoutName): QuadrantExercise => {
+            return createCursiveExercise(card.letter, layout);
         },
         createGeographyExercise: (continent: Continent): QuadrantExercise => {
             // Map data was preloaded at startup, so this stays synchronous

@@ -6,6 +6,9 @@ export const CURSIVE_BOLD_FONT = 'CursiveBold';
 export const CURSIVE_REGULAR_FONT = 'CursiveRegular';
 export const CURSIVE_DASHED_FONT = 'CursiveDashed';
 
+// Whichever color emoji font the system carries, tried in order
+export const EMOJI_FONT = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+
 // The monochrome palette. Every colour drawn on the canvas comes from here.
 // Pure black for boundaries, grids and outlines; pure white for backgrounds.
 export const COLOR_BLACK = '#000000';

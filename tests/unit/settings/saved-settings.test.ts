@@ -8,7 +8,7 @@ import {
 } from '../../../src/settings/saved-settings';
 import { DEFAULT_HALF_PAGES, MAXIMUM_HALF_PAGES } from '../../../src/settings/print-size';
 import { createDefaultSelections } from '../../../src/settings/topic-settings';
-import { CONFIGURABLE_TOPICS, TOPIC_KEYS, TopicKey, ConfigurableTopic } from '../../../src/types';
+import { PANEL_IDS, PanelId, TOPIC_KEYS, TopicKey } from '../../../src/types';
 
 const SAVED_TOPIC_LIMIT = 6;
 
@@ -31,8 +31,8 @@ describe('parseSavedSettings with an empty store', () => {
         expect(empty.halfPageCount).toBe(DEFAULT_HALF_PAGES);
     });
 
-    test.each(CONFIGURABLE_TOPICS)('gives the %s panel default', (topic: ConfigurableTopic) => {
-        expect(empty.panelSelections[topic]).toEqual(defaults[topic]);
+    test.each(PANEL_IDS)('gives the %s panel default', (panel: PanelId) => {
+        expect(empty.panelSelections[panel]).toEqual(defaults[panel]);
     });
 });
 
@@ -91,6 +91,24 @@ describe('parseSavedSettings with stray and duplicate values', () => {
     });
 });
 
+describe('parseSavedSettings with settings saved before the cursive layout existed', () => {
+    test('gives the one large line when no layout was stored', () => {
+        const older = parseFrom({ [panelSelectionKey('cursiveLetters')]: JSON.stringify(['c-r-i-p']) });
+        expect(older.panelSelections.cursiveLetters).toEqual(['c-r-i-p']);
+        expect(older.panelSelections.cursiveLayout).toEqual(['one-large-line']);
+    });
+
+    test('gives the one large line when the stored layout is not one we know', () => {
+        expect(parseFrom({ [panelSelectionKey('cursiveLayout')]: JSON.stringify(['three-lines']) }).panelSelections.cursiveLayout)
+            .toEqual(['one-large-line']);
+    });
+
+    test('keeps one layout when several are stored, since the panel is single-choice', () => {
+        const several = parseFrom({ [panelSelectionKey('cursiveLayout')]: JSON.stringify(['two-lines', 'one-large-line']) });
+        expect(several.panelSelections.cursiveLayout).toHaveLength(1);
+    });
+});
+
 describe('parseSavedSettings limits', () => {
     test('stops saved topics at the limit', () => {
         const crowded = parseFrom({ [SELECTED_TOPICS_KEY]: JSON.stringify(TOPIC_KEYS) });
@@ -103,6 +121,7 @@ describe('parseSavedSettings round trip', () => {
         selectedTopics: ['fractions', 'hiragana', 'cursiveLetters', 'countries'],
         hiragana: ['s', 'wn'],
         cursiveLetters: ['s-m-a-t', 'h-j-u-l'],
+        cursiveLayout: ['two-lines'],
         subtraction: ['2nd'],
         halfPageCount: 7
     };
@@ -110,6 +129,7 @@ describe('parseSavedSettings round trip', () => {
         [SELECTED_TOPICS_KEY]: JSON.stringify(original.selectedTopics),
         [panelSelectionKey('hiragana')]: JSON.stringify(original.hiragana),
         [panelSelectionKey('cursiveLetters')]: JSON.stringify(original.cursiveLetters),
+        [panelSelectionKey('cursiveLayout')]: JSON.stringify(original.cursiveLayout),
         [panelSelectionKey('subtraction')]: JSON.stringify(original.subtraction),
         [HALF_PAGE_COUNT_KEY]: JSON.stringify(original.halfPageCount)
     });
@@ -124,6 +144,10 @@ describe('parseSavedSettings round trip', () => {
 
     test('keeps valid cursive sets', () => {
         expect(roundTrip.panelSelections.cursiveLetters).toEqual(original.cursiveLetters);
+    });
+
+    test('keeps a valid cursive layout', () => {
+        expect(roundTrip.panelSelections.cursiveLayout).toEqual(original.cursiveLayout);
     });
 
     test('keeps a valid level', () => {

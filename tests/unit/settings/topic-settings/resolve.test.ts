@@ -10,7 +10,7 @@ describe('resolveTopicSettings', () => {
             addition: { level: '1st' },
             subtraction: { level: '1st' },
             hiragana: { rows: ['vowels'] },
-            cursiveLetters: { groups: ['s-m-a-t'] },
+            cursiveLetters: { groups: ['s-m-a-t'], layout: 'one-large-line' },
             countries: { regions: POPULATED_REGIONS }
         });
     });
@@ -36,6 +36,20 @@ describe('resolveTopicSettings', () => {
     test('keeps the chosen cursive sets in Montessori order, whatever order they were chosen in', () => {
         expect(resolveTopicSettings(selectionsWith({ cursiveLetters: ['d-w-e-n', 's-m-a-t', 'b-f-o-g'] })).cursiveLetters.groups)
             .toEqual(['s-m-a-t', 'b-f-o-g', 'd-w-e-n']);
+    });
+
+    test.each(['one-large-line', 'two-lines'] as const)('resolves the %s cursive layout', (layout) => {
+        expect(resolveTopicSettings(selectionsWith({ cursiveLayout: [layout] })).cursiveLetters.layout).toBe(layout);
+    });
+
+    test('throws when the cursive layout holds nothing valid', () => {
+        expect(() => resolveTopicSettings(selectionsWith({ cursiveLayout: [] }))).toThrow(/cursiveLayout/);
+        expect(() => resolveTopicSettings(selectionsWith({ cursiveLayout: ['three-lines'] }))).toThrow(/no valid/);
+    });
+
+    test('resolves the cursive sets and the layout independently', () => {
+        const resolved = resolveTopicSettings(selectionsWith({ cursiveLetters: ['b-f-o-g'], cursiveLayout: ['two-lines'] }));
+        expect(resolved.cursiveLetters).toEqual({ groups: ['b-f-o-g'], layout: 'two-lines' });
     });
 
     test('drops cursive sets no list contains', () => {

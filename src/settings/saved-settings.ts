@@ -1,6 +1,6 @@
 import { createDefaultSelections, findPanelSpecification, PanelSelections } from './topic-settings';
 import { clampHalfPageCount, DEFAULT_HALF_PAGES } from './print-size';
-import { CONFIGURABLE_TOPICS, ConfigurableTopic, TOPIC_KEYS, TopicKey } from '../types';
+import { PANEL_IDS, PanelId, TOPIC_KEYS, TopicKey } from '../types';
 
 // One key per setting. The version sits in the key, so a change of shape can move to
 // v2 and leave the old values to gather dust rather than be misread.
@@ -8,8 +8,8 @@ const KEY_PREFIX = 'daily-practice-sheet.v1';
 export const SELECTED_TOPICS_KEY = `${KEY_PREFIX}.selected-topics`;
 export const HALF_PAGE_COUNT_KEY = `${KEY_PREFIX}.half-page-count`;
 
-export function panelSelectionKey(topic: ConfigurableTopic): string {
-    return `${KEY_PREFIX}.panel.${topic}`;
+export function panelSelectionKey(panel: PanelId): string {
+    return `${KEY_PREFIX}.panel.${panel}`;
 }
 
 export interface SavedSettings {
@@ -53,8 +53,8 @@ export function parseSelectedTopics(storedText: string | null, maximumTopicCount
  * Keeps the values the panel offers. A single-choice panel keeps one, and an
  * empty result falls back to the default, so the one-must-stay rule outlives a reload.
  */
-export function parsePanelSelection(topic: ConfigurableTopic, storedText: string | null): string[] {
-    const specification = findPanelSpecification(topic);
+export function parsePanelSelection(panel: PanelId, storedText: string | null): string[] {
+    const specification = findPanelSpecification(panel);
     const stored = parseStringList(storedText);
     const offered = specification.options.map((option) => option.value);
     const kept = offered.filter((value) => stored.includes(value));
@@ -73,8 +73,8 @@ export function parseHalfPageCount(storedText: string | null): number {
  */
 export function parseSavedSettings(readStoredText: StoredTextReader, maximumTopicCount: number): SavedSettings {
     const panelSelections = createDefaultSelections();
-    CONFIGURABLE_TOPICS.forEach((topic) => {
-        panelSelections[topic] = parsePanelSelection(topic, readStoredText(panelSelectionKey(topic)));
+    PANEL_IDS.forEach((panel) => {
+        panelSelections[panel] = parsePanelSelection(panel, readStoredText(panelSelectionKey(panel)));
     });
     return {
         selectedTopics: parseSelectedTopics(readStoredText(SELECTED_TOPICS_KEY), maximumTopicCount),
@@ -109,10 +109,10 @@ export function saveSelectedTopics(selectedTopics: readonly TopicKey[]): void {
     writeToLocalStorage(SELECTED_TOPICS_KEY, selectedTopics);
 }
 
-// The panels report a change without naming the topic, and five small writes cost little
+// The panels report a change without naming the topic, and a few small writes cost little
 export function savePanelSelections(panelSelections: PanelSelections): void {
-    CONFIGURABLE_TOPICS.forEach((topic) => {
-        writeToLocalStorage(panelSelectionKey(topic), panelSelections[topic]);
+    PANEL_IDS.forEach((panel) => {
+        writeToLocalStorage(panelSelectionKey(panel), panelSelections[panel]);
     });
 }
 
