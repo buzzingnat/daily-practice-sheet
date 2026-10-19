@@ -89,7 +89,7 @@ describe('PANEL_SPECIFICATIONS', () => {
 
     test('labels the cursive chips the way a teacher says them', () => {
         expect(findPanelSpecification('cursiveLetters').options.map((option) => option.label)).toEqual([
-            's m a t', 'c r i p', 'b f o g', 'h j u l', 'd w e n', 'k q v x y z'
+            'i l c n', 's m a t', 'c r i p', 'b f o g', 'h j u l', 'd w e n', 'k q v x y z'
         ]);
     });
 
