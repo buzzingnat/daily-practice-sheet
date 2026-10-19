@@ -1,7 +1,7 @@
 import { getSharedImage } from "./asset-manager";
 import { executeTestSheetGeneration } from './make-example-sheet';
 import { generateWorkbookBatch, createWorkbookExerciseFactories } from './generator/randomization-and-difficulty-generator';
-import { createClockExercise, ClockType } from './exercises/clock-exercise';
+import { createClockExercise } from './exercises/clock-exercise';
 import { createAdditionExercise} from './exercises/addition-exercise';
 import { createSubtractionExercise } from './exercises/subtraction-exercise';
 import { createFractionsExercise } from './exercises/fractions-exercise';
@@ -10,16 +10,17 @@ import { createCursiveExercise } from './exercises/cursive/cursive-exercise';
 import { loadCursiveFonts } from './exercises/cursive/cursive-fonts';
 import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWorksheetBatch } from './worksheet/worksheet-layout';
 import { createPlaceholderExercise, createBlankExercise } from './utils';
-import { loadGeographyData, createGeographyExercise, Continent } from './exercises/geography/geography-exercise';
+import { loadGeographyData, createGeographyExercise } from './exercises/geography/geography-exercise';
 import { loadRegionMapData } from './exercises/geography/region-map-data';
 import { createRegionMapExercise } from './exercises/geography/region-map-exercise';
-import { CursiveLayoutName, GradeLevel, PopulatedRegion, TOPIC_KEYS, TopicKey } from './types';
+import { TOPIC_KEYS, TopicKey } from './types';
 import { KANA_IMAGE_URL, COLOR_MEDIUM_GREY, COLOR_WHITE } from './constants';
 import {
     findConfigurableTopic,
     resolveTopicSettings,
     summarizeSelection
 } from './settings/topic-settings';
+import { buildExampleSpecifications, ExampleSpecification } from './generator/example-specifications';
 import { renderSettingsPanels } from './ui/topic-settings-panel';
 import { renderPrintSizePanel } from './ui/print-size-panel';
 import { loadSavedSettings, saveHalfPageCount, savePanelSelections, saveSelectedTopics } from './settings/saved-settings';
@@ -118,56 +119,6 @@ function drawExample(exerciseType: QuadrantExercise) {
     return canvas;
 }
 
-export type ExampleSpecification =
-    | { type: 'clock'; clockType: ClockType, title: string; hours: number; minutes: number; digitalDisplayLabel?: string }
-    | { type: 'fractions'; title: string; grade: GradeLevel }
-    | { type: 'subtraction'; grade: GradeLevel; title?: string }
-    | { type: 'addition'; grade: GradeLevel; title?: string }
-    | { type: 'kana'; title: string; character: string; pronunciation: string }
-    | { type: 'cursive'; letter: string; layout: CursiveLayoutName }
-    | { type: 'geography'; continent: Continent; title?: string }
-    | { type: 'regionCountry'; region: PopulatedRegion; targetIdentifier: string; title?: string }
-    | { type: 'placeholder'; title: string }
-    | { type: 'blank';};
-
-const DEFAULT_EXAMPLES: ExampleSpecification[] = [
-    { type: 'clock', clockType: 'telling', title: 'TELLING TIME', hours: 10, minutes: 10 },
-    { type: 'clock', clockType: 'setting', title: 'SETTING TIME', hours: 3, minutes: 30 },
-    { type: 'fractions', title: 'FRACTIONS', grade: '1st' },
-    { type: 'geography', continent: 'Europe' },
-    { type: 'geography', continent: 'Asia' },
-    { type: 'geography', continent: 'South America' },
-    { type: 'regionCountry', region: 'Europe', targetIdentifier: '643' },
-    { type: 'regionCountry', region: 'Asia', targetIdentifier: '643' },
-    { type: 'regionCountry', region: 'Africa', targetIdentifier: '404' },
-    { type: 'regionCountry', region: 'North America', targetIdentifier: '484' },
-    { type: 'regionCountry', region: 'South America', targetIdentifier: '076' },
-    { type: 'regionCountry', region: 'Oceania', targetIdentifier: '554' },
-    { type: 'regionCountry', region: 'Central America', targetIdentifier: '192' },
-    { type: 'subtraction', grade: '2nd' },
-    { type: 'addition', grade: '1st' },
-    {
-        type: 'kana',
-        title: 'HIRAGANA PRACTICE',
-        character: 'お',
-        pronunciation: '"o" pronounce "oa", as in boat.'
-    },
-    {
-        type: 'kana',
-        title: 'HIRAGANA PRACTICE',
-        character: 'る',
-        pronunciation: '"ru" pronounce "roo", as in ruin.'
-    },
-    // Cursive letters: a narrow letter, a wide one, one with a descender, one with an ascender loop
-    { type: 'cursive', letter: 's', layout: 'one-large-line' },
-    { type: 'cursive', letter: 'm', layout: 'one-large-line' },
-    { type: 'cursive', letter: 'g', layout: 'one-large-line' },
-    { type: 'cursive', letter: 'k', layout: 'one-large-line' },
-    { type: 'cursive', letter: 'w', layout: 'one-large-line' },
-    { type: 'cursive', letter: 'g', layout: 'two-lines' },
-    { type: 'cursive', letter: 'm', layout: 'two-lines' }
-];
-
 /**
  * Turns one specification into a live quadrant. The closing else clause
  * assigns to never, so a new quadrant type that forgets its branch is
@@ -214,16 +165,26 @@ function createExerciseFromSpecification(specification: ExampleSpecification): Q
 }
 
 /**
- * Draws one preview canvas per specification and appends each to the
- * example section. Building and drawing both sit inside the guard, because
+ * Replaces the example section with one preview canvas per specification
+ * for the chosen topics and settings. Building and drawing both sit inside the guard, because
  * a factory can throw as readily as a canvas can fail, and one bad quadrant
  * should not sink the rest.
  */
-function renderExamples(specifications: ExampleSpecification[] = DEFAULT_EXAMPLES): void {
+function renderExamples(): void {
     const exampleSection = document.getElementById('example-exercises');
     if (!exampleSection) {
         return;
     }
+
+    let specifications: ExampleSpecification[];
+    try {
+        specifications = buildExampleSpecifications(getSelectedTopics(), resolveTopicSettings(panelSelections));
+    } catch (error: unknown) {
+        // A panel with nothing chosen cannot be resolved; keep the examples already shown
+        console.error('Could not choose examples:', error);
+        return;
+    }
+    exampleSection.replaceChildren();
 
     specifications.forEach((specification) => {
         try {
@@ -281,6 +242,7 @@ function refreshTopicSummaries(): void {
 function changePanelSelection(): void {
     savePanelSelections(panelSelections);
     refreshTopicSummaries();
+    renderExamples();
 }
 
 function refreshSettingsPanels(): void {
@@ -298,6 +260,7 @@ function clickTopicChoice(button: HTMLButtonElement, key: TopicKey): void {
     saveSelectedTopics(getSelectedTopics());
     refreshTopicAvailability();
     refreshSettingsPanels();
+    renderExamples();
 }
 
 function renderMainInitial() {
