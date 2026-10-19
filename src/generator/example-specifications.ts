@@ -34,7 +34,7 @@ const EXAMPLE_COUNTRY_BY_REGION: Record<PopulatedRegion, string> = {
     'Central America': '192'
 };
 
-const EXAMPLE_CONTINENTS: readonly Continent[] = ['Europe', 'Asia', 'South America'];
+const EXAMPLE_CONTINENT: Continent = 'Europe';
 
 /**
  * The example previews for the chosen topics, drawn the way the printed sheet
@@ -73,7 +73,7 @@ function buildTopicExamples(topic: TopicKey, settings: TopicSettings): ExampleSp
         const card = listCursiveCards(settings.cursiveLetters.groups)[0];
         return card ? [{ type: 'cursive', letter: card.letter, layout: settings.cursiveLetters.layout }] : [];
     } else if (topic === 'continents') {
-        return EXAMPLE_CONTINENTS.map((continent) => ({ type: 'geography', continent }));
+        return [{ type: 'geography', continent: EXAMPLE_CONTINENT }];
     } else if (topic === 'countries') {
         return settings.countries.regions.map((region) => {
             return { type: 'regionCountry', region, targetIdentifier: EXAMPLE_COUNTRY_BY_REGION[region] };

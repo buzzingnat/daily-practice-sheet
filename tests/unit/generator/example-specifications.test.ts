@@ -44,3 +44,10 @@ describe('buildExampleSpecifications', () => {
         expect(regions).toEqual(['Africa', 'Oceania']);
     });
 });
+
+describe('the continents example', () => {
+    test('is a single pane', () => {
+        const examples = buildExampleSpecifications(['continents'], defaultSettings);
+        expect(examples.map((spec) => spec.type)).toEqual(['geography']);
+    });
+});

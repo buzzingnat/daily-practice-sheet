@@ -123,8 +123,8 @@ describe('PANEL_SPECIFICATIONS', () => {
         expect(findPanelSpecification('countries').options.map((option) => option.value)).toEqual(POPULATED_REGIONS);
     });
 
-    test('starts countries with every region chosen', () => {
-        expect(findPanelSpecification('countries').defaultValues).toEqual(POPULATED_REGIONS);
+    test('starts countries with only Africa chosen', () => {
+        expect(findPanelSpecification('countries').defaultValues).toEqual(['Africa']);
     });
 });
 
@@ -168,7 +168,7 @@ describe('createDefaultSelections', () => {
         first.hiragana.push('k');
         first.countries.length = 0;
         expect(createDefaultSelections().hiragana).toEqual(['vowels']);
-        expect(createDefaultSelections().countries).toEqual(POPULATED_REGIONS);
+        expect(createDefaultSelections().countries).toEqual(['Africa']);
         expect(findPanelSpecification('hiragana').defaultValues).toEqual(['vowels']);
     });
 });

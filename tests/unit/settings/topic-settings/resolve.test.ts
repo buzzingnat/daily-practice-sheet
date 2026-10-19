@@ -11,7 +11,7 @@ describe('resolveTopicSettings', () => {
             subtraction: { level: '1st' },
             hiragana: { rows: ['vowels'] },
             cursiveLetters: { groups: ['s-m-a-t'], layout: 'one-large-line' },
-            countries: { regions: POPULATED_REGIONS }
+            countries: { regions: ['Africa'] }
         });
     });
 

@@ -116,7 +116,7 @@ export const PANEL_SPECIFICATIONS: readonly PanelSpecification[] = [
     },
     {
         id: 'countries', topic: 'countries', heading: 'Countries: regions', kind: 'multiple',
-        options: REGION_OPTIONS, defaultValues: POPULATED_REGIONS, summaryNoun: 'regions', offersAll: true
+        options: REGION_OPTIONS, defaultValues: ['Africa'], summaryNoun: 'regions', offersAll: true
     }
 ];
 
