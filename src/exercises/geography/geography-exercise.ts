@@ -53,8 +53,8 @@ type SourcePolygonalGeometry =
 
 type PlainPolygonalGeometry = TopologyPolygon | TopologyMultiPolygon;
 
-const TOPOLOGY_URL = '/maps/countries-110m.json';
-const ISO_CODES_URL = '/maps/ISO-3166.csv';
+const TOPOLOGY_URL = './maps/countries-110m.json';
+const ISO_CODES_URL = './maps/ISO-3166.csv';
 
 // Russia is filed under Europe, and the Ural cut is made inside that shape at draw time.
 const RUSSIA_COUNTRY_CODE = 643;
