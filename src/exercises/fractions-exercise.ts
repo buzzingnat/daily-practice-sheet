@@ -92,7 +92,8 @@ function drawFractionCircle(
 function drawFractionStructureInput(
     context: CanvasRenderingContext2D,
     centerX: number,
-    startY: number
+    startY: number,
+    answer?: FractionProblem
 ): void {
     const boxWidth = 30;
     const boxHeight = 16;
@@ -115,6 +116,16 @@ function drawFractionStructureInput(
     // Bottom Box (Denominator Input Frame)
     const bottomBoxY = startY + boxHeight + gapSpacing;
     context.strokeRect(topBoxX, bottomBoxY, boxWidth, boxHeight);
+
+    // The answer sheet fills both boxes
+    if (answer) {
+        context.fillStyle = COLOR_BLACK;
+        context.font = `normal 12px ${SANS_SERIF_FONT}`;
+        context.textBaseline = 'middle';
+        context.textAlign = 'center';
+        context.fillText(answer.numerator.toString(), centerX, startY + (boxHeight / 2) + 1);
+        context.fillText(answer.denominator.toString(), centerX, bottomBoxY + (boxHeight / 2) + 1);
+    }
 }
 
 /**
@@ -141,32 +152,40 @@ export function createFractionsExercise(
         problemLevel = 'Up to Twelfths';
     }
 
+    // One drawing routine serves both sheets; the answer sheet fills in the fraction boxes
+    function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {
+        const context = quadrantContext.context;
+        const width = quadrantContext.width;
+
+        // Render Main Quadrant Header Typography
+        context.fillStyle = COLOR_BLACK;
+        context.font = `bold 14px ${SANS_SERIF_FONT}`;
+        context.textBaseline = 'top';
+        context.textAlign = 'left';
+        context.fillText(`${title} (${problemLevel})`, 15, 12);
+
+        // Math Layout Positioning Mechanics (Splitting the 266px width area space)
+        const circleRadius = 32;
+        const centerY = 65;
+
+        const leftCenterX = width * 0.28;  // Centers the left visual column structure
+        const rightCenterX = width * 0.72; // Centers the right visual column structure
+
+        // Draw Left Question Set
+        drawFractionCircle(context, leftCenterX, centerY, circleRadius, leftProblem);
+        drawFractionStructureInput(context, leftCenterX, centerY + circleRadius + 10, showAnswers ? leftProblem : undefined);
+
+        // Draw Right Question Set
+        drawFractionCircle(context, rightCenterX, centerY, circleRadius, rightProblem);
+        drawFractionStructureInput(context, rightCenterX, centerY + circleRadius + 10, showAnswers ? rightProblem : undefined);
+    }
+
     return {
         render(quadrantContext: QuadrantContext): void {
-            const context = quadrantContext.context;
-            const width = quadrantContext.width;
-
-            // Render Main Quadrant Header Typography
-            context.fillStyle = COLOR_BLACK;
-            context.font = `bold 14px ${SANS_SERIF_FONT}`;
-            context.textBaseline = 'top';
-            context.textAlign = 'left';
-            context.fillText(`${title} (${problemLevel})`, 15, 12);
-
-            // Math Layout Positioning Mechanics (Splitting the 266px width area space)
-            const circleRadius = 32;
-            const centerY = 65;
-
-            const leftCenterX = width * 0.28;  // Centers the left visual column structure
-            const rightCenterX = width * 0.72; // Centers the right visual column structure
-
-            // Draw Left Question Set
-            drawFractionCircle(context, leftCenterX, centerY, circleRadius, leftProblem);
-            drawFractionStructureInput(context, leftCenterX, centerY + circleRadius + 10);
-
-            // Draw Right Question Set
-            drawFractionCircle(context, rightCenterX, centerY, circleRadius, rightProblem);
-            drawFractionStructureInput(context, rightCenterX, centerY + circleRadius + 10);
+            draw(quadrantContext, false);
+        },
+        renderAnswers(quadrantContext: QuadrantContext): void {
+            draw(quadrantContext, true);
         }
     };
 }

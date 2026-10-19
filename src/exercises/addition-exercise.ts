@@ -70,55 +70,70 @@ export function createAdditionExercise(
         problemLevel = 'Triple Digit';
     }
 
-    return {
-        render(quadrantContext: QuadrantContext): void {
-            const context = quadrantContext.context;
-            const width = quadrantContext.width;
+    // One drawing routine serves both sheets; the answer sheet writes each result into its box
+    function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {
+        const context = quadrantContext.context;
+        const width = quadrantContext.width;
 
-            // Title text, with the grade tag appended
+        // Title text, with the grade tag appended
+        context.fillStyle = COLOR_BLACK;
+        context.font = `bold 14px ${SANS_SERIF_FONT}`;
+        context.textBaseline = 'top';
+        context.textAlign = 'left';
+        context.fillText(`${title} (${problemLevel})`, 15, 12);
+
+        // Arrange the math columns evenly across the available width
+        const totalProblems = problems.length;
+        const startCoordinateY = 40;
+
+        problems.forEach((problem, problemIndex) => {
+            const sectionWidth = width / totalProblems;
+            const columnCenterX = (sectionWidth * problemIndex) + (sectionWidth / 2);
+
             context.fillStyle = COLOR_BLACK;
-            context.font = `bold 14px ${SANS_SERIF_FONT}`;
-            context.textBaseline = 'top';
-            context.textAlign = 'left';
-            context.fillText(`${title} (${problemLevel})`, 15, 12);
+            context.font = `normal 18px ${SANS_SERIF_FONT}`;
+            context.textAlign = 'right';
+            context.textBaseline = 'alphabetic';
 
-            // Arrange the math columns evenly across the available width
-            const totalProblems = problems.length;
-            const startCoordinateY = 40;
+            // Right-aligning keeps the digits in tidy columns, whether one or three
+            const alignmentOffset = columnCenterX + 20;
 
-            problems.forEach((problem, problemIndex) => {
-                const sectionWidth = width / totalProblems;
-                const columnCenterX = (sectionWidth * problemIndex) + (sectionWidth / 2);
+            // Numbers and the plus sign
+            context.fillText(problem.topNumber.toString(), alignmentOffset, startCoordinateY + 22);
+            context.fillText('+', alignmentOffset - 38, startCoordinateY + 46);
+            context.fillText(problem.bottomNumber.toString(), alignmentOffset, startCoordinateY + 46);
 
+            // Solid line beneath the sum
+            context.strokeStyle = COLOR_BLACK;
+            context.lineWidth = 1.5;
+            context.lineCap = 'round';
+            context.beginPath();
+            context.moveTo(alignmentOffset - 50, startCoordinateY + 54);
+            context.lineTo(alignmentOffset + 5, startCoordinateY + 54);
+            context.stroke();
+
+            // Answer box in light grey: present for the student, quiet for the printer
+            context.strokeStyle = COLOR_LIGHT_GREY;
+            context.lineWidth = 1;
+            const boxWidth = 55;
+            const boxHeight = 26;
+            context.strokeRect(alignmentOffset - boxWidth + 5, startCoordinateY + 62, boxWidth, boxHeight);
+            if (showAnswers) {
                 context.fillStyle = COLOR_BLACK;
                 context.font = `normal 18px ${SANS_SERIF_FONT}`;
                 context.textAlign = 'right';
                 context.textBaseline = 'alphabetic';
+                context.fillText((problem.topNumber + problem.bottomNumber).toString(), alignmentOffset, startCoordinateY + 82);
+            }
+        });
+    }
 
-                // Right-aligning keeps the digits in tidy columns, whether one or three
-                const alignmentOffset = columnCenterX + 20;
-
-                // Numbers and the plus sign
-                context.fillText(problem.topNumber.toString(), alignmentOffset, startCoordinateY + 22);
-                context.fillText('+', alignmentOffset - 38, startCoordinateY + 46);
-                context.fillText(problem.bottomNumber.toString(), alignmentOffset, startCoordinateY + 46);
-
-                // Solid line beneath the sum
-                context.strokeStyle = COLOR_BLACK;
-                context.lineWidth = 1.5;
-                context.lineCap = 'round';
-                context.beginPath();
-                context.moveTo(alignmentOffset - 50, startCoordinateY + 54);
-                context.lineTo(alignmentOffset + 5, startCoordinateY + 54);
-                context.stroke();
-
-                // Answer box in light grey: present for the student, quiet for the printer
-                context.strokeStyle = COLOR_LIGHT_GREY;
-                context.lineWidth = 1;
-                const boxWidth = 55;
-                const boxHeight = 26;
-                context.strokeRect(alignmentOffset - boxWidth + 5, startCoordinateY + 62, boxWidth, boxHeight);
-            });
+    return {
+        render(quadrantContext: QuadrantContext): void {
+            draw(quadrantContext, false);
+        },
+        renderAnswers(quadrantContext: QuadrantContext): void {
+            draw(quadrantContext, true);
         }
     };
 }

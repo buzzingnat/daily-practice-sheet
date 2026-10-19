@@ -10,6 +10,7 @@ import {
 } from 'topojson-specification';
 import { GeoJsonProperties, GeometryCollection, MultiLineString, MultiPolygon } from 'geojson';
 import { QuadrantExercise, QuadrantContext } from '../../worksheet/worksheet-layout';
+import { drawAnswerLine } from './answer-line';
 import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY } from '../../constants';
 import { traceAsiaSideRegion, traceEuropeSideRegion, traceUralBoundary } from './europe-asia-boundary';
 
@@ -308,126 +309,121 @@ export function createGeographyExercise(
         throw new Error('Europe is missing from the geography data, so the Ural line has nothing to divide.');
     }
 
-    return {
-        render(quadrantContext: QuadrantContext): void {
-            const { context, width, height } = quadrantContext;
+    // One drawing routine serves both sheets; the answer sheet writes the answer on the response line
+    const draw = (quadrantContext: QuadrantContext, showAnswers: boolean): void => {
+        const { context, width, height } = quadrantContext;
 
-            // Title text, placed where every other module puts theirs
-            context.fillStyle = COLOR_BLACK;
-            context.font = `bold 14px ${SANS_SERIF_FONT}`;
-            context.textBaseline = 'top';
-            context.textAlign = 'left';
-            context.fillText(title, 15, 12);
+        // Title text, placed where every other module puts theirs
+        context.fillStyle = COLOR_BLACK;
+        context.font = `bold 14px ${SANS_SERIF_FONT}`;
+        context.textBaseline = 'top';
+        context.textAlign = 'left';
+        context.fillText(title, 15, 12);
 
-            // The map takes the middle; the answer line takes the bottom
-            const mapLeft = 15;
-            const mapRight = width - 15;
-            const mapTop = 34;
-            const mapBottom = height - 34;
+        // The map takes the middle; the answer line takes the bottom
+        const mapLeft = 15;
+        const mapRight = width - 15;
+        const mapTop = 34;
+        const mapBottom = height - 34;
 
 
-            const projection = d3.geoNaturalEarth1().fitExtent(
-                [[mapLeft, mapTop], [mapRight, mapBottom]],
-                geographyData.world
-            );
+        const projection = d3.geoNaturalEarth1().fitExtent(
+            [[mapLeft, mapTop], [mapRight, mapBottom]],
+            geographyData.world
+        );
 
-            // the following projection doesn't work because it is not included in base d3
-            // it does not work with a simple switch to d3-geo
-            // should try other things to get it to work
-            // const projection = d3.geoInterruptedMollweideHemispheres();
-            const path = d3.geoPath(projection, context);
+        // the following projection doesn't work because it is not included in base d3
+        // it does not work with a simple switch to d3-geo
+        // should try other things to get it to work
+        // const projection = d3.geoInterruptedMollweideHemispheres();
+        const path = d3.geoPath(projection, context);
 
-            context.strokeStyle = OUTLINE_STROKE;
-            context.lineWidth = 0.75;
-            context.lineCap = 'round';
-            context.lineJoin = 'round';
+        context.strokeStyle = OUTLINE_STROKE;
+        context.lineWidth = 0.75;
+        context.lineCap = 'round';
+        context.lineJoin = 'round';
 
-            // Fills come first, so no neighbour's fill ever paints over an outline
-            const targetLandmass = geographyData.landmassByContinent.get(targetContinent);
-            if (targetLandmass) {
-                context.fillStyle = HIGHLIGHT_FILL;
-                if (targetContinent === 'Europe') {
-                    // Europe keeps the western side of Russia; Siberia belongs to Asia
+        // Fills come first, so no neighbour's fill ever paints over an outline
+        const targetLandmass = geographyData.landmassByContinent.get(targetContinent);
+        if (targetLandmass) {
+            context.fillStyle = HIGHLIGHT_FILL;
+            if (targetContinent === 'Europe') {
+                // Europe keeps the western side of Russia; Siberia belongs to Asia
+                context.save();
+                context.beginPath();
+                traceEuropeSideRegion(context, projection);
+                context.clip();
+                context.beginPath();
+                path(targetLandmass);
+                context.fill();
+                context.restore();
+            } else {
+                context.beginPath();
+                path(targetLandmass);
+                context.fill();
+
+                if (targetContinent === 'Asia') {
+                    // The other half of Russia, borrowed from the Europe landmass
                     context.save();
                     context.beginPath();
-                    traceEuropeSideRegion(context, projection);
-                    context.clip();
+                    traceAsiaSideRegion(context, projection);
+                    context.clip('evenodd');
                     context.beginPath();
-                    path(targetLandmass);
+                    path(europeLandmass);
                     context.fill();
                     context.restore();
-                } else {
+
+                    // Two fills meeting at an edge leave a hairline of white between them.
+                    // A stroke in the fill colour, east of the Urals only, sews the seam shut.
+                    context.save();
+                    context.strokeStyle = HIGHLIGHT_FILL;
+                    context.lineWidth = 1.5;
                     context.beginPath();
-                    path(targetLandmass);
-                    context.fill();
-
-                    if (targetContinent === 'Asia') {
-                        // The other half of Russia, borrowed from the Europe landmass
-                        context.save();
-                        context.beginPath();
-                        traceAsiaSideRegion(context, projection);
-                        context.clip('evenodd');
-                        context.beginPath();
-                        path(europeLandmass);
-                        context.fill();
-                        context.restore();
-
-                        // Two fills meeting at an edge leave a hairline of white between them.
-                        // A stroke in the fill colour, east of the Urals only, sews the seam shut.
-                        context.save();
-                        context.strokeStyle = HIGHLIGHT_FILL;
-                        context.lineWidth = 1.5;
-                        context.beginPath();
-                        path(geographyData.russianAsianBorder);
-                        context.stroke();
-                        context.restore();
-                    }
+                    path(geographyData.russianAsianBorder);
+                    context.stroke();
+                    context.restore();
                 }
             }
+        }
 
-            // Coastlines and continental borders, drawn once each
-            context.strokeStyle = OUTLINE_STROKE;
-            context.lineWidth = 0.75;
+        // Coastlines and continental borders, drawn once each
+        context.strokeStyle = OUTLINE_STROKE;
+        context.lineWidth = 0.75;
 
-            context.beginPath();
-            path(geographyData.outlineLines);
-            context.stroke();
+        context.beginPath();
+        path(geographyData.outlineLines);
+        context.stroke();
 
-            // Russia's border with Asian countries counts only west of the Urals
-            context.save();
-            context.beginPath();
-            traceEuropeSideRegion(context, projection);
-            context.clip();
-            context.beginPath();
-            path(geographyData.russianAsianBorder);
-            context.stroke();
-            context.restore();
+        // Russia's border with Asian countries counts only west of the Urals
+        context.save();
+        context.beginPath();
+        traceEuropeSideRegion(context, projection);
+        context.clip();
+        context.beginPath();
+        path(geographyData.russianAsianBorder);
+        context.stroke();
+        context.restore();
 
-            // The Ural line, clipped to Europe's landmass so it appears only inside Russia
-            context.save();
-            context.beginPath();
-            path(europeLandmass);
-            context.clip();
-            context.beginPath();
-            traceUralBoundary(context, projection);
-            context.stroke();
-            context.restore();
+        // The Ural line, clipped to Europe's landmass so it appears only inside Russia
+        context.save();
+        context.beginPath();
+        path(europeLandmass);
+        context.clip();
+        context.beginPath();
+        traceUralBoundary(context, projection);
+        context.stroke();
+        context.restore();
 
-            // Labeled response line
-            const answerBaseline = height - 10;
-            const answerLabel = 'Continent:';
-            context.fillStyle = COLOR_BLACK;
-            context.font = `normal 11px ${SANS_SERIF_FONT}`;
-            context.textBaseline = 'alphabetic';
-            context.textAlign = 'left';
-            context.fillText(answerLabel, 15, answerBaseline);
+        // Labeled response line
+        drawAnswerLine(context, width, height, 'Continent:', showAnswers ? targetContinent : undefined);
+    };
 
-            const lineStart = 15 + context.measureText(answerLabel).width + 6;
-            context.lineWidth = 1;
-            context.beginPath();
-            context.moveTo(lineStart, answerBaseline + 1);
-            context.lineTo(width - 15, answerBaseline + 1);
-            context.stroke();
+    return {
+        render(quadrantContext: QuadrantContext): void {
+            draw(quadrantContext, false);
+        },
+        renderAnswers(quadrantContext: QuadrantContext): void {
+            draw(quadrantContext, true);
         }
     };
 }

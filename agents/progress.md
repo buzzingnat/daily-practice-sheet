@@ -251,3 +251,18 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * `AGENTS.md` bars decorative emoji; these are runtime content drawn on the worksheet, which the rule allows, and they live in one data file.
     * The picture box is a fixed size under the model; swapping in real artwork later changes `drawGrayscaleEmoji` only.
     * `public/fonts/learning_curve_4.0/` is still untracked under `public/`.
+
+### 2026-10-18 - Answer key appended to the worksheet PDF (Claude)
+* **Status:** Done, pull request 1 (`answer-sheet-pipeline`). `npx tsc --noEmit`, `npm run test:types`, `npm test` and `npm run build` pass for these changes. No generated PDF has been looked at yet.
+* **Accomplished:**
+    * **Phase 1, pipeline:** optional `renderAnswers` on `QuadrantExercise`; `drawQuadrant` and `batchHasAnswers` in `worksheet-layout.ts`; `buildAndDownloadWorksheetBatch` appends an "ANSWER KEY" copy of every page (same PDF) only when some quadrant can answer.
+    * **Phase 2:** addition and subtraction write each result in its answer box.
+    * **Phase 3:** fractions fill both boxes; a telling-time key writes the time, a setting-time key draws the hands.
+    * **Phase 4:** continent and country quadrants write the answer on the response line. The duplicated response-line drawing moved into `exercises/geography/answer-line.ts`.
+    * Tests: `worksheet-layout`, `arithmetic-answers`, `fractions-and-clock-answers`, `geography/answer-line`, with `tests/support/recording-context.ts`. Mutation-tested: wrong subtraction, wrong denominator, no hands on the key and no answer on the line were each caught and restored.
+* **Decisions:** key appended as extra pages of the same PDF; hiragana and cursive stay unchanged.
+* **Open Issues:**
+    * The continent and country exercises are not tested directly (their map data needs a browser); only the shared answer line is.
+    * First grade can draw a denominator of 1, so a fraction of "1/1" appears. This was already so; the key just makes it visible.
+    * `generate-pdf-batch.ts` and `make-example-sheet.ts` keep older copies of the PDF pipeline and have no key.
+    * This branch started before the user's cursive commit on main, so `agents/AGENTS.md` and `progress.md` here are older than main's and will conflict on merge; keep both sets of edits.

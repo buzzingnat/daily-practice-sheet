@@ -69,62 +69,77 @@ export function createSubtractionExercise(
         problemLevel = 'Triple Digit';
     }
 
-    return {
-        render(quadrantContext: QuadrantContext): void {
-            const context = quadrantContext.context;
-            const width = quadrantContext.width;
-            const height = quadrantContext.height;
+    // One drawing routine serves both sheets; the answer sheet writes each result into its box
+    function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {
+        const context = quadrantContext.context;
+        const width = quadrantContext.width;
+        const height = quadrantContext.height;
 
-            // Title Text Rendering (Appends Grade Tag)
-            context.fillStyle = COLOR_BLACK;
-            context.font = `bold 14px ${SANS_SERIF_FONT}`;
-            context.textBaseline = 'top';
-            context.textAlign = 'left';
-            context.fillText(`${title} (${problemLevel})`, 15, 12);
+        // Title Text Rendering (Appends Grade Tag)
+        context.fillStyle = COLOR_BLACK;
+        context.font = `bold 14px ${SANS_SERIF_FONT}`;
+        context.textBaseline = 'top';
+        context.textAlign = 'left';
+        context.fillText(`${title} (${problemLevel})`, 15, 12);
 
-            // Arrange math columns spaced evenly across available width layout space
-            const totalProblems = problems.length;
-            const startCoordinateY = 40;
-            let problemIndex = 0;
+        // Arrange math columns spaced evenly across available width layout space
+        const totalProblems = problems.length;
+        const startCoordinateY = 40;
+        let problemIndex = 0;
 
-            while (problemIndex < totalProblems) {
-                const problem = problems[problemIndex];
-                if (problem) {
-                    const sectionWidth = width / totalProblems;
-                    const columnCenterX = (sectionWidth * problemIndex) + (sectionWidth / 2);
+        while (problemIndex < totalProblems) {
+            const problem = problems[problemIndex];
+            if (problem) {
+                const sectionWidth = width / totalProblems;
+                const columnCenterX = (sectionWidth * problemIndex) + (sectionWidth / 2);
 
+                context.fillStyle = COLOR_BLACK;
+                context.font = `normal 18px ${SANS_SERIF_FONT}`;
+                context.textAlign = 'right';
+                context.textBaseline = 'alphabetic';
+
+                // Keep horizontal alignment neat regardless of single vs triple-digit spans
+                const alignmentOffset = columnCenterX + 20;
+
+                // Draw Numbers and Math Operator symbols
+                context.fillText(problem.topNumber.toString(), alignmentOffset, startCoordinateY + 22);
+                context.fillText('-', alignmentOffset - 38, startCoordinateY + 46);
+                context.fillText(problem.bottomNumber.toString(), alignmentOffset, startCoordinateY + 46);
+
+                // Equation Solid Separation Line Block
+                context.strokeStyle = COLOR_BLACK;
+                context.lineWidth = 1.5;
+                context.lineCap = 'round';
+                context.beginPath();
+                context.moveTo(alignmentOffset - 50, startCoordinateY + 54);
+                context.lineTo(alignmentOffset + 5, startCoordinateY + 54);
+                context.stroke();
+
+                // User Response Input Answer Box wireframe outline using Light Grey hint colors
+                context.strokeStyle = COLOR_LIGHT_GREY;
+                context.lineWidth = 1;
+                const boxWidth = 55;
+                const boxHeight = 26;
+                context.strokeRect(alignmentOffset - boxWidth + 5, startCoordinateY + 62, boxWidth, boxHeight);
+                if (showAnswers) {
                     context.fillStyle = COLOR_BLACK;
                     context.font = `normal 18px ${SANS_SERIF_FONT}`;
                     context.textAlign = 'right';
                     context.textBaseline = 'alphabetic';
-
-                    // Keep horizontal alignment neat regardless of single vs triple-digit spans
-                    const alignmentOffset = columnCenterX + 20;
-
-                    // Draw Numbers and Math Operator symbols
-                    context.fillText(problem.topNumber.toString(), alignmentOffset, startCoordinateY + 22);
-                    context.fillText('-', alignmentOffset - 38, startCoordinateY + 46);
-                    context.fillText(problem.bottomNumber.toString(), alignmentOffset, startCoordinateY + 46);
-
-                    // Equation Solid Separation Line Block
-                    context.strokeStyle = COLOR_BLACK;
-                    context.lineWidth = 1.5;
-                    context.lineCap = 'round';
-                    context.beginPath();
-                    context.moveTo(alignmentOffset - 50, startCoordinateY + 54);
-                    context.lineTo(alignmentOffset + 5, startCoordinateY + 54);
-                    context.stroke();
-
-                    // User Response Input Answer Box wireframe outline using Light Grey hint colors
-                    context.strokeStyle = COLOR_LIGHT_GREY;
-                    context.lineWidth = 1;
-                    const boxWidth = 55;
-                    const boxHeight = 26;
-                    context.strokeRect(alignmentOffset - boxWidth + 5, startCoordinateY + 62, boxWidth, boxHeight);
+                    context.fillText((problem.topNumber - problem.bottomNumber).toString(), alignmentOffset, startCoordinateY + 82);
                 }
-
-                problemIndex = problemIndex + 1;
             }
+
+            problemIndex = problemIndex + 1;
+        }
+    }
+
+    return {
+        render(quadrantContext: QuadrantContext): void {
+            draw(quadrantContext, false);
+        },
+        renderAnswers(quadrantContext: QuadrantContext): void {
+            draw(quadrantContext, true);
         }
     };
 }

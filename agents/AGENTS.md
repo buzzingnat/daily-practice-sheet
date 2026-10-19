@@ -103,6 +103,8 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
   }
   export interface QuadrantExercise {
       render(quadrantContext: QuadrantContext): void;
+      // Draws the worksheet with the answers filled in. Absent when the exercise has nothing to answer.
+      renderAnswers?(quadrantContext: QuadrantContext): void;
   }
   export interface HalfPageLayout {
       topLeft: QuadrantExercise;
@@ -113,6 +115,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
   ```
 * **Emoji:** `exercises/cursive/cursive-emoji.ts` holds emoji as worksheet content, drawn at runtime in grays; that is the functional use the emoji rule permits. Keep them in that one data file, and never in comments or logs.
 * **Settings Panels:** Each panel has an `id` (it names the panel in saved settings and the DOM) and a `topic` (the button that reveals it). A topic may own several panels: `cursiveLetters` owns one for its sets and one for its layout. The topic button summary joins its panels' summaries.
+* **Answer Key:** Exercises choose their problems when created, so the key is drawn from the same exercise objects as the worksheet, never regenerated. An exercise with answers writes one `draw(quadrantContext, showAnswers)` routine and returns `render` (false) and `renderAnswers` (true) from it. `buildAndDownloadWorksheetBatch` appends an "ANSWER KEY" copy of every page to the same PDF, but only when some quadrant has `renderAnswers`. Hiragana and cursive have none (tracing has no answer).
 * **Shared Types:** Types used by more than one file live in `types.ts`, which imports nothing. Types used by one module stay in that module.
 * **Data Loading:** Fetching happens in dedicated loader functions called once at startup (for example `loadGeographyData`). Render functions stay synchronous and read from the cache.
 * **Errors:** Throw `Error`. Do not return one.
@@ -126,7 +129,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
   exercises/   addition, subtraction, fractions, clock (one *-exercise.ts each)
       kana/        kana-exercise.ts  kana-rows.ts
       cursive/     cursive-exercise.ts  cursive-cards.ts  cursive-layout.ts  cursive-fonts.ts
-      geography/   geography-exercise.ts  europe-asia-boundary.ts  region-map-exercise.ts
+      geography/   geography-exercise.ts  europe-asia-boundary.ts  region-map-exercise.ts  answer-line.ts
                    region-map-data.ts  region-views.ts
   generator/   half-page-planner.ts  shuffled-deck.ts  randomization-and-difficulty-generator.ts
   settings/    topic-settings.ts  print-size.ts  saved-settings.ts     pure logic, no DOM
@@ -150,6 +153,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 * **Tests mirror `src/`.** One test file per source module, named `<module>.test.ts`, in the same folder path under `tests/unit/` as the module has under `src/`: `src/generator/shuffled-deck.ts` is tested by `tests/unit/generator/shuffled-deck.test.ts`, and `src/exercises/kana/kana-rows.ts` by `tests/unit/exercises/kana/kana-rows.test.ts`. A module that needs `document` or `window` is tested the same way under `tests/dom/` (add `// @vitest-environment jsdom` at the top of the file); the folder path mirrors `src/` there too.
 * **Long test files split into a folder.** A test file is held to the same roughly 200-line limit as source: once a module's tests pass it, replace the file with a folder named after the module (`tests/unit/settings/topic-settings/`), holding one file per function or behavior group (`panels.test.ts`, `resolve.test.ts`).
 * **Architecture tests** live in `tests/architecture/`. They check the shape of the project, not one module, so they do not mirror `src/`. `dependency-checker.test.ts` tests the checker on made-up projects; `src-folder-dependencies.test.ts` runs it on the real `src/`.
+* **Reading what an exercise drew:** `createRecordingContext` in `tests/support/recording-context.ts` is a canvas stand-in that records every call and every `fillText`. Answer tests use it to check the drawn answers against the drawn problems.
 * **Shared helpers** live in `tests/support/`; add one there only when two test files use it.
 * Tests import from `src/` with relative paths. `src/` holds no test code.
 * Tests that run over many cases (every topic selection, every seed) collect all offenders into a list and expect the list to be empty, so one failure names every case it broke.
