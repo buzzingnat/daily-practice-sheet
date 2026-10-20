@@ -10,6 +10,7 @@ import { createKanaExercise } from './exercises/kana/kana-exercise';
 import { createCursiveExercise } from './exercises/cursive/cursive-exercise';
 import { loadCursiveFonts } from './exercises/cursive/cursive-fonts';
 import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWorksheetBatch } from './worksheet/worksheet-layout';
+import { preloadMascotImages } from './worksheet/mascots';
 import { createPlaceholderExercise, createBlankExercise } from './utils';
 import { loadGeographyData, createGeographyExercise } from './exercises/geography/geography-exercise';
 import { loadRegionMapData } from './exercises/geography/region-map-data';
@@ -346,7 +347,8 @@ async function initializeApp() {
             getSharedImage(KANA_IMAGE_URL),
             loadGeographyData(),
             loadRegionMapData(),
-            loadCursiveFonts()
+            loadCursiveFonts(),
+            preloadMascotImages()
         ]);
 
         console.log("Assets ready! Assembling worksheet preview...", {kanaGuide});

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="240" viewBox="0 0 220 240">
+<title>Owl mascot</title>
+<rect width="220" height="240" fill="#fff"/>
+<g fill="#fff" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" transform="translate(10 8)">
+<ellipse cx="44" cy="125" rx="16" ry="42" transform="rotate(10 44 125)"/>
+<ellipse cx="156" cy="125" rx="16" ry="42" transform="rotate(-10 156 125)"/>
+<ellipse cx="82" cy="200" rx="14" ry="7"/><ellipse cx="118" cy="200" rx="14" ry="7"/>
+<ellipse cx="100" cy="120" rx="60" ry="75"/>
+<ellipse cx="100" cy="150" rx="38" ry="42"/>
+<path d="M82 134q6 8 12 0M106 134q6 8 12 0M94 154q6 8 12 0M82 174q6 8 12 0M106 174q6 8 12 0" fill="none"/>
+<circle cx="76" cy="90" r="24"/><circle cx="124" cy="90" r="24"/>
+<circle cx="78" cy="92" r="10" fill="#000"/><circle cx="122" cy="92" r="10" fill="#000"/>
+<circle cx="75" cy="88" r="3" fill="#fff" stroke="none"/><circle cx="119" cy="88" r="3" fill="#fff" stroke="none"/>
+<path d="M100 100L90 114L100 126L110 114Z"/>
+<path d="M80 50v14q20 10 40 0v-14"/>
+<path d="M55 38L100 18L145 38L100 58Z"/>
+<path d="M145 38V62"/><circle cx="145" cy="66" r="4" fill="#000"/>
+<path d="M22 60l3 8 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1z"/>
+</g>
+</svg>
