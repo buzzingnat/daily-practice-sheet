@@ -9,6 +9,7 @@ describe('resolveTopicSettings', () => {
             fractions: { level: '1st' },
             addition: { level: '1st' },
             subtraction: { level: '1st' },
+            multiplication: { mode: 'tables', factors: [1, 2, 3, 4, 5] },
             hiragana: { rows: ['vowels'] },
             cursiveLetters: { groups: ['s-m-a-t'], layout: 'one-large-line' },
             countries: { regions: ['Africa'] }

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { pickRandomWithRareZero } from '../../../src/exercises/problem-numbers';
+import { pickFromWithRareZero, pickRandomWithRareZero } from '../../../src/exercises/problem-numbers';
 import { createSeededRandom } from '../../support/seeded-random';
 
 const DRAWS = 20000;
@@ -48,6 +48,28 @@ describe('pickRandomWithRareZero', () => {
                 }
             }
         }
+        expect(offenders).toEqual([]);
+    });
+});
+
+describe('pickFromWithRareZero', () => {
+    test('returns only listed numbers, and a lone number every time', () => {
+        const random = createSeededRandom(5);
+        expect(Array.from({ length: 50 }, () => pickFromWithRareZero([7], random))).toEqual(new Array<number>(50).fill(7));
+        const offenders = Array.from({ length: DRAWS }, () => pickFromWithRareZero([2, 5, 9], random)).filter((value) => ![2, 5, 9].includes(value));
+        expect(offenders).toEqual([]);
+    });
+
+    test('offers a listed zero, but less often than every other entry', () => {
+        const random = createSeededRandom(11);
+        const counts = new Map<number, number>();
+        for (let draw = 0; draw < DRAWS; draw++) {
+            const value = pickFromWithRareZero([0, 3, 8, 12], random);
+            counts.set(value, (counts.get(value) ?? 0) + 1);
+        }
+        const zeroCount = counts.get(0) ?? 0;
+        expect(zeroCount).toBeGreaterThan(0);
+        const offenders = [3, 8, 12].filter((value) => (counts.get(value) ?? 0) <= zeroCount);
         expect(offenders).toEqual([]);
     });
 });

@@ -2,6 +2,7 @@ import { HalfPageLayout, QuadrantExercise } from '../worksheet/worksheet-layout'
 import { createKanaExercise } from '../exercises/kana/kana-exercise';
 import { createAdditionExercise } from '../exercises/addition-exercise';
 import { createSubtractionExercise } from '../exercises/subtraction-exercise';
+import { createMultiplicationExercise } from '../exercises/multiplication-exercise';
 import { ClockType, createClockExercise } from '../exercises/clock-exercise';
 import { createFractionsExercise } from '../exercises/fractions-exercise';
 import { CONTINENTS, Continent, createGeographyExercise } from '../exercises/geography/geography-exercise';
@@ -11,7 +12,7 @@ import { createRegionMapExercise, listRegionTargets } from '../exercises/geograp
 import { KanaCard, listKanaCards } from '../exercises/kana/kana-rows';
 import { createCursiveExercise } from '../exercises/cursive/cursive-exercise';
 import { CursiveCard, listCursiveCards } from '../exercises/cursive/cursive-cards';
-import { CursiveLayoutName, GradeLevel, PopulatedRegion, QuadrantTopics, RandomSource, TopicKey, TopicSettings } from '../types';
+import { CursiveLayoutName, GradeLevel, MultiplicationSettings, PopulatedRegion, QuadrantTopics, RandomSource, TopicKey, TopicSettings } from '../types';
 
 // Content that must take turns rather than trust to luck.
 export interface ContentDecks {
@@ -29,6 +30,7 @@ export interface ExerciseFactories {
     createClockExercise(clockType: ClockType): QuadrantExercise;
     createSubtractionExercise(level: GradeLevel): QuadrantExercise;
     createAdditionExercise(level: GradeLevel): QuadrantExercise;
+    createMultiplicationExercise(settings: MultiplicationSettings): QuadrantExercise;
     createKanaExercise(card: KanaCard): QuadrantExercise;
     createCursiveExercise(card: CursiveCard, layout: CursiveLayoutName): QuadrantExercise;
     createFractionsExercise(level: GradeLevel): QuadrantExercise;
@@ -81,6 +83,8 @@ function instantiateExercise(
         return factories.createSubtractionExercise(settings.subtraction.level);
     } else if (topic === 'addition') {
         return factories.createAdditionExercise(settings.addition.level);
+    } else if (topic === 'multiplication') {
+        return factories.createMultiplicationExercise(settings.multiplication);
     } else if (topic === 'hiragana') {
         return factories.createKanaExercise(decks.kana.drawNext());
     } else if (topic === 'cursiveLetters') {
@@ -147,6 +151,9 @@ export function createWorkbookExerciseFactories(): ExerciseFactories {
         },
         createAdditionExercise: (level: GradeLevel): QuadrantExercise => {
             return createAdditionExercise(level);
+        },
+        createMultiplicationExercise: (multiplicationSettings: MultiplicationSettings): QuadrantExercise => {
+            return createMultiplicationExercise(multiplicationSettings);
         },
         createKanaExercise: (card: KanaCard): QuadrantExercise => {
             return createKanaExercise('HIRAGANA PRACTICE', card.character, card.pronunciationHint);

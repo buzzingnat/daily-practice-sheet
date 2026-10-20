@@ -1,4 +1,4 @@
-import { createDefaultSelections, findPanelSpecification, PanelSelections } from './topic-settings';
+import { createDefaultSelections, findPanelSpecification, listChoices, PanelSelections } from './topic-settings';
 import { clampHalfPageCount, DEFAULT_HALF_PAGES } from './print-size';
 import { PANEL_IDS, PanelId, TOPIC_KEYS, TopicKey } from '../types';
 
@@ -56,10 +56,12 @@ export function parseSelectedTopics(storedText: string | null, maximumTopicCount
 export function parsePanelSelection(panel: PanelId, storedText: string | null): string[] {
     const specification = findPanelSpecification(panel);
     const stored = parseStringList(storedText);
-    const offered = specification.options.map((option) => option.value);
+    const offered = listChoices(specification).map((option) => option.value);
     const kept = offered.filter((value) => stored.includes(value));
     const trimmed = specification.kind === 'single' ? kept.slice(0, 1) : kept;
-    return trimmed.length > 0 ? trimmed : [...specification.defaultValues];
+    // A value that needs a companion cannot stand alone, whatever the storage says
+    const standsAlone = trimmed.length === 1 && trimmed[0] === specification.needsCompanion?.value;
+    return trimmed.length > 0 && !standsAlone ? trimmed : [...specification.defaultValues];
 }
 
 export function parseHalfPageCount(storedText: string | null): number {

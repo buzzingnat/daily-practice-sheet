@@ -5,6 +5,7 @@ import { listCursiveCards } from '../exercises/cursive/cursive-cards';
 import {
     CursiveLayoutName,
     GradeLevel,
+    MultiplicationSettings,
     PopulatedRegion,
     TopicKey,
     TopicSettings,
@@ -16,6 +17,7 @@ export type ExampleSpecification =
     | { type: 'fractions'; title: string; grade: GradeLevel }
     | { type: 'subtraction'; grade: GradeLevel; title?: string }
     | { type: 'addition'; grade: GradeLevel; title?: string }
+    | { type: 'multiplication'; settings: MultiplicationSettings; title?: string }
     | { type: 'kana'; title: string; character: string; pronunciation: string }
     | { type: 'cursive'; letter: string; layout: CursiveLayoutName }
     | { type: 'geography'; continent: Continent; title?: string }
@@ -64,6 +66,8 @@ function buildTopicExamples(topic: TopicKey, settings: TopicSettings): ExampleSp
         return [{ type: 'addition', grade: settings.addition.level }];
     } else if (topic === 'subtraction') {
         return [{ type: 'subtraction', grade: settings.subtraction.level }];
+    } else if (topic === 'multiplication') {
+        return [{ type: 'multiplication', settings: settings.multiplication }];
     } else if (topic === 'hiragana') {
         const card = listKanaCards(settings.hiragana.rows)[0];
         return card

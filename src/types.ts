@@ -2,7 +2,7 @@ export type GradeLevel = '1st' | '2nd' | '3rd';
 
 // One list, so the UI buttons and the generator cannot disagree about what exists.
 export const TOPIC_KEYS = [
-    'fractions', 'addition', 'subtraction',
+    'fractions', 'addition', 'subtraction', 'multiplication',
     'setTime', 'tellTime', 'hiragana',
     'cursiveLetters', 'continents', 'countries'
 ] as const;
@@ -52,23 +52,29 @@ export const DEFAULT_CURSIVE_LAYOUT: CursiveLayoutName = 'one-large-line';
 
 // Topics that come with a settings panel
 export const CONFIGURABLE_TOPICS = [
-    'fractions', 'addition', 'subtraction', 'hiragana', 'cursiveLetters', 'countries'
+    'fractions', 'addition', 'subtraction', 'multiplication', 'hiragana', 'cursiveLetters', 'countries'
 ] as const;
 
 export type ConfigurableTopic = typeof CONFIGURABLE_TOPICS[number];
 
 // Settings panels. A topic usually has one, named for the topic, but may have several.
 export const PANEL_IDS = [
-    'fractions', 'addition', 'subtraction', 'hiragana', 'cursiveLetters', 'cursiveLayout', 'countries'
+    'fractions', 'addition', 'subtraction', 'multiplication', 'hiragana', 'cursiveLetters', 'cursiveLayout', 'countries'
 ] as const;
 
 export type PanelId = typeof PANEL_IDS[number];
+
+// Times tables use the numbers the user chose; the two-digit mode needs no numbers at all
+export type MultiplicationSettings =
+    | { mode: 'tables'; factors: readonly number[] }
+    | { mode: 'two-digit' };
 
 // What the generator reads: validated, typed, and never empty
 export interface TopicSettings {
     fractions: { level: GradeLevel };
     addition: { level: GradeLevel };
     subtraction: { level: GradeLevel };
+    multiplication: MultiplicationSettings;
     hiragana: { rows: readonly KanaRow[] };
     cursiveLetters: { groups: readonly CursiveGroup[]; layout: CursiveLayoutName };
     countries: { regions: readonly PopulatedRegion[] };

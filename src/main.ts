@@ -4,6 +4,7 @@ import { generateWorkbookBatch, createWorkbookExerciseFactories } from './genera
 import { createClockExercise } from './exercises/clock-exercise';
 import { createAdditionExercise} from './exercises/addition-exercise';
 import { createSubtractionExercise } from './exercises/subtraction-exercise';
+import { createMultiplicationExercise } from './exercises/multiplication-exercise';
 import { createFractionsExercise } from './exercises/fractions-exercise';
 import { createKanaExercise } from './exercises/kana/kana-exercise';
 import { createCursiveExercise } from './exercises/cursive/cursive-exercise';
@@ -44,6 +45,7 @@ const localState: Record<TopicKey, number>= {
     fractions: 0,
     addition: 0,
     subtraction: 0,
+    multiplication: 0,
     hiragana: 0,
     cursiveLetters: 0,
     continents: 0,
@@ -138,6 +140,8 @@ function createExerciseFromSpecification(specification: ExampleSpecification): Q
         return createSubtractionExercise(specification.grade, specification.title);
     } else if (specification.type === 'addition') {
         return createAdditionExercise(specification.grade, specification.title);
+    } else if (specification.type === 'multiplication') {
+        return createMultiplicationExercise(specification.settings, specification.title);
     } else if (specification.type === 'kana') {
         return createKanaExercise(
             specification.title,

@@ -4,6 +4,7 @@ import {
     findConfigurableTopic,
     findPanelSpecification,
     findPanelSpecifications,
+    listChoices,
     PanelSpecification,
     PANEL_SPECIFICATIONS
 } from '../../../../src/settings/topic-settings';
@@ -77,6 +78,33 @@ describe('PANEL_SPECIFICATIONS', () => {
 
     test.each(LEVEL_TOPICS)('offers the three grade levels for %s, in order', (topic: LevelTopics) => {
         expect(findPanelSpecification(topic).options.map((option) => option.value)).toEqual(GRADE_LEVELS);
+    });
+
+    test('offers the numbers 0 to 12 for multiplication, with two digit apart as its exclusive chip', () => {
+        const specification = findPanelSpecification('multiplication');
+        expect(specification.options.map((option) => option.value)).toEqual(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']);
+        expect(specification.exclusiveOption).toEqual({ value: 'two-digit', label: 'Two digit' });
+        expect(listChoices(specification).map((option) => option.value).slice(-2)).toEqual(['12', 'two-digit']);
+    });
+
+    test('starts multiplication on the numbers 1 to 5', () => {
+        expect(findPanelSpecification('multiplication').defaultValues).toEqual(['1', '2', '3', '4', '5']);
+    });
+
+    test('gives multiplication an Up to 5 preset of 0 to 5 and an Up to 12 preset of 1 to 12', () => {
+        const presets = findPanelSpecification('multiplication').presets ?? [];
+        expect(presets.map((preset) => preset.label)).toEqual(['Up to 5', 'Up to 12']);
+        expect(presets[0]?.values).toEqual(['0', '1', '2', '3', '4', '5']);
+        expect(presets[1]?.values).toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']);
+    });
+
+    test('keeps every preset value among the options, and the exclusive value out of them', () => {
+        PANEL_SPECIFICATIONS.forEach((specification) => {
+            const optionValues = specification.options.map((option) => option.value);
+            const presetValues = (specification.presets ?? []).flatMap((preset) => preset.values);
+            expect(presetValues.filter((value) => !optionValues.includes(value))).toEqual([]);
+            expect(optionValues).not.toContain(specification.exclusiveOption?.value);
+        });
     });
 
     test('offers one chip per kana row, in chart order', () => {

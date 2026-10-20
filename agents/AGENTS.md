@@ -114,7 +114,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
   }
   ```
 * **Emoji:** `exercises/cursive/cursive-emoji.ts` holds emoji as worksheet content, drawn at runtime in grays; that is the functional use the emoji rule permits. Keep them in that one data file, and never in comments or logs.
-* **Settings Panels:** Each panel has an `id` (it names the panel in saved settings and the DOM) and a `topic` (the button that reveals it). A topic may own several panels: `cursiveLetters` owns one for its sets and one for its layout. The topic button summary joins its panels' summaries.
+* **Settings Panels:** Each panel has an `id` (it names the panel in saved settings and the DOM) and a `topic` (the button that reveals it). A topic may own several panels: `cursiveLetters` owns one for its sets and one for its layout. The topic button summary joins its panels' summaries. A multiple-choice panel may also carry `presets` (shortcut chips that replace the selection with a fixed set, as `multiplication` does with Up to 5 and Up to 12) and an `exclusiveOption` (a chip, drawn last and kept out of `options`, that replaces everything and is replaced by any other, such as multiplication's Two digit; `listChoices` lists options plus it); `toggleOption` in `settings/topic-settings.ts` holds that click rule.
 * **Answer Key:** Exercises choose their problems when created, so the key is drawn from the same exercise objects as the worksheet, never regenerated. An exercise with answers writes one `draw(quadrantContext, showAnswers)` routine and returns `render` (false) and `renderAnswers` (true) from it. `buildAndDownloadWorksheetBatch` appends an "ANSWER KEY" copy of every page to the same PDF, but only when some quadrant has `renderAnswers`. Hiragana and cursive have none (tracing has no answer).
 * **Shared Types:** Types used by more than one file live in `types.ts`, which imports nothing. Types used by one module stay in that module.
 * **Data Loading:** Fetching happens in dedicated loader functions called once at startup (for example `loadGeographyData`). Render functions stay synchronous and read from the cache.
@@ -126,7 +126,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
   main.ts  make-example-sheet.ts  utils.ts            app-level
   types.ts  constants.ts  asset-manager.ts            shared leaves
   worksheet/   worksheet-layout.ts  generate-pdf-batch.ts            layout contract and PDF assembly
-  exercises/   addition, subtraction, fractions, clock (one *-exercise.ts each)
+  exercises/   addition, subtraction, multiplication, fractions, clock (one *-exercise.ts each)
       kana/        kana-exercise.ts  kana-rows.ts
       cursive/     cursive-exercise.ts  cursive-cards.ts  cursive-layout.ts  cursive-fonts.ts
       geography/   geography-exercise.ts  europe-asia-boundary.ts  region-map-exercise.ts  answer-line.ts

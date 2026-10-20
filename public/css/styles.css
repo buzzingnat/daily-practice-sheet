@@ -164,6 +164,18 @@ header hr {
     padding: 3px 11px;
 }
 
+#topic-settings .chip[aria-disabled="true"] {
+    color: #767676;
+    background: #efefef;
+    cursor: not-allowed;
+}
+
+#topic-settings .settings-error {
+    margin: 8px 0 0;
+    color: #b00020;
+    font-weight: bold;
+}
+
 #topic-settings .segment input {
     position: absolute;
     opacity: 0;

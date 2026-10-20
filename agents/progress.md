@@ -276,3 +276,13 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * Tests: `problem-numbers.test.ts` (range, every value appears, zero rarer) and `first-grade-arithmetic.test.ts` (no carrying or borrowing; zero rarer than other bottoms for the same top). Mutation-tested: `ZERO_WEIGHT` raised to 1.5 was caught and restored.
 * **Open Issues:** 2nd and 3rd grade unchanged. The generators still call `Math.random` directly; tests mock it.
 
+### 2026-10-19 - Multiplication exercise with number chips (Claude)
+* **Status:** Done, not committed. `npx tsc --noEmit`, `npm run test:types`, `npm test` (25 files, 585 passed, 2 skipped) and `npm run build` pass. Mutation-tested: the product replaced by a sum was caught and restored.
+* **Accomplished:**
+    * New `exercises/multiplication-exercise.ts`: same stacks as addition and subtraction, `x` sign, answer key. Title tag: "1 to 5" for an unbroken run, "Mixed" for gaps, "7 Table" for a lone number, "Two Digit".
+    * Settings panel of chips 0 to 12 (default 1 to 5), presets "Up to 5" (0 to 5) and "Up to 12" (1 to 12), and an exclusive "Two digit" chip (two-digit by one-digit; top 10 to 99, bottom 2 to 9). `PanelSpecification` gained optional `presets` and `exclusiveOption` (chip order: All, options, presets, exclusive); `toggleOption` and `isPresetSelected` are pure and tested; `TopicSettings.multiplication` is a union (`tables` with factors, or `two-digit`).
+    * Times tables draw both factors from the chosen numbers; a lone number is paired with 1 to 12. Zero is an ordinary chip (the rare-zero helper stays on addition and subtraction).
+    * Wired through `types.ts`, `topic-settings.ts`, `topic-settings-panel.ts`, the example specifications, the generator factories and `main.ts`. The topic starts switched off.
+* **Open Issues:** No DOM test of the chip clicks (the repo has no `tests/dom/` yet); the click rules are tested through `toggleOption`. The drawing code is a third copy of the addition layout.
+* **Follow-ups the same day:** zero is rarer than other numbers in multiplication (`pickFromWithRareZero`, same weight as addition and subtraction; the line above saying zero is an ordinary chip is superseded). Zero cannot be the only number chosen: `PanelSpecification.needsCompanion` plus `toggleOption` (now returns `{ selection, refusal? }`) refuse it; the 0 chip gets `aria-disabled` and stays clickable, and a red `.settings-error` message under the chips explains why. Any later accepted click, preset or All click clears it, and a saved selection of zero alone falls back to the default.
+

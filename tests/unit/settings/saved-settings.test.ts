@@ -116,6 +116,25 @@ describe('parseSavedSettings limits', () => {
     });
 });
 
+describe('parseSavedSettings zero alone', () => {
+    test('falls back to the default when storage holds zero by itself', () => {
+        const saved = parseFrom({ [panelSelectionKey('multiplication')]: JSON.stringify(['0']) });
+        expect(saved.panelSelections.multiplication).toEqual(['1', '2', '3', '4', '5']);
+    });
+
+    test('keeps zero beside another number', () => {
+        const saved = parseFrom({ [panelSelectionKey('multiplication')]: JSON.stringify(['0', '6']) });
+        expect(saved.panelSelections.multiplication).toEqual(['0', '6']);
+    });
+});
+
+describe('parseSavedSettings exclusive chip', () => {
+    test('keeps a saved two-digit multiplication selection', () => {
+        const saved = parseFrom({ [panelSelectionKey('multiplication')]: JSON.stringify(['two-digit']) });
+        expect(saved.panelSelections.multiplication).toEqual(['two-digit']);
+    });
+});
+
 describe('parseSavedSettings round trip', () => {
     const original = {
         selectedTopics: ['fractions', 'hiragana', 'cursiveLetters', 'countries'],
