@@ -333,6 +333,18 @@ button:disabled {
     font-size: .9em;
 }
 
+.summary-count {
+    white-space: nowrap;
+}
+
+.summary-stepper {
+    gap: 4px;
+}
+
+.summary-stepper .stepper-button {
+    padding: 2px 9px;
+}
+
 .summary-text {
     flex: 1;
     min-width: 0;
@@ -344,6 +356,40 @@ button:disabled {
     text-overflow: ellipsis;
 }
 
+.summary-collapse {
+    border: 0;
+    background: transparent;
+    padding: 2px 6px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* Grown, the ^ points up at the top; shrunk, it flips and points down as a hint to grow back */
+.summary-bar:not(.collapsed) .summary-collapse {
+    transform: rotate(180deg);
+}
+
+/* Shrunk: one row holding the count, Make and the ^ */
+.summary-bar.collapsed {
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+}
+
+.summary-bar.collapsed .summary-count-row,
+.summary-bar.collapsed .summary-button-row {
+    display: contents;
+}
+
+.summary-bar.collapsed .summary-stepper,
+.summary-bar.collapsed .summary-text-row,
+.summary-bar.collapsed .view-toggle {
+    display: none;
+}
+
+.summary-bar.collapsed .summary-collapse {
+    order: 3;
+}
+
 .summary-chevron {
     border: 0;
     background: transparent;
@@ -351,7 +397,7 @@ button:disabled {
 }
 
 .summary-stepper input[type="number"] {
-    width: 3.5em;
+    width: 2.8em;
     padding: 4px;
     font: inherit;
     text-align: center;

@@ -103,4 +103,26 @@ describe('createSummaryBar', () => {
         const inputIndex = children.findIndex((child) => child.tagName === 'INPUT');
         expect(children[inputIndex + 2]?.classList.contains('page-diagram')).toBe(true);
     });
+
+    test('shrinks and grows from the corner toggle without losing Make or the count', () => {
+        const { bar } = makeBar();
+        const toggle = bar.element.querySelector<HTMLButtonElement>('.summary-collapse');
+        expect(toggle?.getAttribute('aria-expanded')).toBe('true');
+        expect(bar.element.classList.contains('collapsed')).toBe(false);
+        toggle?.click();
+        expect(bar.element.classList.contains('collapsed')).toBe(true);
+        expect(toggle?.getAttribute('aria-expanded')).toBe('false');
+        expect(toggle?.getAttribute('aria-label')).toBe('Grow the bar');
+        expect(bar.element.querySelector('.make-button')).not.toBeNull();
+        expect(bar.element.querySelector('.summary-count')?.textContent).toBe('4 of 6 topics - 1 page');
+        toggle?.click();
+        expect(bar.element.classList.contains('collapsed')).toBe(false);
+    });
+
+    test('stays shrunk when the bar is updated', () => {
+        const { bar } = makeBar();
+        bar.element.querySelector<HTMLButtonElement>('.summary-collapse')?.click();
+        bar.update({ ...baseState, selectedTopicCount: 5 });
+        expect(bar.element.classList.contains('collapsed')).toBe(true);
+    });
 });

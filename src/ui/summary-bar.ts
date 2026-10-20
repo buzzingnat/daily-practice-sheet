@@ -68,12 +68,13 @@ function buildStepperButton(label: string, text: string): HTMLButtonElement {
  * The fixed bar at the foot of the screen: a count line, the summary of every
  * chosen setting, then the view toggle and the Make button. The summary reads
  * whole in the normal view; in the compact view it is one abbreviated line that
- * a chevron opens to the whole text. The bar keeps no choices of its own beyond
- * that open or shut state; main.ts owns them and calls update.
+ * a chevron opens to the whole text. A ^ in the top right corner shrinks the bar
+ * to one row. The bar keeps no choices of its own beyond those open or shut states; main.ts owns them and calls update.
  */
 export function createSummaryBar(initialState: SummaryBarState, handlers: SummaryBarHandlers): SummaryBar {
     let state = initialState;
     let isExpanded = false;
+    let isCollapsed = false;
 
     const element = document.createElement('section');
     element.classList.add('summary-bar');
@@ -98,7 +99,16 @@ export function createSummaryBar(initialState: SummaryBarState, handlers: Summar
     pageDiagram.classList.add('page-diagram');
     pageDiagram.setAttribute('aria-hidden', 'true');
     stepper.append(decreaseButton, halfPageInput, increaseButton, pageDiagram);
-    countRow.append(countLine, stepper);
+    // The corner toggle: shrinks the whole bar to one row, or grows it back
+    const collapseButton = document.createElement('button');
+    collapseButton.type = 'button';
+    collapseButton.classList.add('summary-collapse');
+    collapseButton.textContent = '^';
+    collapseButton.addEventListener('click', () => {
+        isCollapsed = !isCollapsed;
+        render();
+    });
+    countRow.append(countLine, stepper, collapseButton);
 
     const summaryRow = document.createElement('div');
     summaryRow.classList.add('summary-text-row');
@@ -152,6 +162,9 @@ export function createSummaryBar(initialState: SummaryBarState, handlers: Summar
     // Everything is updated in place, which keeps keyboard focus where the user left it
     function render(): void {
         const isCompact = state.viewMode === 'compact';
+        element.classList.toggle('collapsed', isCollapsed);
+        collapseButton.setAttribute('aria-expanded', String(!isCollapsed));
+        collapseButton.setAttribute('aria-label', isCollapsed ? 'Grow the bar' : 'Shrink the bar');
         const pageCount = describePrintSize(state.halfPageCount).pageCount;
         countLine.textContent = `${state.selectedTopicCount} of ${state.maximumTopicCount} topics - `
             + `${pageCount} ${pageCount === 1 ? 'page' : 'pages'}`;
