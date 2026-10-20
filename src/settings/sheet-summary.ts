@@ -38,16 +38,25 @@ function describePanel(specification: PanelSpecification, selections: PanelSelec
     }
 }
 
-function describeTopic(topic: TopicKey, selections: PanelSelections, isShort: boolean): string {
-    const name = isShort ? TOPIC_SHORT_LABELS[topic] : TOPIC_LABELS[topic];
+/**
+ * What is chosen for one topic, without the topic's name: the line a card shows
+ * under its title. Empty for a topic with no settings.
+ */
+export function describeTopicDetail(topic: TopicKey, selections: PanelSelections, isShort: boolean): string {
     const configurableTopic = findConfigurableTopic(topic);
     if (!configurableTopic) {
-        return name;
+        return '';
     }
-    const details = findPanelSpecifications(configurableTopic)
+    return findPanelSpecifications(configurableTopic)
         .map((specification) => describePanel(specification, selections, isShort))
-        .filter((detail) => detail !== '');
-    return details.length > 0 ? `${name}: ${details.join(isShort ? ' ' : '; ')}` : name;
+        .filter((detail) => detail !== '')
+        .join(isShort ? ' ' : '; ');
+}
+
+function describeTopic(topic: TopicKey, selections: PanelSelections, isShort: boolean): string {
+    const name = isShort ? TOPIC_SHORT_LABELS[topic] : TOPIC_LABELS[topic];
+    const detail = describeTopicDetail(topic, selections, isShort);
+    return detail !== '' ? `${name}: ${detail}` : name;
 }
 
 /**

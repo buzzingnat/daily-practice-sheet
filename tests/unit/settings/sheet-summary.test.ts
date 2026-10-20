@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { describeSheet, NOTHING_CHOSEN_TEXT } from '../../../src/settings/sheet-summary';
+import { describeSheet, describeTopicDetail, NOTHING_CHOSEN_TEXT } from '../../../src/settings/sheet-summary';
 import { selectionsWith } from '../../support/panel-selections';
 
 describe('describeSheet', () => {
@@ -43,5 +43,17 @@ describe('describeSheet', () => {
     test('keeps the chosen topics in the order given, one entry each', () => {
         const summary = describeSheet(['setTime', 'addition'], selectionsWith({ addition: ['1st'] }));
         expect(summary.short).toBe('Set · Add: 1-dig');
+    });
+});
+
+describe('describeTopicDetail', () => {
+    test('gives the choice without the topic name, in either length', () => {
+        const selections = selectionsWith({ addition: ['2nd'] });
+        expect(describeTopicDetail('addition', selections, false)).toBe('double digit');
+        expect(describeTopicDetail('addition', selections, true)).toBe('2-dig');
+    });
+
+    test('is empty for a topic without settings', () => {
+        expect(describeTopicDetail('setTime', selectionsWith({}), false)).toBe('');
     });
 });

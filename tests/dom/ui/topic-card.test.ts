@@ -81,9 +81,21 @@ describe('createTopicCard', () => {
     test('puts the summary and preview in the card', () => {
         const { card } = makeCard('addition');
         const canvas = document.createElement('canvas');
-        card.setSummary('Double digit');
+        card.setSummary('Double digit', '2-dig');
         card.setPreview(canvas);
         expect(card.element.querySelector('.topic-summary')?.textContent).toBe('Double digit');
         expect(card.element.querySelector('.topic-preview canvas')).toBe(canvas);
+    });
+
+    test('swaps to the short name and summary in the compact view, and back', () => {
+        const { card } = makeCard('addition');
+        card.setSummary('Double digit', '2-dig');
+        card.setViewMode('compact');
+        expect(card.element.querySelector('.topic-name')?.textContent).toBe('Add');
+        expect(card.element.querySelector('.topic-summary')?.textContent).toBe('2-dig');
+        expect(card.element.classList.contains('compact')).toBe(true);
+        card.setViewMode('normal');
+        expect(card.element.querySelector('.topic-name')?.textContent).toBe('Addition');
+        expect(card.element.querySelector('.topic-summary')?.textContent).toBe('Double digit');
     });
 });

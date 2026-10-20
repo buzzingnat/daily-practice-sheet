@@ -1,5 +1,5 @@
 import { PanelSelections } from '../settings/topic-settings';
-import { TopicKey, TOPIC_LABELS } from '../types';
+import { TopicKey, TOPIC_LABELS, TOPIC_SHORT_LABELS, ViewMode } from '../types';
 import { renderTopicSettings } from './topic-settings-panel';
 
 export interface TopicCard {
@@ -8,7 +8,10 @@ export interface TopicCard {
     setSelected(isSelected: boolean): void;
     // At the six-topic limit an unselected card cannot be added; it says why.
     setLocked(isLocked: boolean): void;
-    setSummary(text: string): void;
+    // Both lengths are kept; the view mode picks which one shows
+    setSummary(fullText: string, shortText: string): void;
+    // The compact view shows the short name and summary, and keeps the settings out of sight
+    setViewMode(viewMode: ViewMode): void;
     setPreview(canvas: HTMLCanvasElement): void;
 }
 
@@ -33,6 +36,9 @@ export function createTopicCard(
 ): TopicCard {
     const label = TOPIC_LABELS[topic];
     let isSelected = false;
+    let viewMode: ViewMode = 'normal';
+    let fullSummary = '';
+    let shortSummary = '';
 
     const element = document.createElement('article');
     element.classList.add('topic-card');
@@ -83,6 +89,12 @@ export function createTopicCard(
     };
     showToggleState();
 
+    const showTexts = (): void => {
+        const isCompact = viewMode === 'compact';
+        name.textContent = isCompact ? TOPIC_SHORT_LABELS[topic] : label;
+        summary.textContent = isCompact ? shortSummary : fullSummary;
+    };
+
     return {
         element,
         setSelected(nextSelected: boolean): void {
@@ -105,8 +117,15 @@ export function createTopicCard(
             lockedHint.hidden = !isBlocked;
             element.classList.toggle('locked', isBlocked);
         },
-        setSummary(text: string): void {
-            summary.textContent = text;
+        setSummary(fullText: string, shortText: string): void {
+            fullSummary = fullText;
+            shortSummary = shortText;
+            showTexts();
+        },
+        setViewMode(nextViewMode: ViewMode): void {
+            viewMode = nextViewMode;
+            element.classList.toggle('compact', viewMode === 'compact');
+            showTexts();
         },
         setPreview(canvas: HTMLCanvasElement): void {
             previewSlot.replaceChildren(canvas);
