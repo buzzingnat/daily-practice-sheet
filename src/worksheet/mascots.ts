@@ -76,7 +76,7 @@ export function pickMascotAndCheer(halfPageNumber: number): { mascot: Mascot; ch
 export function getMascotRectangle(mascot: Mascot, rightEdge: number, bottomEdge: number): MascotRectangle {
     const width = MASCOT_HEIGHT * (mascot.artWidthUnits / ART_HEIGHT_UNITS);
     return {
-        left: rightEdge - width,
+        left: rightEdge - width + 24,
         top: bottomEdge - MASCOT_HEIGHT,
         width: width,
         height: MASCOT_HEIGHT

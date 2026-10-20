@@ -148,11 +148,12 @@ function drawBandVine(context: CanvasRenderingContext2D, bottomEdge: number): vo
     for (let x = BAND_VINE_START_X; x < BAND_VINE_END_X; x += BAND_VINE_SEGMENT_WIDTH) {
         context.bezierCurveTo(x + 12, vineY - 9, x + 24, vineY + 9, x + BAND_VINE_SEGMENT_WIDTH, vineY);
     }
+    // function drawLeaf(context: CanvasRenderingContext2D, x: number, y: number, rotationDegrees: number, length: number): void
     context.stroke();
     let leafIndex = 0;
-    for (let x = 45; x < BAND_VINE_END_X - 10; x += BAND_VINE_SEGMENT_WIDTH) {
+    for (let x = 42; x < BAND_VINE_END_X - 10; x += BAND_VINE_SEGMENT_WIDTH) {
         const below = leafIndex % 2 === 1;
-        drawLeaf(context, x, below ? vineY + 3 : vineY - 3, below ? 40 : -40, 12);
+        drawLeaf(context, x, below ? vineY : vineY - 2, below ? 55 : -40, 12);
         leafIndex = leafIndex + 1;
     }
 }
@@ -176,7 +177,7 @@ export function drawHalfPageDecorations(context: CanvasRenderingContext2D, seed:
     context.strokeStyle = COLOR_BLACK;
     context.lineCap = 'round';
     context.lineJoin = 'round';
-    drawLeftVine(context, bottomEdge);
+    drawLeftVine(context, bottomEdge - 13);
     drawBandVine(context, bottomEdge);
     drawRightVine(context);
     planDaisies(seed, bottomEdge).forEach((daisy) => drawDaisy(context, daisy));
