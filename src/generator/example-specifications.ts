@@ -55,6 +55,15 @@ export function buildExampleSpecifications(
         .flatMap((topic) => buildTopicExamples(topic, settings));
 }
 
+/**
+ * The one preview a topic card shows, whether or not the topic is chosen. A topic
+ * that offers several examples (countries, one per chosen region) gives its first.
+ * Returns undefined when the topic has nothing to draw.
+ */
+export function buildTopicExample(topic: TopicKey, settings: TopicSettings): ExampleSpecification | undefined {
+    return buildTopicExamples(topic, settings)[0];
+}
+
 function buildTopicExamples(topic: TopicKey, settings: TopicSettings): ExampleSpecification[] {
     if (topic === 'tellTime') {
         return [{ type: 'clock', clockType: 'telling', title: 'TELLING TIME', hours: 10, minutes: 10 }];

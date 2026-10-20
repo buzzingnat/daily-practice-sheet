@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { buildExampleSpecifications } from '../../../src/generator/example-specifications';
+import { buildExampleSpecifications, buildTopicExample } from '../../../src/generator/example-specifications';
 import { createDefaultSelections, resolveTopicSettings } from '../../../src/settings/topic-settings';
 import { TOPIC_KEYS } from '../../../src/types';
 
@@ -42,6 +42,36 @@ describe('buildExampleSpecifications', () => {
             return spec.type === 'regionCountry' ? spec.region : undefined;
         });
         expect(regions).toEqual(['Africa', 'Oceania']);
+    });
+});
+
+describe('buildTopicExample', () => {
+    test('gives every topic a preview, chosen or not', () => {
+        const topicsWithoutPreview = TOPIC_KEYS.filter((topic) => {
+            return buildTopicExample(topic, defaultSettings) === undefined;
+        });
+        expect(topicsWithoutPreview).toEqual([]);
+    });
+
+    test('matches the first entry buildExampleSpecifications gives for the topic', () => {
+        const mismatches = TOPIC_KEYS.filter((topic) => {
+            const expected = buildExampleSpecifications([topic], defaultSettings)[0];
+            return JSON.stringify(buildTopicExample(topic, defaultSettings)) !== JSON.stringify(expected);
+        });
+        expect(mismatches).toEqual([]);
+    });
+
+    test('gives only the first chosen region for countries', () => {
+        const selections = { ...createDefaultSelections(), countries: ['Oceania', 'Africa'] };
+        const example = buildTopicExample('countries', resolveTopicSettings(selections));
+        expect(example).toMatchObject({ type: 'regionCountry', region: expect.any(String) });
+        const all = buildExampleSpecifications(['countries'], resolveTopicSettings(selections));
+        expect(example).toEqual(all[0]);
+    });
+
+    test('follows the level chosen for a level topic', () => {
+        const selections = { ...createDefaultSelections(), addition: ['3rd'] };
+        expect(buildTopicExample('addition', resolveTopicSettings(selections))).toEqual({ type: 'addition', grade: '3rd' });
     });
 });
 

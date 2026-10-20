@@ -9,6 +9,20 @@ export const TOPIC_KEYS = [
 
 export type TopicKey = typeof TOPIC_KEYS[number];
 
+// What a person reads on a topic card. A Record, so a new topic key without a name fails to compile.
+export const TOPIC_LABELS: Record<TopicKey, string> = {
+    fractions: 'Fractions',
+    addition: 'Addition',
+    subtraction: 'Subtraction',
+    multiplication: 'Multiplication',
+    setTime: 'Setting time',
+    tellTime: 'Telling time',
+    hiragana: 'Hiragana',
+    cursiveLetters: 'Cursive letters',
+    continents: 'Continents',
+    countries: 'Countries'
+};
+
 // A source of numbers in [0, 1). Checks pass a seeded one in place of Math.random,
 // because a test that changes its mind every run proves very little.
 export type RandomSource = () => number;

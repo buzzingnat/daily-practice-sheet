@@ -53,6 +53,8 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
 5. [ ] **Separate Exercise Title and Exercise Type** so the generator can be offered in other languages: each exercise gets a name/id/definition in code and a separate display title. Placed before the large tasks so new topics such as Roman letters are built on it instead of being retrofitted.
 6. [ ] **Generate Exercises in Order** The Kana and Cursive activities have an order to them. The Countries might as well. Make sheets that can be generated in order in addition to the existing random option.
 
+7. [ ] **Simplify the tests.** About 623 tests is far too many for a project this size. Audit `tests/`: merge near-duplicate cases into table-driven ones, drop tests that only restate the implementation or that two other tests already cover, and trim the loop-over-every-seed suites to the rules that have caught real bugs. Keep the architecture tests and the mutation-tested rules. Aim for a suite a person can read in one sitting; record the before and after counts. Needs a short plan first, since AGENTS.md ties tests to rules.
+
 ### Next up: large tasks
 1. [x] **Cursive lowercase letters (Montessori order), without arrows. Done 2026-10-15 (phases 0 to 5).** Topic `cursiveLetters` with six set chips (s m a t, c r i p, b f o g, h j u l, d w e n, k q v x y z), default the first set. Layout: Learning Curve 4.0 Regular family, a bold model on the left, two ruled rows on the right (two solid then two dotted letters, four per line and not joined; then a blank line), mid-gray guide lines. The follow-ups below remain:
     * [ ] **Stroke guides and arrows.** A human designs each letter's stroke order first (Montessori Cursive: bottom-left start, continuous movement); then the sketch is cleaned up and drawn on the first (bold) model only. Saved preference: bold black letters with medium-grey arrows, offset slightly toward the outside of each bend, a number at the start of each stroke.
@@ -60,12 +62,13 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * [x] **Single line for practice.** Done 2026-10-16: the cursive topic has a second panel, "Cursive letters: practice lines", with **One large line** (the new default: three letters, solid, dotted, dotted, tracing only) and **Two lines** (the previous layout). The model panel is two thirds of its old size in both.
     * [x] **Add Image.** First draft done 2026-10-16: an emoji under each model, one per letter, word starting with the letter (`exercises/cursive/cursive-emoji.ts`), drawn in grays. The user will hand-pick the final pictures; a few are weak fits (see the ledger).
 2. [ ] **Live canvas previews** updating reactively before PDF generation (only example quadrants exist today). Touches `main.ts` heavily; best after the DOM tests exist.
+3. [ ] **Preview PDF step.** Today "Make" goes straight to a downloaded PDF. Add a step between: the finished layout (every half-page, with its border, mascot and quadrants, and the answer key pages) is drawn in the browser on canvases first, using the same exercise objects the PDF will use, so the preview and the file cannot differ. The user pages through it, and either confirms ("Save PDF", which embeds those same canvases without redrawing or re-rolling any problems) or goes back, and can "Shuffle" for a fresh set. Needs its own plan; likely splits `buildAndDownloadWorksheetBatch` into build, preview and download. Goes best after the topic card grid redesign (`plan.md`), since the action bar gets the Make button this step changes into "Preview".
 
 ### Decide later (only if the need shows up)
 * [ ] **Playwright end-to-end tests.** Candidates: select topics, generate and download a PDF, check the page count; reload and confirm saved settings return. Needs approval to add the package. Decide after the DOM tests whether they already cover enough.
 * [ ] **Canvas drawing tests:** jsdom has no canvas. A recording fake of `CanvasRenderingContext2D` could check draw calls; see whether rendering bugs justify it.
 * [ ] **Shared utility extraction:** look for functions that several files repeat and pull them into one utility file.
-* [ ] **CSS custom properties** for the colors in `public/css/styles.css`, which cannot import the TypeScript constants.
+* [ ] **CSS custom properties** for the colors in `public/css/styles.css`, which cannot import the TypeScript constants. Folded into the topic card grid plan: a single theme file of CSS custom properties.
 
 ---
 
