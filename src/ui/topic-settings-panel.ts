@@ -174,28 +174,6 @@ function buildPanelFieldset(
 }
 
 /**
- * Rebuilds the panels for the selected topics, one fieldset each, in topic order.
- * Topics without settings simply have no panel. The selections object is edited in
- * place, and onChange fires after every edit so summaries can follow.
- */
-export function renderSettingsPanels(
-    container: HTMLElement,
-    selectedTopics: readonly TopicKey[],
-    selections: PanelSelections,
-    onChange: () => void
-): void {
-    container.replaceChildren();
-
-    PANEL_SPECIFICATIONS.forEach((specification) => {
-        const isSelected = selectedTopics.some((topic) => findConfigurableTopic(topic) === specification.topic);
-        if (!isSelected) {
-            return;
-        }
-        container.appendChild(buildPanelFieldset(specification, selections, onChange));
-    });
-}
-
-/**
  * Rebuilds the panels of a single topic, for its card. A topic without settings
  * leaves the container empty.
  */

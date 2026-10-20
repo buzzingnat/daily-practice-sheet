@@ -304,3 +304,19 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * `generate-pdf-batch.ts` and `make-example-sheet.ts` (older copies of the pipeline) do not get a border or a mascot beyond what `buildCompositeWorksheet` gives.
     * The bear, owl and robot SVGs are unused.
     * The top half's top-right daisies sit about 17pt from the paper's top edge, close to a printer's limit.
+
+### 2026-10-20 - Topic card grid, summary bar and color theme (Claude)
+* **Status:** Done, committed in seven steps (labels, card, bar, wiring, theme and styles, markup, corner toggle) plus a final cleanup. `npm test` (32 files, 657 passed, 2 skipped), `npm run test:types`, `tsc --noEmit` and `npm run build` pass. Looked at in the browser at desktop and phone width: toggling topics, the six-topic limit, compact and normal views, the bar shrinking and growing, a reload restoring topics, settings, view mode and half-page count, and the Make button running without a console error.
+* **Accomplished:**
+    * One card per topic (`ui/topic-card.ts`): example canvas on top, name with an Add/Added toggle, a one-line summary, and the topic's settings while it is chosen. Unselected cards show a dimmed preview; at six topics the rest lock with a hint. Only the changed card's preview is redrawn.
+    * `ui/topic-settings-panel.ts` gained `renderTopicSettings` (one topic's panels). `renderSettingsPanels` and `ui/print-size-panel.ts` were removed as unused.
+    * Fixed translucent summary bar (`ui/summary-bar.ts`, `position: sticky; bottom: 0`, so it rests above the page footer at the end of the page): count line ("N of 6 topics - X pages") on its own line with the half-page stepper and page diagram, the summary text, a compact/normal icon toggle and a **Make** button (same id as before). A ^ in its top right corner shrinks it to one row.
+    * Compact view (saved with the other settings): two cards across on a phone, short topic names (`TOPIC_SHORT_LABELS`) and short summaries (`shortLabel` on options, `settings/sheet-summary.ts`); settings chips are hidden there. In compact view the bar shows one abbreviated line, which a chevron opens to the full text.
+    * Theme: `public/css/theme.css` holds five colors (`--dark-text`, `--light-text`, `--primary-color`, `--secondary-color`, `--mid-tone`) and `--alert-color`; derived values are worked out from them; `styles.css` holds no color values. Starting colors pass 4.5:1 contrast for text. Canvas previews and the PDF stay monochrome by the AGENTS.md rule.
+    * `TOPIC_LABELS` names the topics for people; `buildTopicExample` gives one preview per topic.
+* **Decisions:** "Make Test Sheet" stays in the intro section, not the bar. The bar's shrunk state is not saved. `plan.md` cleared.
+* **Open Issues:**
+    * `QUICK_PICK_HALF_PAGES` and the `caption` from `describePrintSize` in `settings/print-size.ts` are now unused (the quick-pick chips and caption went with the old panel); remove or reuse.
+    * The old `Make Randomized Batch` wording task (small task 3) is partly done for the button ("Make"); the PDF filename is unchanged.
+    * No test covers `main.ts` wiring; it was checked by hand in the browser.
+    * Next in the roadmap: the Preview PDF step (large task 3), which turns "Make" into "Preview".
