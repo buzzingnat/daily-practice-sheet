@@ -154,6 +154,25 @@ function buildMultipleChoice(
     return container;
 }
 
+function buildPanelFieldset(
+    specification: PanelSpecification,
+    selections: PanelSelections,
+    onChange: () => void
+): HTMLElement {
+    const fieldset = document.createElement('fieldset');
+    fieldset.classList.add('settings-panel');
+    fieldset.id = `settings-${specification.id}`;
+
+    const legend = document.createElement('legend');
+    legend.textContent = findPanelSpecification(specification.id).heading;
+    fieldset.appendChild(legend);
+
+    fieldset.appendChild(specification.kind === 'single'
+        ? buildSingleChoice(specification, selections, onChange)
+        : buildMultipleChoice(specification, selections, onChange));
+    return fieldset;
+}
+
 /**
  * Rebuilds the panels for the selected topics, one fieldset each, in topic order.
  * Topics without settings simply have no panel. The selections object is edited in
@@ -172,18 +191,25 @@ export function renderSettingsPanels(
         if (!isSelected) {
             return;
         }
+        container.appendChild(buildPanelFieldset(specification, selections, onChange));
+    });
+}
 
-        const fieldset = document.createElement('fieldset');
-        fieldset.classList.add('settings-panel');
-        fieldset.id = `settings-${specification.id}`;
-
-        const legend = document.createElement('legend');
-        legend.textContent = findPanelSpecification(specification.id).heading;
-        fieldset.appendChild(legend);
-
-        fieldset.appendChild(specification.kind === 'single'
-            ? buildSingleChoice(specification, selections, onChange)
-            : buildMultipleChoice(specification, selections, onChange));
-        container.appendChild(fieldset);
+/**
+ * Rebuilds the panels of a single topic, for its card. A topic without settings
+ * leaves the container empty.
+ */
+export function renderTopicSettings(
+    container: HTMLElement,
+    topic: TopicKey,
+    selections: PanelSelections,
+    onChange: () => void
+): void {
+    container.replaceChildren();
+    const configurableTopic = findConfigurableTopic(topic);
+    PANEL_SPECIFICATIONS.forEach((specification) => {
+        if (specification.topic === configurableTopic) {
+            container.appendChild(buildPanelFieldset(specification, selections, onChange));
+        }
     });
 }
