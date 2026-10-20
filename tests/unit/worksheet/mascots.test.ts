@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { CHEERS, MASCOT_HEIGHT, MASCOTS, getMascotRectangle, pickMascotAndCheer } from '../../../src/worksheet/mascots';
+import { ANSWER_KEY_CHEER, CHEERS, MASCOT_HEIGHT, MASCOTS, getMascotRectangle, pickMascotAndCheer } from '../../../src/worksheet/mascots';
 import { GRID_BOTTOM_OFFSET, HALF_PAGE_HEIGHT, MASCOT_MAX_REACH_INTO_GRID, getMascotBottomEdge } from '../../../src/worksheet/worksheet-layout';
 
 // The right edge the layout gives the mascot, and the paper's safe edge
@@ -7,9 +7,9 @@ const RIGHT_EDGE = 572;
 const PRINTER_SAFE_EDGE = 14;
 const PAGE_HEIGHT = HALF_PAGE_HEIGHT * 2;
 const HALF_PAGE_STARTS = [0, HALF_PAGE_HEIGHT];
-// The bubble grows with its text. At about 6.2pt a letter, 18 letters and the bubble's padding keep it
-// right of the vine that will run along the left of the band (to about x = 340), even beside the widest animal.
-const LONGEST_CHEER_LETTERS = 18;
+// The bubble grows with its text. At about 6.2pt a letter, 16 letters and the bubble's padding keep it
+// right of the vine along the left of the band (which ends at x = 351), even beside the widest animal.
+const LONGEST_CHEER_LETTERS = 16;
 
 describe('pickMascotAndCheer', () => {
     test('uses every animal and every cheer', () => {
@@ -31,7 +31,7 @@ describe('pickMascotAndCheer', () => {
     });
 
     test('never hands out an empty cheer, and keeps each short enough for its bubble', () => {
-        const offenders = CHEERS.filter((cheer) => cheer.trim() === '' || cheer.length > LONGEST_CHEER_LETTERS);
+        const offenders = [...CHEERS, ANSWER_KEY_CHEER].filter((cheer) => cheer.trim() === '' || cheer.length > LONGEST_CHEER_LETTERS);
         expect(offenders).toEqual([]);
     });
 });

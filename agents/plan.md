@@ -1,6 +1,6 @@
 # plan.md — Cheering animal mascot on every half-page
 
-Status: **awaiting validation**.
+Status: **done.** Built in three stages; see the 2026-10-19 entry at the bottom of `progress.md`. Where the build differs from the text below: the exercise grid top is 26pt (not 34), the animal is 52pt tall, and the bottom half's animal stands 14pt above the paper edge (a scan of every exercise found a 6pt blank strip at the foot of each quadrant that it may overlap). The 52pt animal also forced the vines to follow the animal's feet (`getMascotBottomEdge`).
 
 ## Goal
 Each half-page gets a small black-and-white animal in a coloring-page style, with a short cheer ("You can do it!") in a speech bubble. The child can color it in. The page stays black and white.

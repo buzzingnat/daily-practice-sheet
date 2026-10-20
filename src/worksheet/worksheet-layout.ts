@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { SANS_SERIF_FONT, COLOR_PDF_CROSSHAIR, COLOR_PDF_PERFORATION, COLOR_WHITE } from '../constants';
+import { drawHalfPageDecorations } from './decorations';
 import { ANSWER_KEY_CHEER, drawMascotBand, pickMascotAndCheer } from './mascots';
 
 const PAGE_WIDTH = 612;
@@ -127,7 +128,7 @@ async function renderQuadrantToPdf(
 }
 
 /**
- * Draws the mascot band on a see-through layer the size of the half-page, then lays it over the exercises.
+ * Draws the border and the mascot band on a see-through layer the size of the half-page, then lays it over the exercises.
  * The layer is transparent so it can never hide an exercise.
  */
 function renderHalfPageLayerToPdf(
@@ -145,14 +146,16 @@ function renderHalfPageLayerToPdf(
     if (!context) throw new Error('Could not look up 2D canvas context');
     context.scale(scaleMultiplier, scaleMultiplier);
 
-    // The answer key keeps the worksheet's animal and swaps only the cheer
+    // The answer key keeps the worksheet's animal and flowers, and swaps only the cheer
+    const bottomEdge = getMascotBottomEdge(startCoordinateY);
+    drawHalfPageDecorations(context, halfPageNumber, bottomEdge);
     const { mascot, cheer } = pickMascotAndCheer(halfPageNumber);
     drawMascotBand(
         context,
         mascot,
         showAnswers ? ANSWER_KEY_CHEER : cheer,
         MARGIN_X + PRINTABLE_WIDTH,
-        getMascotBottomEdge(startCoordinateY)
+        bottomEdge
     );
 
     documentInstance.addImage(canvas.toDataURL('image/png'), 'PNG', 0, startCoordinateY, PAGE_WIDTH, HALF_PAGE_HEIGHT, undefined, 'FAST');

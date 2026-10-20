@@ -286,3 +286,18 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
 * **Open Issues:** No DOM test of the chip clicks (the repo has no `tests/dom/` yet); the click rules are tested through `toggleOption`. The drawing code is a third copy of the addition layout.
 * **Follow-ups the same day:** zero is rarer than other numbers in multiplication (`pickFromWithRareZero`, same weight as addition and subtraction; the line above saying zero is an ordinary chip is superseded). Zero cannot be the only number chosen: `PanelSpecification.needsCompanion` plus `toggleOption` (now returns `{ selection, refusal? }`) refuse it; the 0 chip gets `aria-disabled` and stays clickable, and a red `.settings-error` message under the chips explains why. Any later accepted click, preset or All click clears it, and a saved selection of zero alone falls back to the default.
 
+
+### 2026-10-19 - Cheering animal mascot and flower border on every half-page (Claude)
+* **Status:** Done. Stages 1 and 2 are committed (`51bded9`); stage 3 (border, footer credit, docs) is not. `npm test` (28 files, 617 passed, 2 skipped), `npm run test:types` and `npm run build` pass. A sample sheet and its key, drawn by the real code with geography, fractions, kana, arithmetic, clock and cursive exercises, were looked at.
+* **Accomplished:**
+    * `scripts/split-mascots.mjs` cuts the CC0 sheet from abbythepup.com into eight outline-only animals in `public/img/mascots/animals/` (translucent shadows and gradients dropped, every region white or black with a black outline). `tests/architecture/mascot-animal-files.test.ts` checks the files.
+    * New `worksheet/mascots.ts`: the eight animals, seven cheers, `pickMascotAndCheer(halfPageNumber)` (cycling, so a batch is repeatable and the key matches its worksheet), the speech bubble and `drawMascotBand`. Animals are preloaded at startup in `main.ts`.
+    * New `worksheet/decorations.ts`: left-margin vine, a vine along the foot of the page, a short vine at the top right, leaves and eight daisies. Daisy position, size and turn vary per half-page from a seeded generator (`createDecorationRandom`, the half-page number is the seed), so the key's flowers match its worksheet. The vines and leaves never move.
+    * `worksheet-layout.ts`: the grid top moved from 40 to 26; each half-page gets one transparent 612 x 396pt layer (border plus animal) added after the exercises; the animal is 52pt tall; `getMascotBottomEdge` puts its feet 2pt above the cutting line, or 14pt above the paper's edge on the bottom half. The key's cheer is "Check your work!". "ANSWER KEY" moved into the gap between Name and Date.
+    * Footer credit and a readme section record the source and its CC0 notice.
+* **Decisions:** Magnific art was dropped (its license forbids public redistribution). A scan of 397 exercises (688 draws, answer versions included) showed every one stops by 147pt down its 155pt quadrant; the animal reaches at most 6pt into the bottom-right quadrant (`MASCOT_MAX_REACH_INTO_GRID`). The scan ran in a throwaway harness and is not a test, so re-run it by hand if an exercise draws lower.
+* **Open Issues:**
+    * Nothing prints yet: look at a real printed sheet for the animal's size and the line weight, and for the 14pt printer margin.
+    * `generate-pdf-batch.ts` and `make-example-sheet.ts` (older copies of the pipeline) do not get a border or a mascot beyond what `buildCompositeWorksheet` gives.
+    * The bear, owl and robot SVGs are unused.
+    * The top half's top-right daisies sit about 17pt from the paper's top edge, close to a printer's limit.

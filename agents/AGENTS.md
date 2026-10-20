@@ -63,6 +63,7 @@ These are the foundation for everything else you code. These are your touchstone
 * **Printable Width Area:** 532pt (`PRINTABLE_WIDTH`).
 * **Exercise Block Size:** Local canvas grid boxes must map mathematically to exactly 266pt width (`EXERCISE_WIDTH`) by 155pt height (`EXERCISE_HEIGHT`).
 * **Horizontal Cutoff:** An ornamental decoration line splits the document perfectly at the middle mark (396pt).
+* **Half-page vertical layout:** The Name/Date line sits at 20pt; the exercise grid starts at `GRID_TOP_OFFSET` (26pt) and ends at `GRID_BOTTOM_OFFSET` (336pt). Below it, a see-through layer (drawn after the exercises, so it can never hide one) holds a border of vines and daisies (`worksheet/decorations.ts`) and a 52pt animal mascot with a speech bubble (`worksheet/mascots.ts`). The animal's feet stand at `getMascotBottomEdge`: 2pt above the cutting line, and on the bottom half 14pt above the paper edge. The animal may reach up to `MASCOT_MAX_REACH_INTO_GRID` (6pt) into the bottom of the bottom-right quadrant, so no exercise may draw below 149pt down its 155pt quadrant (the tallest today stops at 147). Keep decoration at least 14pt from the paper edge, since home printers cannot print there.
 
 ### 3. Canvas-to-jsPDF Matrix Pipeline
 To prevent blurry text or pixelation on physical paper, follow this strict rendering pipeline:
