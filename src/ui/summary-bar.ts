@@ -93,7 +93,11 @@ export function createSummaryBar(initialState: SummaryBarState, handlers: Summar
     halfPageInput.step = '1';
     halfPageInput.setAttribute('aria-label', 'Half-pages');
     const increaseButton = buildStepperButton('One more half-page', '+');
-    stepper.append(decreaseButton, halfPageInput, increaseButton);
+    // Decorative; the count line says the same thing in words. Normal view only.
+    const pageDiagram = document.createElement('div');
+    pageDiagram.classList.add('page-diagram');
+    pageDiagram.setAttribute('aria-hidden', 'true');
+    stepper.append(decreaseButton, halfPageInput, increaseButton, pageDiagram);
     countRow.append(countLine, stepper);
 
     const summaryRow = document.createElement('div');
@@ -151,6 +155,22 @@ export function createSummaryBar(initialState: SummaryBarState, handlers: Summar
         const pageCount = describePrintSize(state.halfPageCount).pageCount;
         countLine.textContent = `${state.selectedTopicCount} of ${state.maximumTopicCount} topics - `
             + `${pageCount} ${pageCount === 1 ? 'page' : 'pages'}`;
+
+        pageDiagram.hidden = isCompact;
+        pageDiagram.replaceChildren();
+        for (let pageIndex = 0; pageIndex < pageCount; pageIndex += 1) {
+            const page = document.createElement('div');
+            page.classList.add('page-icon');
+            for (let halfIndex = 0; halfIndex < 2; halfIndex += 1) {
+                const half = document.createElement('div');
+                half.classList.add('half-icon');
+                if (pageIndex * 2 + halfIndex < state.halfPageCount) {
+                    half.classList.add('printed');
+                }
+                page.appendChild(half);
+            }
+            pageDiagram.appendChild(page);
+        }
 
         halfPageInput.value = String(state.halfPageCount);
         decreaseButton.disabled = state.halfPageCount <= MINIMUM_HALF_PAGES;

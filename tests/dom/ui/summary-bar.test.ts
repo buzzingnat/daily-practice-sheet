@@ -84,4 +84,23 @@ describe('createSummaryBar', () => {
         }
         expect(handlers.onHalfPageCountChange).toHaveBeenCalledWith(20);
     });
+
+    test('draws a page icon per page, with printed halves marked, in the normal view only', () => {
+        const { bar } = makeBar({ halfPageCount: 3 });
+        const pages = bar.element.querySelectorAll('.page-diagram .page-icon');
+        expect(pages).toHaveLength(2);
+        expect(bar.element.querySelectorAll('.half-icon.printed')).toHaveLength(3);
+        expect(bar.element.querySelectorAll('.half-icon')).toHaveLength(4);
+        const diagram = bar.element.querySelector<HTMLElement>('.page-diagram');
+        expect(diagram?.hidden).toBe(false);
+        bar.update({ ...baseState, halfPageCount: 3, viewMode: 'compact' });
+        expect(diagram?.hidden).toBe(true);
+    });
+
+    test('puts the page diagram right after the half-page input', () => {
+        const { bar } = makeBar();
+        const children = Array.from(bar.element.querySelector('.summary-stepper')?.children ?? []);
+        const inputIndex = children.findIndex((child) => child.tagName === 'INPUT');
+        expect(children[inputIndex + 2]?.classList.contains('page-diagram')).toBe(true);
+    });
 });
