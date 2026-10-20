@@ -1,0 +1,32 @@
+/*
+ * The whole palette for the web page. Edit the five colors below and the page follows;
+ * nothing else in the stylesheets holds a color. The canvas previews and the printed PDF
+ * stay black, white and grey on purpose, so they ignore this file.
+ */
+:root {
+    /* Body text, headings, and the Make button's fill */
+    --dark-text: #1f2933;
+    /* Text on dark or primary fills, and the page and card background */
+    --light-text: #ffffff;
+    /* Selected cards, pressed chips and toggles, the printed page halves */
+    --primary-color: #3b5bdb;
+    /* Header and footer bands, hover and selected tints */
+    --secondary-color: #e7ecff;
+    /* Borders, dividers, and anything switched off */
+    --mid-tone: #8a94a6;
+
+    /* An error must stay red whatever the theme */
+    --alert-color: #b00020;
+}
+
+/* Worked out from the five above, so there is nothing here to edit by hand */
+:root {
+    --page-background: var(--light-text);
+    --card-background: var(--light-text);
+    --muted-text: color-mix(in srgb, var(--dark-text) 72%, var(--light-text));
+    --selected-tint: color-mix(in srgb, var(--primary-color) 12%, var(--light-text));
+    --hover-tint: var(--secondary-color);
+    --bar-background: color-mix(in srgb, var(--light-text) 88%, transparent);
+    --bar-background-solid: var(--light-text);
+    --focus-ring: var(--dark-text);
+}

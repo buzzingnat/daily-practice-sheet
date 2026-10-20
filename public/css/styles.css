@@ -32,14 +32,25 @@ html, body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
+    color: var(--dark-text);
+    background: var(--page-background);
+}
+
+/* A rule that sets display would otherwise win over the hidden attribute */
+[hidden] {
+    display: none !important;
+}
+
+:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
 }
 
 header, main, section, footer {
     margin: 0;
-    min-height: 5em;
 }
 
-header, section, footer {
+header, footer {
     padding: 1em;
 }
 
@@ -52,8 +63,8 @@ header, section, footer {
 }
 
 header {
-    background: #bfbfbf;
-    border-bottom: darkgray solid 1px;
+    background: var(--secondary-color);
+    border-bottom: 1px solid var(--mid-tone);
     display: flex;
     flex-flow: wrap;
     align-items: center;
@@ -64,13 +75,10 @@ main {
     padding: 0;
 }
 
-section {
-    background: #efefef;
-    border-bottom: silver solid 1px;
-}
-
 footer {
-    background: #8f8f8f;
+    background: var(--secondary-color);
+    border-top: 1px solid var(--mid-tone);
+    font-size: .85em;
 }
 
 header h1, header h2 {
@@ -85,189 +93,341 @@ header hr {
     margin: 0;
 }
 
-#topic-choices {
-    display: flex;
-    flex-flow: wrap;
+/* Buttons, chips and segments share one look; pressed or checked ones take the primary color */
+button {
+    font: inherit;
+    color: var(--dark-text);
+    background: var(--light-text);
+    border: 1px solid var(--mid-tone);
+    border-radius: 1em;
+    padding: 4px 12px;
+    cursor: pointer;
 }
 
-#topic-choices>button {
-    height: 2.5em;
-    width: 10em;
-    border: thin silver solid;
-    padding: 8px;
-    margin: 8px;
-    box-sizing: border-box;
+button:hover:not(:disabled) {
+    background: var(--hover-tint);
 }
 
-#topic-choices>button:hover {
-    background: #9d9d9d;
-}
-
-#topic-choices>button:active, #topic-choices>button.selected{
-    background: #9dadfd;
-    border: solid 2px #9dfdfd;
-}
-
-#topic-choices>button.disabled {
+button:disabled {
     cursor: not-allowed;
+    opacity: .55;
+}
+
+#intro-section {
+    padding: 1em 1em 0;
+}
+
+#intro-section p {
+    margin: 0 0 .5em;
+}
+
+/* The card grid: one column on a phone, more as the screen allows */
+#topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    padding: 1em;
+    align-items: start;
+}
+
+#topic-grid[data-view="compact"] {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+}
+
+.topic-card {
+    display: flex;
+    flex-flow: column;
+    gap: .4em;
+    min-width: 0;
+    padding: .5em;
+    background: var(--card-background);
+    border: 1px solid var(--mid-tone);
+    border-radius: 10px;
+}
+
+.topic-card.selected {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 1px var(--primary-color);
+    background: var(--selected-tint);
+}
+
+.topic-card.locked {
     opacity: .6;
 }
 
-#topic-choices>button .topic-summary {
+.topic-preview canvas {
     display: block;
-    font-size: .7em;
-    margin-top: .1em;
-}
-
-#topic-choices>button {
+    width: 100%;
     height: auto;
-    min-height: 2.5em;
+    border-radius: 4px;
 }
 
-#topic-settings {
+.topic-card:not(.selected) .topic-preview canvas {
+    opacity: .6;
+}
+
+.topic-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5em;
+}
+
+.topic-name {
+    margin: 0;
+    font-size: 1em;
+}
+
+.topic-toggle {
+    min-height: 2.25em;
+}
+
+.topic-toggle[aria-pressed="true"] {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--light-text);
+}
+
+.topic-toggle[aria-pressed="true"]:hover:not(:disabled) {
+    background: var(--primary-color);
+}
+
+.topic-summary,
+.topic-locked-hint {
+    margin: 0;
+    font-size: .85em;
+    color: var(--muted-text);
+}
+
+/* Compact cards: a thumbnail, a short name and a short summary on one line each */
+.topic-card.compact {
+    padding: .3em;
+    gap: .25em;
+}
+
+.topic-card.compact .topic-name {
+    font-size: .85em;
+}
+
+.topic-card.compact .topic-toggle {
+    min-height: 0;
+    padding: 2px 8px;
+    font-size: .8em;
+}
+
+.topic-card.compact .topic-summary {
+    font-size: .75em;
+    min-height: 1.2em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.topic-card.compact .topic-settings,
+.topic-card.compact .topic-locked-hint {
+    display: none;
+}
+
+/* Settings inside a card */
+.topic-settings {
     display: flex;
     flex-flow: column;
     gap: 8px;
-    margin: 8px;
 }
 
-#topic-settings .settings-panel {
-    border: thin silver solid;
+.settings-panel {
+    margin: 0;
     padding: 4px 8px 8px;
+    border: 1px solid var(--mid-tone);
+    border-radius: 6px;
 }
 
-#topic-settings .choice-row {
-    display: flex;
-    flex-flow: wrap;
-    gap: 6px;
-}
-
-#topic-settings .chip,
-#topic-settings .segment {
-    border: thin silver solid;
-    border-radius: 1em;
-    padding: 4px 12px;
-    background: #fff;
-    cursor: pointer;
-    font: inherit;
-}
-
-#topic-settings .chip:hover,
-#topic-settings .segment:hover {
-    background: #9d9d9d;
-}
-
-#topic-settings .chip[aria-pressed="true"],
-#topic-settings .segment:has(input:checked) {
-    background: #9dadfd;
-    border: solid 2px #9dfdfd;
-    padding: 3px 11px;
-}
-
-#topic-settings .chip[aria-disabled="true"] {
-    color: #767676;
-    background: #efefef;
-    cursor: not-allowed;
-}
-
-#topic-settings .settings-error {
-    margin: 8px 0 0;
-    color: #b00020;
-    font-weight: bold;
-}
-
-#topic-settings .segment input {
-    position: absolute;
-    opacity: 0;
-}
-
-#topic-settings .segment:has(input:focus-visible),
-#topic-settings .chip:focus-visible {
-    outline: 2px solid #000;
-}
-
-#print-size {
-    margin: 8px;
-}
-
-#print-size .settings-panel {
-    border: thin silver solid;
-    padding: 4px 8px 8px;
-}
-
-#print-size .choice-row {
+.choice-row {
     display: flex;
     flex-flow: wrap;
     align-items: center;
     gap: 6px;
-    margin-bottom: 6px;
 }
 
-#print-size .stepper-button,
-#print-size .chip {
-    border: thin silver solid;
+.settings-panel .chip,
+.settings-panel .segment {
+    background: var(--light-text);
+    border: 1px solid var(--mid-tone);
     border-radius: 1em;
     padding: 4px 12px;
-    background: #fff;
     cursor: pointer;
     font: inherit;
 }
 
-#print-size .stepper-button:hover,
-#print-size .chip:hover {
-    background: #9d9d9d;
+.settings-panel .chip:hover,
+.settings-panel .segment:hover {
+    background: var(--hover-tint);
 }
 
-#print-size .stepper-button:disabled {
+.settings-panel .chip[aria-pressed="true"],
+.settings-panel .segment:has(input:checked) {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--light-text);
+}
+
+.settings-panel .chip[aria-disabled="true"] {
+    color: var(--muted-text);
+    background: var(--secondary-color);
+    border-color: var(--mid-tone);
     cursor: not-allowed;
-    opacity: .6;
 }
 
-#print-size .chip[aria-pressed="true"] {
-    background: #9dadfd;
-    border: solid 2px #9dfdfd;
-    padding: 3px 11px;
+.settings-error {
+    margin: 8px 0 0;
+    color: var(--alert-color);
+    font-weight: bold;
 }
 
-#print-size input[type="number"] {
-    width: 4em;
+.settings-panel .segment input {
+    position: absolute;
+    opacity: 0;
+}
+
+.settings-panel .segment:has(input:focus-visible) {
+    outline: 2px solid var(--focus-ring);
+}
+
+/* The summary bar: floats at the foot of the screen, then rests against the page footer */
+.summary-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    display: grid;
+    gap: .35em;
+    padding: .5em 1em;
+    background: var(--bar-background-solid);
+    border-top: 1px solid var(--mid-tone);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+    .summary-bar {
+        background: var(--bar-background);
+        backdrop-filter: blur(8px);
+    }
+}
+
+.summary-count-row,
+.summary-text-row,
+.summary-button-row,
+.summary-stepper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.summary-count-row,
+.summary-button-row {
+    justify-content: space-between;
+}
+
+.summary-count,
+.summary-text {
+    margin: 0;
+    font-size: .9em;
+}
+
+.summary-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.summary-text.one-line {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.summary-chevron {
+    border: 0;
+    background: transparent;
+    padding: 2px 8px;
+}
+
+.summary-stepper input[type="number"] {
+    width: 3.5em;
     padding: 4px;
     font: inherit;
     text-align: center;
+    color: var(--dark-text);
+    background: var(--light-text);
+    border: 1px solid var(--mid-tone);
+    border-radius: 6px;
 }
 
-#print-size .page-diagram {
+.page-diagram {
     display: flex;
     flex-flow: wrap;
-    gap: 8px;
-    margin: 8px 0;
+    gap: 3px;
+    max-width: 12em;
 }
 
-#print-size .page-icon {
+.page-icon {
     display: flex;
     flex-flow: column;
-    width: 28px;
-    height: 36px;
-    border: 1px solid #000;
-    background: #fff;
+    width: 14px;
+    height: 18px;
+    border: 1px solid var(--dark-text);
+    background: var(--light-text);
 }
 
-#print-size .half-icon {
+.half-icon {
     flex: 1;
 }
 
-#print-size .half-icon:first-child {
-    border-bottom: 1px dashed #999;
+.half-icon:first-child {
+    border-bottom: 1px dashed var(--mid-tone);
 }
 
-#print-size .half-icon.printed {
-    background: #9dadfd;
+.half-icon.printed {
+    background: var(--primary-color);
 }
 
-#print-size .print-size-caption {
-    margin: 0;
+.view-toggle {
+    display: inline-flex;
 }
 
-#print-size :focus-visible {
-    outline: 2px solid #000;
+.view-toggle-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 0;
+}
+
+.view-toggle-button:first-child {
+    border-radius: 1em 0 0 1em;
+}
+
+.view-toggle-button:last-child {
+    border-radius: 0 1em 1em 0;
+    border-left: 0;
+}
+
+.view-toggle-button[aria-pressed="true"] {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--light-text);
+}
+
+.make-button {
+    min-height: 2.25em;
+    padding: 4px 24px;
+    font-weight: bold;
+    background: var(--dark-text);
+    border-color: var(--dark-text);
+    color: var(--light-text);
+}
+
+.make-button:hover:not(:disabled) {
+    background: var(--dark-text);
+}
+
+#test-sheet-generator-btn {
+    margin: 4px 0;
 }
