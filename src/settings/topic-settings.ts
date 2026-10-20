@@ -22,6 +22,8 @@ export interface ChoiceOption {
     value: string;
     // Shown to the user; kept apart so a translation has somewhere to live
     label: string;
+    // The compact view and the summary bar use this when the label is long; absent when it is short enough
+    shortLabel?: string;
 }
 
 export interface PanelSpecification {
@@ -65,22 +67,22 @@ const MULTIPLICATION_FACTORS: readonly number[] = Array.from({ length: 13 }, (un
 const GRADE_LEVELS: readonly GradeLevel[] = ['1st', '2nd', '3rd'];
 
 const ADDITION_OPTIONS: readonly ChoiceOption[] = [
-    { value: '1st', label: 'Single digit' },
-    { value: '2nd', label: 'Double digit' },
-    { value: '3rd', label: 'Triple digit' }
+    { value: '1st', label: 'Single digit', shortLabel: '1-dig' },
+    { value: '2nd', label: 'Double digit', shortLabel: '2-dig' },
+    { value: '3rd', label: 'Triple digit', shortLabel: '3-dig' }
 ];
 
 const SUBTRACTION_OPTIONS: readonly ChoiceOption[] = [
-    { value: '1st', label: 'Up to 20' },
-    { value: '2nd', label: 'Double digit' },
-    { value: '3rd', label: 'Triple digit' }
+    { value: '1st', label: 'Up to 20', shortLabel: 'To 20' },
+    { value: '2nd', label: 'Double digit', shortLabel: '2-dig' },
+    { value: '3rd', label: 'Triple digit', shortLabel: '3-dig' }
 ];
 
 const MULTIPLICATION_OPTIONS: readonly ChoiceOption[] = MULTIPLICATION_FACTORS.map((factor) => {
     return { value: String(factor), label: String(factor) };
 });
 
-const MULTIPLICATION_TWO_DIGIT_OPTION: ChoiceOption = { value: MULTIPLICATION_TWO_DIGIT, label: 'Two digit' };
+const MULTIPLICATION_TWO_DIGIT_OPTION: ChoiceOption = { value: MULTIPLICATION_TWO_DIGIT, label: 'Two digit', shortLabel: '2-dig' };
 
 const MULTIPLICATION_PRESETS: readonly ChoicePreset[] = [
     { label: 'Up to 5', values: MULTIPLICATION_FACTORS.filter((factor) => factor <= 5).map(String) },
@@ -89,22 +91,22 @@ const MULTIPLICATION_PRESETS: readonly ChoicePreset[] = [
 
 // The fraction levels differ by how finely the circle is cut
 const FRACTIONS_OPTIONS: readonly ChoiceOption[] = [
-    { value: '1st', label: 'Up to fourths' },
-    { value: '2nd', label: 'Up to eighths' },
-    { value: '3rd', label: 'Up to twelfths' }
+    { value: '1st', label: 'Up to fourths', shortLabel: 'To 4ths' },
+    { value: '2nd', label: 'Up to eighths', shortLabel: 'To 8ths' },
+    { value: '3rd', label: 'Up to twelfths', shortLabel: 'To 12ths' }
 ];
 
 const KANA_ROW_OPTIONS: readonly ChoiceOption[] = [
-    { value: 'vowels', label: 'あ vowels' },
-    { value: 'k', label: 'か k' },
-    { value: 's', label: 'さ s' },
-    { value: 't', label: 'た t' },
-    { value: 'n', label: 'な n' },
-    { value: 'h', label: 'は h' },
-    { value: 'm', label: 'ま m' },
-    { value: 'y', label: 'や y' },
-    { value: 'r', label: 'ら r' },
-    { value: 'wn', label: 'わ w + n' }
+    { value: 'vowels', label: 'あ vowels', shortLabel: 'あ' },
+    { value: 'k', label: 'か k', shortLabel: 'か' },
+    { value: 's', label: 'さ s', shortLabel: 'さ' },
+    { value: 't', label: 'た t', shortLabel: 'た' },
+    { value: 'n', label: 'な n', shortLabel: 'な' },
+    { value: 'h', label: 'は h', shortLabel: 'は' },
+    { value: 'm', label: 'ま m', shortLabel: 'ま' },
+    { value: 'y', label: 'や y', shortLabel: 'や' },
+    { value: 'r', label: 'ら r', shortLabel: 'ら' },
+    { value: 'wn', label: 'わ w + n', shortLabel: 'わ' }
 ];
 
 // The Montessori sets, labeled the way a teacher says them: "s m a t"
@@ -113,12 +115,22 @@ const CURSIVE_GROUP_OPTIONS: readonly ChoiceOption[] = CURSIVE_GROUPS.map((group
 });
 
 const CURSIVE_LAYOUT_OPTIONS: readonly ChoiceOption[] = [
-    { value: 'one-large-line', label: 'One large line' },
-    { value: 'two-lines', label: 'Two lines' }
+    { value: 'one-large-line', label: 'One large line', shortLabel: '1 line' },
+    { value: 'two-lines', label: 'Two lines', shortLabel: '2 lines' }
 ];
 
+const REGION_SHORT_LABELS: Record<PopulatedRegion, string> = {
+    'Africa': 'Afr',
+    'Asia': 'Asia',
+    'Central America': 'C.Am',
+    'Europe': 'Eur',
+    'North America': 'N.Am',
+    'Oceania': 'Oce',
+    'South America': 'S.Am'
+};
+
 const REGION_OPTIONS: readonly ChoiceOption[] = POPULATED_REGIONS.map((region) => {
-    return { value: region, label: region };
+    return { value: region, label: region, shortLabel: REGION_SHORT_LABELS[region] };
 });
 
 // In topic order, which is the order the panels appear

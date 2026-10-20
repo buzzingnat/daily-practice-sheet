@@ -23,6 +23,25 @@ export const TOPIC_LABELS: Record<TopicKey, string> = {
     countries: 'Countries'
 };
 
+// The same names, cut short for the compact view and the summary bar.
+export const TOPIC_SHORT_LABELS: Record<TopicKey, string> = {
+    fractions: 'Frac',
+    addition: 'Add',
+    subtraction: 'Sub',
+    multiplication: 'Mult',
+    setTime: 'Set',
+    tellTime: 'Tell',
+    hiragana: 'Hira',
+    cursiveLetters: 'Cur',
+    continents: 'Cont',
+    countries: 'Ctry'
+};
+
+// How much of each topic card to show: the full card, or a thumbnail with short text.
+export const VIEW_MODES = ['normal', 'compact'] as const;
+
+export type ViewMode = typeof VIEW_MODES[number];
+
 // A source of numbers in [0, 1). Checks pass a seeded one in place of Math.random,
 // because a test that changes its mind every run proves very little.
 export type RandomSource = () => number;

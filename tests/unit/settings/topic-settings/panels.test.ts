@@ -83,7 +83,7 @@ describe('PANEL_SPECIFICATIONS', () => {
     test('offers the numbers 0 to 12 for multiplication, with two digit apart as its exclusive chip', () => {
         const specification = findPanelSpecification('multiplication');
         expect(specification.options.map((option) => option.value)).toEqual(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']);
-        expect(specification.exclusiveOption).toEqual({ value: 'two-digit', label: 'Two digit' });
+        expect(specification.exclusiveOption).toEqual({ value: 'two-digit', label: 'Two digit', shortLabel: '2-dig' });
         expect(listChoices(specification).map((option) => option.value).slice(-2)).toEqual(['12', 'two-digit']);
     });
 

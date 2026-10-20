@@ -1,12 +1,13 @@
 import { createDefaultSelections, findPanelSpecification, listChoices, PanelSelections } from './topic-settings';
 import { clampHalfPageCount, DEFAULT_HALF_PAGES } from './print-size';
-import { PANEL_IDS, PanelId, TOPIC_KEYS, TopicKey } from '../types';
+import { PANEL_IDS, PanelId, TOPIC_KEYS, TopicKey, VIEW_MODES, ViewMode } from '../types';
 
 // One key per setting. The version sits in the key, so a change of shape can move to
 // v2 and leave the old values to gather dust rather than be misread.
 const KEY_PREFIX = 'daily-practice-sheet.v1';
 export const SELECTED_TOPICS_KEY = `${KEY_PREFIX}.selected-topics`;
 export const HALF_PAGE_COUNT_KEY = `${KEY_PREFIX}.half-page-count`;
+export const VIEW_MODE_KEY = `${KEY_PREFIX}.view-mode`;
 
 export function panelSelectionKey(panel: PanelId): string {
     return `${KEY_PREFIX}.panel.${panel}`;
@@ -16,6 +17,7 @@ export interface SavedSettings {
     selectedTopics: TopicKey[];
     panelSelections: PanelSelections;
     halfPageCount: number;
+    viewMode: ViewMode;
 }
 
 // Hands back the stored text for a key, or null when there is none to be had
@@ -69,6 +71,11 @@ export function parseHalfPageCount(storedText: string | null): number {
     return typeof parsed === 'number' ? clampHalfPageCount(parsed) : DEFAULT_HALF_PAGES;
 }
 
+export function parseViewMode(storedText: string | null): ViewMode {
+    const parsed = parseJson(storedText);
+    return VIEW_MODES.find((mode) => mode === parsed) ?? 'normal';
+}
+
 /**
  * Pure apart from the reader it is given, so the check script can run it under Node
  * with a Map standing in for the browser.
@@ -81,7 +88,8 @@ export function parseSavedSettings(readStoredText: StoredTextReader, maximumTopi
     return {
         selectedTopics: parseSelectedTopics(readStoredText(SELECTED_TOPICS_KEY), maximumTopicCount),
         panelSelections,
-        halfPageCount: parseHalfPageCount(readStoredText(HALF_PAGE_COUNT_KEY))
+        halfPageCount: parseHalfPageCount(readStoredText(HALF_PAGE_COUNT_KEY)),
+        viewMode: parseViewMode(readStoredText(VIEW_MODE_KEY))
     };
 }
 
@@ -120,4 +128,8 @@ export function savePanelSelections(panelSelections: PanelSelections): void {
 
 export function saveHalfPageCount(halfPageCount: number): void {
     writeToLocalStorage(HALF_PAGE_COUNT_KEY, halfPageCount);
+}
+
+export function saveViewMode(viewMode: ViewMode): void {
+    writeToLocalStorage(VIEW_MODE_KEY, viewMode);
 }

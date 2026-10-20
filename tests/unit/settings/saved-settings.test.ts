@@ -4,7 +4,8 @@ import {
     panelSelectionKey,
     parseSavedSettings,
     SavedSettings,
-    SELECTED_TOPICS_KEY
+    SELECTED_TOPICS_KEY,
+    VIEW_MODE_KEY
 } from '../../../src/settings/saved-settings';
 import { DEFAULT_HALF_PAGES, MAXIMUM_HALF_PAGES } from '../../../src/settings/print-size';
 import { createDefaultSelections } from '../../../src/settings/topic-settings';
@@ -29,6 +30,7 @@ describe('parseSavedSettings with an empty store', () => {
 
     test('gives the default half-page count', () => {
         expect(empty.halfPageCount).toBe(DEFAULT_HALF_PAGES);
+        expect(empty.viewMode).toBe('normal');
     });
 
     test.each(PANEL_IDS)('gives the %s panel default', (panel: PanelId) => {
@@ -50,6 +52,7 @@ describe('parseSavedSettings with malformed values', () => {
 
     test('gives the default for a non-numeric count', () => {
         expect(garbled.halfPageCount).toBe(DEFAULT_HALF_PAGES);
+        expect(parseFrom({ [VIEW_MODE_KEY]: '"huge"' }).viewMode).toBe('normal');
     });
 
     test('gives the panel default for a value that is not a list', () => {
@@ -142,7 +145,8 @@ describe('parseSavedSettings round trip', () => {
         cursiveLetters: ['s-m-a-t', 'h-j-u-l'],
         cursiveLayout: ['two-lines'],
         subtraction: ['2nd'],
-        halfPageCount: 7
+        halfPageCount: 7,
+        viewMode: 'compact'
     };
     const roundTrip = parseFrom({
         [SELECTED_TOPICS_KEY]: JSON.stringify(original.selectedTopics),
@@ -150,7 +154,12 @@ describe('parseSavedSettings round trip', () => {
         [panelSelectionKey('cursiveLetters')]: JSON.stringify(original.cursiveLetters),
         [panelSelectionKey('cursiveLayout')]: JSON.stringify(original.cursiveLayout),
         [panelSelectionKey('subtraction')]: JSON.stringify(original.subtraction),
-        [HALF_PAGE_COUNT_KEY]: JSON.stringify(original.halfPageCount)
+        [HALF_PAGE_COUNT_KEY]: JSON.stringify(original.halfPageCount),
+        [VIEW_MODE_KEY]: JSON.stringify(original.viewMode)
+    });
+
+    test('keeps the view mode', () => {
+        expect(roundTrip.viewMode).toBe('compact');
     });
 
     test('keeps valid topics', () => {
