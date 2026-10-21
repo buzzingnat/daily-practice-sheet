@@ -54,6 +54,8 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
 6. [ ] **Generate Exercises in Order** The Kana and Cursive activities have an order to them. The Countries might as well. Make sheets that can be generated in order in addition to the existing random option.
 
 7. [ ] **Simplify the tests.** About 623 tests is far too many for a project this size. Audit `tests/`: merge near-duplicate cases into table-driven ones, drop tests that only restate the implementation or that two other tests already cover, and trim the loop-over-every-seed suites to the rules that have caught real bugs. Keep the architecture tests and the mutation-tested rules. Aim for a suite a person can read in one sitting; record the before and after counts. Needs a short plan first, since AGENTS.md ties tests to rules.
+8. [x] **Three-word half-page identifier** that ties each worksheet half-page to its answer key (done 2026-10-21). A hash of what the half-page draws is turned into three words from a fixed list and printed turned 90 degrees along the right edge, on the worksheet and on its key. Stateless: nothing is stored.
+    * [ ] **Later, if the sheets come to be generated from a seed:** swap the hash for the reversible "words that encode the seed" approach. The seed's bits are written out as three words (like BIP39), so typing the words into the app regenerates the exact half-page and its key, with no hashing, no lookup and no collisions. It needs every half-page to be fully deterministic from one seed; today problems are chosen with `Math.random()` inside exercises (see the injectable randomness task above), so that task comes first. The seed space is bounded by the word list (a 1,024-word list gives about 30 bits), so the seed would have to fit in it.
 
 ### Next up: large tasks
 1. [x] **Cursive lowercase letters (Montessori order), without arrows. Done 2026-10-15 (phases 0 to 5).** Topic `cursiveLetters` with six set chips (s m a t, c r i p, b f o g, h j u l, d w e n, k q v x y z), default the first set. Layout: Learning Curve 4.0 Regular family, a bold model on the left, two ruled rows on the right (two solid then two dotted letters, four per line and not joined; then a blank line), mid-gray guide lines. The follow-ups below remain:
@@ -320,3 +322,18 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * The old `Make Randomized Batch` wording task (small task 3) is partly done for the button ("Make"); the PDF filename is unchanged.
     * No test covers `main.ts` wiring; it was checked by hand in the browser.
     * Next in the roadmap: the Preview PDF step (large task 3), which turns "Make" into "Preview".
+
+
+### 2026-10-21 - Three-word identifier on every half-page (Claude)
+* **Status:** Done, not committed. `npm test` (33 files, 666 passed, 2 skipped), `tsc --noEmit` and `npm run build` pass. A real worksheet and key from the built app were rendered with pdf.js: the words sit turned along the right edge clear of the vines, and the key's words match its worksheet (`drum.sock.oasis`, `cap.silky.steady`).
+* **Accomplished:**
+    * New `worksheet/half-page-identifier.ts`: `fingerprintHalfPage` renders the four quadrants (plain `render`, fixed order) through a recording `Proxy` on a scratch canvas context, `hashText` (FNV-1a plus a murmur3 finalizer) and `wordsFromHash` (low 30 bits, three 10-bit indexes), and `getHalfPageIdentifier`.
+    * New `worksheet/identifier-words.ts`: 1,024 distinct lowercase words of 3 to 6 letters, hand-screened for homophones and unkind words.
+    * `worksheet-layout.ts`: `drawHalfPageIdentifier` prints the words as native jsPDF text at an angle of 90 degrees (8pt, `COLOR_MEDIUM_GREY`, baseline 20pt from the right edge, centered on the grid), then restores black text. Worksheet and key passes share it.
+    * `tests/unit/worksheet/half-page-identifier.test.ts` (9 tests). Mutation-tested: hashing `renderAnswers` and sorting the recorded calls were each caught, then restored.
+* **Decisions:** dots between the words, bottom-to-top reading, 1,024 words. The seed-based reversible scheme stays a note in the roadmap (task 8).
+* **Open Issues:**
+    * Every quadrant is rendered one extra time per half-page per pass (twice per half-page counting the key); batch time was not measured. If it shows, compute the words once and reuse them for the key.
+    * Nothing printed: look at the 8pt grey words on paper (legibility, 20pt margin). The daisies were not seen near the words in this one sample.
+    * The user's edits to the draft list added `appeal` (6 letters) and a second `sing`; the duplicate was dropped and the list is exactly 1,024.
+    * `generate-pdf-batch.ts` (the older copy of the pipeline) does not call `renderSingleWorksheetPage`, so it prints no identifier.

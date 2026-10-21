@@ -53,6 +53,9 @@ To deploy, run:
 `npm run build` <-- first runs `node build.js` which copies `public/` into `dist/`, then overwrites `dist/bundle.js` with the minified bundle
 Then use everything in the `dist` folder.
 
+## Matching worksheets to answer keys
+Every half-page carries three words along its right edge, such as `drum.sock.oasis`, and its answer key carries the same three. The words come from a hash of what the half-page draws (`src/worksheet/half-page-identifier.ts`) and a 1,024-word list (`src/worksheet/identifier-words.ts`), so nothing is stored.
+
 ## Mascot art and credits
 Each half-page carries a black-and-white animal in a speech bubble, to be colored in. The animals come from the sheet at `public/img/mascots/various-animals.svg`, from [abbythepup.com](https://www.abbythepup.com). Its About Us page (read 2026-10-19) says: "The content is provided under a Creative Commons Public Domain Dedication (CC0)." The credit in the page footer is a courtesy, not a requirement. The site's Terms and Conditions page carries standard all-rights-reserved wording that does not match; this project follows the explicit CC0 statement.
 

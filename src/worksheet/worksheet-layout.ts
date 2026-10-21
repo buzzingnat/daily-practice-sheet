@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
-import { SANS_SERIF_FONT, COLOR_PDF_CROSSHAIR, COLOR_PDF_PERFORATION, COLOR_WHITE } from '../constants';
+import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY, COLOR_PDF_CROSSHAIR, COLOR_PDF_PERFORATION, COLOR_WHITE } from '../constants';
 import { drawHalfPageDecorations } from './decorations';
+import { getHalfPageIdentifier } from './half-page-identifier';
 import { ANSWER_KEY_CHEER, drawMascotBand, pickMascotAndCheer } from './mascots';
 
 const PAGE_WIDTH = 612;
@@ -20,6 +21,9 @@ const MASCOT_GAP_ABOVE_CUTTING_LINE = 2;
 // Every exercise stops drawing by 147pt down its 155pt quadrant (checked by drawing them all), so a mascot may
 // reach this far up into the grid's bottom edge without touching anything. Re-check if an exercise changes.
 export const MASCOT_MAX_REACH_INTO_GRID = 6;
+// The identifier's letters rise from this line toward the left; 20pt in from the paper's edge clears the printer's blind strip
+const IDENTIFIER_FONT_SIZE = 8;
+const IDENTIFIER_BASELINE_COORDINATE_X = PAGE_WIDTH - 20;
 
 /**
  * Where the mascot's feet stand within a half-page: just above the cutting line, or, for the bottom half of
@@ -162,6 +166,33 @@ function renderHalfPageLayerToPdf(
 }
 
 /**
+ * A scratch canvas for reading what a half-page draws. Nothing from it reaches the paper.
+ */
+function createFingerprintContext(): CanvasRenderingContext2D {
+    const canvas = document.createElement('canvas');
+    canvas.width = EXERCISE_WIDTH;
+    canvas.height = EXERCISE_HEIGHT;
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('Could not look up 2D canvas context');
+    return context;
+}
+
+/**
+ * Prints the half-page's three words turned a quarter-turn, reading bottom to top, in the right margin and centered
+ * on the grid. Native text, so it stays sharp. The worksheet and its key print the same words.
+ */
+function drawHalfPageIdentifier(documentInstance: jsPDF, identifier: string, startCoordinateY: number): void {
+    documentInstance.setFont(SANS_SERIF_FONT, 'normal');
+    documentInstance.setFontSize(IDENTIFIER_FONT_SIZE);
+    documentInstance.setTextColor(COLOR_MEDIUM_GREY);
+    // Rotated text starts at its bottom end, so the start sits half the text's length below the middle
+    const gridMiddleCoordinateY = startCoordinateY + GRID_TOP_OFFSET + EXERCISE_HEIGHT;
+    const startCoordinateOfText = gridMiddleCoordinateY + (documentInstance.getTextWidth(identifier) / 2);
+    documentInstance.text(identifier, IDENTIFIER_BASELINE_COORDINATE_X, startCoordinateOfText, { angle: 90 });
+    documentInstance.setTextColor(COLOR_BLACK);
+}
+
+/**
  * Formats and renders a single page within the target document instance.
  * The half-page numbers count from the first top half of the batch, and pick each half-page's mascot.
  */
@@ -201,6 +232,7 @@ async function renderSingleWorksheetPage(
         await renderQuadrantToPdf(documentInstance, layout.bottomRight, marginX + quadrantWidth, gridTopCoordinateY + quadrantHeight, quadrantWidth, quadrantHeight, showAnswers);
 
         renderHalfPageLayerToPdf(documentInstance, startCoordinateY, halfPageNumber, showAnswers);
+        drawHalfPageIdentifier(documentInstance, getHalfPageIdentifier(layout, createFingerprintContext()), startCoordinateY);
 
         // Draw Section Divider Crosshairs natively over the images
         documentInstance.setDrawColor(COLOR_PDF_CROSSHAIR);
