@@ -209,7 +209,7 @@ async function renderSingleWorksheetPage(
     const quadrantHeight = EXERCISE_HEIGHT; // Height per quadrant box
 
     const renderHalfSheet = async (layout: HalfPageLayout, startCoordinateY: number, halfPageNumber: number) => {
-        // Name / Date Header Lines rendered inside native PDF vector space
+        // Name / Date header lines rendered inside native PDF vector space
         documentInstance.setFont(SANS_SERIF_FONT, 'bold');
         documentInstance.setFontSize(12);
         const nameText = 'Name: ___________________________';
@@ -234,7 +234,7 @@ async function renderSingleWorksheetPage(
         renderHalfPageLayerToPdf(documentInstance, startCoordinateY, halfPageNumber, showAnswers);
         drawHalfPageIdentifier(documentInstance, getHalfPageIdentifier(layout, createFingerprintContext()), startCoordinateY);
 
-        // Draw Section Divider Crosshairs natively over the images
+        // Draw section divider crosshairs natively over the images
         documentInstance.setDrawColor(COLOR_PDF_CROSSHAIR);
         documentInstance.setLineWidth(1);
         documentInstance.line(marginX, gridTopCoordinateY + quadrantHeight, marginX + printableWidth, gridTopCoordinateY + quadrantHeight);
@@ -243,7 +243,7 @@ async function renderSingleWorksheetPage(
 
     await renderHalfSheet(topHalf, 0, firstHalfPageNumber);
 
-    // Decorative Middle Perforation Line Splitter
+    // Decorative middle perforation line splitter
     documentInstance.setDrawColor(COLOR_PDF_PERFORATION);
     documentInstance.setLineWidth(1.5);
     documentInstance.setLineDashPattern([], 0);
