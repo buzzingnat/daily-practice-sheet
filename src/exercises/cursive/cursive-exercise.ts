@@ -1,4 +1,5 @@
 import { QuadrantContext, QuadrantExercise } from '../../worksheet/worksheet-layout';
+import { getMessages } from '../../text/messages';
 import {
     COLOR_BLACK,
     COLOR_LIGHT_GREY,
@@ -127,7 +128,7 @@ export function createCursiveExercise(letter: string, layoutName: CursiveLayoutN
             context.font = `bold 14px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'top';
             context.textAlign = 'left';
-            context.fillText('CURSIVE', 15, 12);
+            context.fillText(getMessages().exerciseTitles.cursive, 15, 12);
 
             // Left: the large model
             context.fillStyle = COLOR_BLACK;

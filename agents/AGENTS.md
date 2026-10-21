@@ -118,6 +118,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 * **Emoji:** `exercises/cursive/cursive-emoji.ts` holds emoji as worksheet content, drawn at runtime in grays; that is the functional use the emoji rule permits. Keep them in that one data file, and never in comments or logs.
 * **Settings Panels:** Each panel has an `id` (it names the panel in saved settings and the DOM) and a `topic` (the button that reveals it). A topic may own several panels: `cursiveLetters` owns one for its sets and one for its layout. The topic button summary joins its panels' summaries. A multiple-choice panel may also carry `presets` (shortcut chips that replace the selection with a fixed set, as `multiplication` does with Up to 5 and Up to 12) and an `exclusiveOption` (a chip, drawn last and kept out of `options`, that replaces everything and is replaced by any other, such as multiplication's Two digit; `listChoices` lists options plus it); `toggleOption` in `settings/topic-settings.ts` holds that click rule.
 * **Answer Key:** Exercises choose their problems when created, so the key is drawn from the same exercise objects as the worksheet, never regenerated. An exercise with answers writes one `draw(quadrantContext, showAnswers)` routine and returns `render` (false) and `renderAnswers` (true) from it. `buildAndDownloadWorksheetBatch` appends an "ANSWER KEY" copy of every page to the same PDF, but only when some quadrant has `renderAnswers`. Hiragana and cursive have none (tracing has no answer). Each half-page's identifier (`worksheet/half-page-identifier.ts`) comes from a hash of what its four quadrants draw with `render` (never `renderAnswers`), read through a recording wrapper on a scratch canvas context; 30 bits of the hash pick three words from the 1,024 in `worksheet/identifier-words.ts`. Nothing is stored, and the key prints the same words as its worksheet. An exercise must therefore draw the same thing every time it renders: choose problems when created, never with `Math.random()` inside `render`.
+* **Words:** Code names things by id (`TopicKey`, the specification `type`); the words a person reads live in `text/`. `MessageCatalog` (`text/message-catalog.ts`) lists every string; `text/english.ts` fills it in, and a new language is one more file satisfying the same interface (it will not compile with a gap), listed in `text/messages.ts`. Exercises, the layout and the UI call `getMessages()` when they draw, never at build time, and never write an English title, label or cheer of their own. Exercise factories therefore take no `title`. Strings that depend on word order (`titleWithLevel`, `levelTags`) are functions. Checks swap in `createMarkerCatalog()` (`tests/support/marker-catalog.ts`) to see whether any English is left hard-coded. Not yet in the catalog (a follow-up): the settings panels, the summary bar, the topic card text and `index.html`. Content that is language-specific, such as country names, hiragana hints and the cursive emoji words, stays where it is.
 * **Shared Types:** Types used by more than one file live in `types.ts`, which imports nothing. Types used by one module stay in that module.
 * **Data Loading:** Fetching happens in dedicated loader functions called once at startup (for example `loadGeographyData`). Render functions stay synchronous and read from the cache.
 * **Errors:** Throw `Error`. Do not return one.
@@ -127,6 +128,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
   ```
   main.ts  make-example-sheet.ts  utils.ts            app-level
   types.ts  constants.ts  asset-manager.ts            shared leaves
+  text/        message-catalog.ts  english.ts  messages.ts          every word a person reads, per language
   worksheet/   worksheet-layout.ts  generate-pdf-batch.ts            layout contract and PDF assembly
                half-page-identifier.ts  identifier-words.ts     three-word half-page names
   exercises/   addition, subtraction, multiplication, fractions, clock (one *-exercise.ts each)
@@ -141,10 +143,11 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 * **Where a new file goes:** in the folder that matches its job. A topic with two or more files of its own gets a subfolder under `exercises/`. Pure logic goes in `settings/` or `generator/`; code that touches `document` goes in `ui/`. Create a new top-level folder only for a distinct job with at least two files.
 * **Dependency direction.** Imports flow downward only:
     * The app-level files (`main.ts`, `make-example-sheet.ts`, `utils.ts`) may import from any folder. Only they use `utils.ts`, which builds on `worksheet/`.
-    * `ui/` imports `settings/` and the root leaves.
-    * `generator/` imports `exercises/`, `worksheet/` and the root leaves.
-    * `exercises/` imports `worksheet/` and the root leaves.
-    * `settings/` and `worksheet/` import only the root leaves (`types.ts`, `constants.ts`, `asset-manager.ts`).
+    * `ui/` imports `settings/`, `text/` and the root leaves.
+    * `generator/` imports `exercises/`, `worksheet/`, `text/` and the root leaves.
+    * `exercises/` imports `worksheet/`, `text/` and the root leaves.
+    * `text/` imports only the root leaves, and every other folder may import `text/`.
+    * `settings/` and `worksheet/` import only `text/` and the root leaves (`types.ts`, `constants.ts`, `asset-manager.ts`).
     * Nothing imports `main.ts`. `types.ts` and `constants.ts` import nothing.
   This rule is enforced by `tests/architecture/src-folder-dependencies.test.ts`, which reads every file in `src/` and fails with one sentence per offense. A file in a folder the rule does not know also fails it; to add a folder, update the table in `tests/support/folder-dependencies.ts` and this section together.
   `make-example-sheet.ts` stays at the root because it imports exercises, and exercises import the layout contract; putting it in `worksheet/` would make those two folders depend on each other.

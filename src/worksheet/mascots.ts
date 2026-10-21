@@ -1,5 +1,6 @@
 import { getSharedImage, getSharedImageSync } from '../asset-manager';
 import { COLOR_BLACK, COLOR_WHITE, SANS_SERIF_FONT } from '../constants';
+import { getMessages } from '../text/messages';
 
 export interface Mascot {
     name: string;
@@ -26,8 +27,6 @@ const BUBBLE_TEXT_PADDING = 14;
 const BUBBLE_TAIL_LENGTH = 9;
 const GAP_BETWEEN_BUBBLE_AND_MASCOT = 6;
 
-export const ANSWER_KEY_CHEER = 'Check your work!';
-
 // Made by scripts/split-mascots.mjs from the CC0 sheet at abbythepup.com
 export const MASCOTS: readonly Mascot[] = [
     { name: 'crab', imageUrl: './img/mascots/animals/crab.svg', artWidthUnits: 1251 },
@@ -38,17 +37,6 @@ export const MASCOTS: readonly Mascot[] = [
     { name: 'schnauzer', imageUrl: './img/mascots/animals/schnauzer.svg', artWidthUnits: 1127 },
     { name: 'frog', imageUrl: './img/mascots/animals/frog.svg', artWidthUnits: 985 },
     { name: 'tiger', imageUrl: './img/mascots/animals/tiger.svg', artWidthUnits: 727 }
-];
-
-// Seven cheers against eight animals: no pair of animal and cheer repeats until 56 half-pages have gone by
-export const CHEERS: readonly string[] = [
-    'You can do it!',
-    'Great job!',
-    'Keep going!',
-    'Nice work!',
-    'You are a star!',
-    'Almost there!',
-    'Super thinking!'
 ];
 
 /**
@@ -63,10 +51,11 @@ export async function preloadMascotImages(): Promise<void> {
  */
 export function pickMascotAndCheer(halfPageNumber: number): { mascot: Mascot; cheer: string } {
     const mascotIndex = halfPageNumber % MASCOTS.length;
-    const cheerIndex = halfPageNumber % CHEERS.length;
+    const cheers = getMessages().worksheet.cheers;
+    const cheerIndex = halfPageNumber % cheers.length;
     return {
         mascot: MASCOTS[mascotIndex] as Mascot,
-        cheer: CHEERS[cheerIndex] as string
+        cheer: cheers[cheerIndex] as string
     };
 }
 

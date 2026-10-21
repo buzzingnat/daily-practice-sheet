@@ -10,6 +10,7 @@ import {
 } from 'topojson-specification';
 import { GeoJsonProperties, GeometryCollection, MultiLineString, MultiPolygon } from 'geojson';
 import { QuadrantExercise, QuadrantContext } from '../../worksheet/worksheet-layout';
+import { getMessages } from '../../text/messages';
 import { drawAnswerLine } from './answer-line';
 import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY } from '../../constants';
 import { traceAsiaSideRegion, traceEuropeSideRegion, traceUralBoundary } from './europe-asia-boundary';
@@ -296,8 +297,7 @@ export async function loadGeographyData(): Promise<void> {
  * the Urals and a thin line marks the cut on every map.
  */
 export function createGeographyExercise(
-    targetContinent: Continent,
-    title: string = 'NAME THIS CONTINENT'
+    targetContinent: Continent
 ): QuadrantExercise {
     if (!cachedGeographyData) {
         throw new Error('Call loadGeographyData() before creating a geography quadrant.');
@@ -318,7 +318,7 @@ export function createGeographyExercise(
         context.font = `bold 14px ${SANS_SERIF_FONT}`;
         context.textBaseline = 'top';
         context.textAlign = 'left';
-        context.fillText(title, 15, 12);
+        context.fillText(getMessages().exerciseTitles.continents, 15, 12);
 
         // The map takes the middle; the answer line takes the bottom
         const mapLeft = 15;
@@ -415,7 +415,7 @@ export function createGeographyExercise(
         context.restore();
 
         // Labeled response line
-        drawAnswerLine(context, width, height, 'Continent:', showAnswers ? targetContinent : undefined);
+        drawAnswerLine(context, width, height, getMessages().worksheet.continentAnswerLabel, showAnswers ? targetContinent : undefined);
     };
 
     return {

@@ -1,4 +1,5 @@
 import { QuadrantExercise, QuadrantContext, EXERCISE_HEIGHT, EXERCISE_WIDTH } from '../../worksheet/worksheet-layout';
+import { getMessages } from '../../text/messages';
 import { getSharedImageSync } from '../../asset-manager';
 import { KANA_IMAGE_URL, SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from '../../constants';
 
@@ -135,7 +136,6 @@ function drawTracingMatrix(context: CanvasRenderingContext2D, character: string)
  * for its picture mid-render is a quadrant that renders without one.
  */
 export function createKanaExercise(
-    title: string,
     character: string,
     pronunciationHint: string
 ): QuadrantExercise {
@@ -154,7 +154,7 @@ export function createKanaExercise(
             context.font = `bold 14px ${SANS_SERIF_FONT}`;
             context.textBaseline = 'top';
             context.textAlign = 'left';
-            context.fillText(title, 15, 12);
+            context.fillText(getMessages().exerciseTitles.hiragana, 15, 12);
 
             // Left column: large reference guide character
             drawHiraganaGuide(context, guideImage, spritePosition);

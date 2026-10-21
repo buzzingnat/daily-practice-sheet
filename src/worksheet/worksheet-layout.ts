@@ -2,7 +2,8 @@ import { jsPDF } from 'jspdf';
 import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY, COLOR_PDF_CROSSHAIR, COLOR_PDF_PERFORATION, COLOR_WHITE } from '../constants';
 import { drawHalfPageDecorations } from './decorations';
 import { getHalfPageIdentifier } from './half-page-identifier';
-import { ANSWER_KEY_CHEER, drawMascotBand, pickMascotAndCheer } from './mascots';
+import { drawMascotBand, pickMascotAndCheer } from './mascots';
+import { getMessages } from '../text/messages';
 
 const PAGE_WIDTH = 612;
 const MARGIN_X = 40;
@@ -157,7 +158,7 @@ function renderHalfPageLayerToPdf(
     drawMascotBand(
         context,
         mascot,
-        showAnswers ? ANSWER_KEY_CHEER : cheer,
+        showAnswers ? getMessages().worksheet.answerKeyCheer : cheer,
         MARGIN_X + PRINTABLE_WIDTH,
         bottomEdge
     );
@@ -212,15 +213,16 @@ async function renderSingleWorksheetPage(
         // Name / Date header lines rendered inside native PDF vector space
         documentInstance.setFont(SANS_SERIF_FONT, 'bold');
         documentInstance.setFontSize(12);
-        const nameText = 'Name: ___________________________';
+        const wording = getMessages().worksheet;
+        const nameText = wording.nameLine;
         const dateCoordinateX = marginX + 340;
         documentInstance.text(nameText, marginX, startCoordinateY + 20);
-        documentInstance.text('Date: __________________', dateCoordinateX, startCoordinateY + 20);
+        documentInstance.text(wording.dateLine, dateCoordinateX, startCoordinateY + 20);
         if (showAnswers) {
             // Small, and in the gap between Name and Date, where the grid starts too close below for a label
             const gapMiddleCoordinateX = (marginX + documentInstance.getTextWidth(nameText) + dateCoordinateX) / 2;
             documentInstance.setFontSize(9);
-            documentInstance.text('ANSWER KEY', gapMiddleCoordinateX, startCoordinateY + 20, { align: 'center' });
+            documentInstance.text(wording.answerKey, gapMiddleCoordinateX, startCoordinateY + 20, { align: 'center' });
         }
 
         const gridTopCoordinateY = startCoordinateY + GRID_TOP_OFFSET;

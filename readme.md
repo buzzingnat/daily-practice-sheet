@@ -30,10 +30,11 @@ To run a single named test, add `-t` and part of the test's name. The name is ma
 ### How `src/` is organized
 `src/` is grouped by job, and imports may only flow downward, so the code stays easy to follow and nothing ends up tangled in a circle:
 * `types.ts`, `constants.ts` and `asset-manager.ts` are shared leaves. They import nothing from the folders below.
-* `worksheet/` is the page layout and PDF assembly. `settings/` is the pure logic for what the user chooses. Both may import only the shared leaves.
-* `exercises/` (with `kana/` and `geography/` inside) holds one drawing module per topic. It may import `worksheet/` and the shared leaves, and the topics do not import each other.
-* `generator/` plans and deals the exercises. It may import `exercises/`, `worksheet/` and the shared leaves.
-* `ui/` is the DOM code. It may import `settings/` and the shared leaves.
+* `text/` holds every word a person reads, as a catalog per language (`english.ts` today). It may import only the shared leaves, and every other folder may read it.
+* `worksheet/` is the page layout and PDF assembly. `settings/` is the pure logic for what the user chooses. Both may import only `text/` and the shared leaves.
+* `exercises/` (with `kana/` and `geography/` inside) holds one drawing module per topic. It may import `worksheet/`, `text/` and the shared leaves, and the topics do not import each other.
+* `generator/` plans and deals the exercises. It may import `exercises/`, `worksheet/`, `text/` and the shared leaves.
+* `ui/` is the DOM code. It may import `settings/`, `text/` and the shared leaves.
 * `main.ts`, `make-example-sheet.ts` and `utils.ts` are the app-level files and may import anything. Nothing imports `main.ts`, and only these three files import `utils.ts`.
 
 The purpose is to keep logic you can test in Node (`settings/`, `generator/`) apart from code that needs a browser (`ui/`), and to stop low-level folders from depending on high-level ones. `tests/architecture/src-folder-dependencies.test.ts` enforces it: any import that breaks the rule fails `npm test` with one sentence naming the file and the import. The full rule is in `agents/AGENTS.md`, section 7.

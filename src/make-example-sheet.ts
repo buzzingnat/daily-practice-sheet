@@ -18,13 +18,11 @@ export async function executeTestSheetGeneration(): Promise<void> {
     // Top-Left Quadrant: Student reads clock and writes digital time
     topLeft: createClockExercise(
       'telling',
-      'TELLING TIME',
       { hours: 10, minutes: 10 }
     ),
 
     // Top-Right Quadrant: Student practices the Hiragana character 'う'
     topRight: createKanaExercise(
-      'HIRAGANA PRACTICE',
       'う',
       '"u" pronounce "oo", as in zoo.'
     ),
@@ -40,7 +38,6 @@ export async function executeTestSheetGeneration(): Promise<void> {
   const bottomHalfLayout: HalfPageLayout = {
     // Top-Left Quadrant: Student practices a different Hiragana character 'あ'
     topLeft: createKanaExercise(
-      'HIRAGANA PRACTICE',
       'あ',
       '"a" pronounce "ah", as in father.'
     ),
@@ -51,7 +48,6 @@ export async function executeTestSheetGeneration(): Promise<void> {
     // Bottom-Left Quadrant: Student views digital target text and draws clock hands
     bottomLeft: createClockExercise(
       'setting',
-      'SETTING TIME',
       { hours: 3, minutes: 45 },
       '3:45 am'
     ),

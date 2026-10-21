@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import { QuadrantExercise, QuadrantContext } from '../../worksheet/worksheet-layout';
+import { getMessages } from '../../text/messages';
 import { drawAnswerLine } from './answer-line';
 import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY, COLOR_MEDIUM_GREY, COLOR_WHITE } from '../../constants';
 import { createAsiaSidePolygon, createEuropeSidePolygon, createUralBoundaryLine } from './europe-asia-boundary';
@@ -33,8 +34,7 @@ export function listRegionTargets(region: PopulatedRegion): RegionCountry[] {
  */
 export function createRegionMapExercise(
     region: PopulatedRegion,
-    targetIdentifier: string,
-    title: string = 'NAME THIS COUNTRY'
+    targetIdentifier: string
 ): QuadrantExercise {
     const mapData = getRegionMapData();
     const target = listRegionTargets(region).find((candidate) => candidate.identifier === targetIdentifier);
@@ -60,7 +60,7 @@ export function createRegionMapExercise(
         context.font = `bold 14px ${SANS_SERIF_FONT}`;
         context.textBaseline = 'top';
         context.textAlign = 'left';
-        context.fillText(title, 15, 12);
+        context.fillText(getMessages().exerciseTitles.countries, 15, 12);
 
         const box = getMapBox(width, height);
         const projection = createRegionProjection(region, width, height);
@@ -153,7 +153,7 @@ export function createRegionMapExercise(
         context.strokeRect(box.left, box.top, box.right - box.left, box.bottom - box.top);
 
         // Labeled response line
-        drawAnswerLine(context, width, height, 'Country:', showAnswers ? target.name : undefined);
+        drawAnswerLine(context, width, height, getMessages().worksheet.countryAnswerLabel, showAnswers ? target.name : undefined);
     };
 
     return {

@@ -1,4 +1,5 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
+import { getMessages } from '../text/messages';
 import { MultiplicationSettings } from '../types';
 import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from '../constants';
 import { pickFromWithRareZero } from './problem-numbers';
@@ -51,34 +52,13 @@ function generateMultiplicationProblemsBatch(settings: MultiplicationSettings): 
 }
 
 /**
- * The tag after the title. A long list of chosen numbers would overflow the quadrant,
- * so an unbroken run is shown by its ends and anything else as mixed.
- */
-function describeProblemLevel(settings: MultiplicationSettings): string {
-    if (settings.mode === 'two-digit') {
-        return 'Two Digit';
-    }
-    const smallest = settings.factors[0] ?? 0;
-    const largest = settings.factors[settings.factors.length - 1] ?? 0;
-    if (settings.factors.length === 1) {
-        return `${smallest} Table`;
-    } else if (largest - smallest + 1 === settings.factors.length) {
-        return `${smallest} to ${largest}`;
-    } else {
-        return 'Mixed';
-    }
-}
-
-/**
  * Functional component generator for the Multiplication learning quadrant.
  * Lays out the same vertical stacks as addition and subtraction.
  */
 export function createMultiplicationExercise(
-    settings: MultiplicationSettings,
-    title: string = 'MULTIPLICATION'
+    settings: MultiplicationSettings
 ): QuadrantExercise {
     const problems = generateMultiplicationProblemsBatch(settings);
-    const problemLevel = describeProblemLevel(settings);
 
     // One drawing routine serves both sheets; the answer sheet writes each result into its box
     function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {
@@ -90,7 +70,8 @@ export function createMultiplicationExercise(
         context.font = `bold 14px ${SANS_SERIF_FONT}`;
         context.textBaseline = 'top';
         context.textAlign = 'left';
-        context.fillText(`${title} (${problemLevel})`, 15, 12);
+        const messages = getMessages();
+        context.fillText(messages.titleWithLevel(messages.exerciseTitles.multiplication, messages.levelTags.multiplication(settings)), 15, 12);
 
         // Arrange the math columns evenly across the available width
         const totalProblems = problems.length;

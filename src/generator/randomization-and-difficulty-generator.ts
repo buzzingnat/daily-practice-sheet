@@ -133,18 +133,14 @@ function buildHalfPageLayout(
 export function createWorkbookExerciseFactories(): ExerciseFactories {
     return {
         createClockExercise: (clockType: ClockType): QuadrantExercise => {
-            let title = 'SETTING TIME';
-            if (clockType === 'telling') {
-                title = 'TELLING TIME';
-            }
             // Generate a random hour between 1 and 12 inclusive
             const randomHour = Math.floor(Math.random() * 12) + 1;
             // Generate a random minute interval snapping cleanly to 5-minute ticks
             const randomMinute = Math.floor(Math.random() * 12) * 5;
-            return createClockExercise(clockType, title, { hours: randomHour, minutes: randomMinute });
+            return createClockExercise(clockType, { hours: randomHour, minutes: randomMinute });
         },
         createFractionsExercise: (level: GradeLevel): QuadrantExercise => {
-            return createFractionsExercise(level, 'FRACTIONS');
+            return createFractionsExercise(level);
         },
         createSubtractionExercise: (level: GradeLevel): QuadrantExercise => {
             return createSubtractionExercise(level);
@@ -156,7 +152,7 @@ export function createWorkbookExerciseFactories(): ExerciseFactories {
             return createMultiplicationExercise(multiplicationSettings);
         },
         createKanaExercise: (card: KanaCard): QuadrantExercise => {
-            return createKanaExercise('HIRAGANA PRACTICE', card.character, card.pronunciationHint);
+            return createKanaExercise(card.character, card.pronunciationHint);
         },
         createCursiveExercise: (card: CursiveCard, layout: CursiveLayoutName): QuadrantExercise => {
             return createCursiveExercise(card.letter, layout);

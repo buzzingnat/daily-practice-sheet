@@ -13,15 +13,15 @@ import {
 } from '../types';
 
 export type ExampleSpecification =
-    | { type: 'clock'; clockType: ClockType, title: string; hours: number; minutes: number; digitalDisplayLabel?: string }
-    | { type: 'fractions'; title: string; grade: GradeLevel }
-    | { type: 'subtraction'; grade: GradeLevel; title?: string }
-    | { type: 'addition'; grade: GradeLevel; title?: string }
-    | { type: 'multiplication'; settings: MultiplicationSettings; title?: string }
-    | { type: 'kana'; title: string; character: string; pronunciation: string }
+    | { type: 'clock'; clockType: ClockType; hours: number; minutes: number; digitalDisplayLabel?: string }
+    | { type: 'fractions'; grade: GradeLevel }
+    | { type: 'subtraction'; grade: GradeLevel }
+    | { type: 'addition'; grade: GradeLevel }
+    | { type: 'multiplication'; settings: MultiplicationSettings }
+    | { type: 'kana'; character: string; pronunciation: string }
     | { type: 'cursive'; letter: string; layout: CursiveLayoutName }
-    | { type: 'geography'; continent: Continent; title?: string }
-    | { type: 'regionCountry'; region: PopulatedRegion; targetIdentifier: string; title?: string }
+    | { type: 'geography'; continent: Continent }
+    | { type: 'regionCountry'; region: PopulatedRegion; targetIdentifier: string }
     | { type: 'placeholder'; title: string }
     | { type: 'blank';};
 
@@ -66,11 +66,11 @@ export function buildTopicExample(topic: TopicKey, settings: TopicSettings): Exa
 
 function buildTopicExamples(topic: TopicKey, settings: TopicSettings): ExampleSpecification[] {
     if (topic === 'tellTime') {
-        return [{ type: 'clock', clockType: 'telling', title: 'TELLING TIME', hours: 10, minutes: 10 }];
+        return [{ type: 'clock', clockType: 'telling', hours: 10, minutes: 10 }];
     } else if (topic === 'setTime') {
-        return [{ type: 'clock', clockType: 'setting', title: 'SETTING TIME', hours: 3, minutes: 30 }];
+        return [{ type: 'clock', clockType: 'setting', hours: 3, minutes: 30 }];
     } else if (topic === 'fractions') {
-        return [{ type: 'fractions', title: 'FRACTIONS', grade: settings.fractions.level }];
+        return [{ type: 'fractions', grade: settings.fractions.level }];
     } else if (topic === 'addition') {
         return [{ type: 'addition', grade: settings.addition.level }];
     } else if (topic === 'subtraction') {
@@ -80,7 +80,7 @@ function buildTopicExamples(topic: TopicKey, settings: TopicSettings): ExampleSp
     } else if (topic === 'hiragana') {
         const card = listKanaCards(settings.hiragana.rows)[0];
         return card
-            ? [{ type: 'kana', title: 'HIRAGANA PRACTICE', character: card.character, pronunciation: card.pronunciationHint }]
+            ? [{ type: 'kana', character: card.character, pronunciation: card.pronunciationHint }]
             : [];
     } else if (topic === 'cursiveLetters') {
         const card = listCursiveCards(settings.cursiveLetters.groups)[0];

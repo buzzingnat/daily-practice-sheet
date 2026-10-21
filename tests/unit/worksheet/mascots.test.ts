@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { ANSWER_KEY_CHEER, CHEERS, MASCOT_HEIGHT, MASCOTS, getMascotRectangle, pickMascotAndCheer } from '../../../src/worksheet/mascots';
+import { MASCOT_HEIGHT, MASCOTS, getMascotRectangle, pickMascotAndCheer } from '../../../src/worksheet/mascots';
+import { english } from '../../../src/text/english';
 import { GRID_BOTTOM_OFFSET, HALF_PAGE_HEIGHT, MASCOT_MAX_REACH_INTO_GRID, getMascotBottomEdge } from '../../../src/worksheet/worksheet-layout';
 
 // The right edge the layout gives the mascot, and the paper's safe edge
@@ -15,7 +16,7 @@ describe('pickMascotAndCheer', () => {
     test('uses every animal and every cheer', () => {
         const picks = Array.from({ length: 56 }, (unused, halfPageNumber) => pickMascotAndCheer(halfPageNumber));
         expect(new Set(picks.map((pick) => pick.mascot.name)).size).toBe(MASCOTS.length);
-        expect(new Set(picks.map((pick) => pick.cheer)).size).toBe(CHEERS.length);
+        expect(new Set(picks.map((pick) => pick.cheer)).size).toBe(english.worksheet.cheers.length);
     });
 
     test('gives the same answer for the same half-page, so a key matches its worksheet', () => {
@@ -31,7 +32,7 @@ describe('pickMascotAndCheer', () => {
     });
 
     test('never hands out an empty cheer, and keeps each short enough for its bubble', () => {
-        const offenders = [...CHEERS, ANSWER_KEY_CHEER].filter((cheer) => cheer.trim() === '' || cheer.length > LONGEST_CHEER_LETTERS);
+        const offenders = [...english.worksheet.cheers, english.worksheet.answerKeyCheer].filter((cheer) => cheer.trim() === '' || cheer.length > LONGEST_CHEER_LETTERS);
         expect(offenders).toEqual([]);
     });
 });

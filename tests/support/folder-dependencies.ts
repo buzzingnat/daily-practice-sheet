@@ -1,7 +1,7 @@
 // The folder dependency rule from AGENTS.md section 7, as code. Pure: it takes file
 // paths and source text and returns complaints, so tests can feed it made-up projects.
 
-export type Area = 'app' | 'leaf' | 'worksheet' | 'exercises' | 'generator' | 'settings' | 'ui';
+export type Area = 'app' | 'leaf' | 'worksheet' | 'exercises' | 'generator' | 'settings' | 'ui' | 'text';
 
 // Paths throughout are posix-style and start with "src/", for example "src/generator/shuffled-deck.ts"
 export type SourceFiles = Readonly<Record<string, string>>;
@@ -13,18 +13,20 @@ const FOLDER_AREAS: Readonly<Record<string, Area>> = {
     exercises: 'exercises',
     generator: 'generator',
     settings: 'settings',
-    ui: 'ui'
+    ui: 'ui',
+    text: 'text'
 };
 
 // What each area may import, itself included. The app-level files may import anything.
 const ALLOWED_TARGETS: Readonly<Record<Area, readonly Area[]>> = {
-    app: ['app', 'leaf', 'worksheet', 'exercises', 'generator', 'settings', 'ui'],
+    app: ['app', 'leaf', 'text', 'worksheet', 'exercises', 'generator', 'settings', 'ui'],
     leaf: ['leaf'],
-    worksheet: ['worksheet', 'leaf'],
-    exercises: ['exercises', 'worksheet', 'leaf'],
-    generator: ['generator', 'exercises', 'worksheet', 'leaf'],
-    settings: ['settings', 'leaf'],
-    ui: ['ui', 'settings', 'leaf']
+    text: ['text', 'leaf'],
+    worksheet: ['worksheet', 'text', 'leaf'],
+    exercises: ['exercises', 'worksheet', 'text', 'leaf'],
+    generator: ['generator', 'exercises', 'worksheet', 'text', 'leaf'],
+    settings: ['settings', 'text', 'leaf'],
+    ui: ['ui', 'settings', 'text', 'leaf']
 };
 
 const ENTRY_POINT = 'src/main.ts';

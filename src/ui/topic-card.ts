@@ -1,5 +1,6 @@
 import { PanelSelections } from '../settings/topic-settings';
-import { TopicKey, TOPIC_LABELS, TOPIC_SHORT_LABELS, ViewMode } from '../types';
+import { TopicKey, ViewMode } from '../types';
+import { getMessages } from '../text/messages';
 import { renderTopicSettings } from './topic-settings-panel';
 
 export interface TopicCard {
@@ -34,7 +35,7 @@ export function createTopicCard(
     selections: PanelSelections,
     handlers: TopicCardHandlers
 ): TopicCard {
-    const label = TOPIC_LABELS[topic];
+    const label = getMessages().topics[topic].name;
     let isSelected = false;
     let viewMode: ViewMode = 'normal';
     let fullSummary = '';
@@ -91,7 +92,7 @@ export function createTopicCard(
 
     const showTexts = (): void => {
         const isCompact = viewMode === 'compact';
-        name.textContent = isCompact ? TOPIC_SHORT_LABELS[topic] : label;
+        name.textContent = isCompact ? getMessages().topics[topic].shortName : label;
         summary.textContent = isCompact ? shortSummary : fullSummary;
     };
 

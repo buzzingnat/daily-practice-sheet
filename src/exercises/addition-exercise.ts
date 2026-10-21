@@ -1,4 +1,5 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
+import { getMessages } from '../text/messages';
 import { GradeLevel } from '../types';
 import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from '../constants';
 import { pickRandomWithRareZero } from './problem-numbers';
@@ -60,17 +61,9 @@ function generateAdditionProblemsBatch(gradeLevel: GradeLevel): AdditionProblem[
  * Evaluates the gradeLevel constraint to build randomized vertical arithmetic stacks.
  */
 export function createAdditionExercise(
-    gradeLevel: GradeLevel,
-    title: string = 'ADDITION'
+    gradeLevel: GradeLevel
 ): QuadrantExercise {
     const problems = generateAdditionProblemsBatch(gradeLevel);
-    // describe the difficulty level of the problems more accurately
-    let problemLevel = 'Single Digit'; // default is 1st grade
-    if (gradeLevel === '2nd') {
-        problemLevel = 'Double Digit';
-    } else if (gradeLevel === '3rd') {
-        problemLevel = 'Triple Digit';
-    }
 
     // One drawing routine serves both sheets; the answer sheet writes each result into its box
     function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {
@@ -82,7 +75,8 @@ export function createAdditionExercise(
         context.font = `bold 14px ${SANS_SERIF_FONT}`;
         context.textBaseline = 'top';
         context.textAlign = 'left';
-        context.fillText(`${title} (${problemLevel})`, 15, 12);
+        const messages = getMessages();
+        context.fillText(messages.titleWithLevel(messages.exerciseTitles.addition, messages.levelTags.addition(gradeLevel)), 15, 12);
 
         // Arrange the math columns evenly across the available width
         const totalProblems = problems.length;

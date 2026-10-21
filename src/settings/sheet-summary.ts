@@ -5,7 +5,8 @@ import {
     PanelSelections,
     PanelSpecification
 } from './topic-settings';
-import { TOPIC_LABELS, TOPIC_SHORT_LABELS, TopicKey } from '../types';
+import { TopicKey } from '../types';
+import { getMessages } from '../text/messages';
 
 export const NOTHING_CHOSEN_TEXT = 'Nothing chosen yet. Add a topic below.';
 
@@ -54,7 +55,8 @@ export function describeTopicDetail(topic: TopicKey, selections: PanelSelections
 }
 
 function describeTopic(topic: TopicKey, selections: PanelSelections, isShort: boolean): string {
-    const name = isShort ? TOPIC_SHORT_LABELS[topic] : TOPIC_LABELS[topic];
+    const names = getMessages().topics[topic];
+    const name = isShort ? names.shortName : names.name;
     const detail = describeTopicDetail(topic, selections, isShort);
     return detail !== '' ? `${name}: ${detail}` : name;
 }

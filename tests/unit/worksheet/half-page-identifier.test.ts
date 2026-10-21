@@ -79,8 +79,8 @@ describe('fingerprintHalfPage', () => {
             addition3: createAdditionExercise('3rd'),
             subtraction1: createSubtractionExercise('1st'),
             subtraction2: createSubtractionExercise('2nd'),
-            clockTelling: createClockExercise('telling', 'CLOCK', { hours: 3, minutes: 15 }),
-            clockSetting: createClockExercise('setting', 'CLOCK', { hours: 9, minutes: 40 }),
+            clockTelling: createClockExercise('telling', { hours: 3, minutes: 15 }),
+            clockSetting: createClockExercise('setting', { hours: 9, minutes: 40 }),
             fractions: createFractionsExercise('1st')
         };
         const offenders: string[] = [];

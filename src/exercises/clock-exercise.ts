@@ -1,4 +1,5 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
+import { getMessages } from '../text/messages';
 import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY } from '../constants';
 
 export type ClockType = 'telling' | 'setting';
@@ -40,12 +41,13 @@ export function formatClockTime(time: ClockTime): string {
     return `${dialHour}:${paddedMinutes}`;
 }
 
-function drawTitle(context: CanvasRenderingContext2D, title: string): void {
+function drawTitle(context: CanvasRenderingContext2D, clockType: ClockType): void {
+    const titles = getMessages().exerciseTitles;
     context.fillStyle = INK_COLOR;
     context.font = `bold 14px ${SANS_SERIF_FONT}`;
     context.textBaseline = 'top';
     context.textAlign = 'left';
-    context.fillText(title, 15, 12);
+    context.fillText(clockType === 'setting' ? titles.settingTime : titles.tellingTime, 15, 12);
 }
 
 function drawDialRing(context: CanvasRenderingContext2D, geometry: ClockGeometry): void {
@@ -158,7 +160,6 @@ function drawAnswerBox(
  */
 export function createClockExercise(
     clockType: ClockType,
-    title: string,
     time: ClockTime,
     digitalDisplayLabel?: string
 ): QuadrantExercise {
@@ -174,7 +175,7 @@ export function createClockExercise(
             radius: (CLOCK_SIZE / 2) * DIAL_RADIUS_RATIO
         };
 
-        drawTitle(context, title);
+        drawTitle(context, clockType);
         drawDialRing(context, geometry);
         drawHourNumbers(context, geometry);
         drawPivot(context, geometry);

@@ -1,4 +1,5 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
+import { getMessages } from '../text/messages';
 import { GradeLevel } from '../types';
 import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from '../constants';
 import { pickRandomWithRareZero } from './problem-numbers';
@@ -60,16 +61,9 @@ function generateSubtractionProblemsBatch(gradeLevel: GradeLevel): SubtractionPr
  * Evaluates the gradeLevel string constraint to build randomized vertical arithmetic stacks.
  */
 export function createSubtractionExercise(
-    gradeLevel: GradeLevel,
-    title: string = 'SUBTRACTION'
+    gradeLevel: GradeLevel
 ): QuadrantExercise {
     const problems = generateSubtractionProblemsBatch(gradeLevel);
-    let problemLevel = 'Up to 20'; // default is 1st grade
-    if (gradeLevel === '2nd') {
-        problemLevel = 'Double Digit';
-    } else if (gradeLevel === '3rd') {
-        problemLevel = 'Triple Digit';
-    }
 
     // One drawing routine serves both sheets; the answer sheet writes each result into its box
     function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {
@@ -82,7 +76,8 @@ export function createSubtractionExercise(
         context.font = `bold 14px ${SANS_SERIF_FONT}`;
         context.textBaseline = 'top';
         context.textAlign = 'left';
-        context.fillText(`${title} (${problemLevel})`, 15, 12);
+        const messages = getMessages();
+        context.fillText(messages.titleWithLevel(messages.exerciseTitles.subtraction, messages.levelTags.subtraction(gradeLevel)), 15, 12);
 
         // Arrange math columns spaced evenly across available width layout space
         const totalProblems = problems.length;

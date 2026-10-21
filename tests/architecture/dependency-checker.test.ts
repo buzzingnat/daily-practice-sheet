@@ -18,7 +18,10 @@ const PRETEND_PROJECT: SourceFiles = {
     'src/exercises/geography/region-views.ts': '',
     'src/generator/shuffled-deck.ts': '',
     'src/settings/print-size.ts': '',
-    'src/ui/print-size-panel.ts': ''
+    'src/ui/print-size-panel.ts': '',
+    'src/text/messages.ts': '',
+    'src/text/message-catalog.ts': '',
+    'src/text/english.ts': ''
 };
 
 // The pretend project with one file's source replaced
@@ -38,7 +41,8 @@ describe('classifyFile', () => {
         ['src/exercises/kana/kana-rows.ts', 'exercises'],
         ['src/generator/shuffled-deck.ts', 'generator'],
         ['src/settings/print-size.ts', 'settings'],
-        ['src/ui/print-size-panel.ts', 'ui']
+        ['src/ui/print-size-panel.ts', 'ui'],
+        ['src/text/messages.ts', 'text']
     ])('puts %s in the %s area', (path, area) => {
         expect(classifyFile(path)).toBe(area);
     });
@@ -101,6 +105,8 @@ describe('findViolations', () => {
         ['the entry point importing a panel', 'src/main.ts', "import { a } from './ui/print-size-panel';"],
         ['the entry point importing the helper file', 'src/main.ts', "import { a } from './utils';"],
         ['a file using its own folder mates', 'src/settings/print-size.ts', "import { a } from './print-size';"],
+        ['an exercise reading the words', 'src/exercises/clock-exercise.ts', "import { a } from '../text/messages';"],
+        ['the words reading the shared types', 'src/text/message-catalog.ts', "import { a } from '../types';"],
         ['a kana file using another kana file', 'src/exercises/kana/kana-rows.ts', "import { a } from './kana-rows';"]
     ])('allows %s', (unused, path, source) => {
         expect(findViolations(withSource(path, source))).toEqual([]);
@@ -116,6 +122,7 @@ describe('findViolations', () => {
         ['a panel importing the generator', 'src/ui/print-size-panel.ts', "import { a } from '../generator/shuffled-deck';", 'ui may not import generator'],
         ['the generator importing a panel', 'src/generator/shuffled-deck.ts', "import { a } from '../ui/print-size-panel';", 'generator may not import ui'],
         ['the generator importing settings', 'src/generator/shuffled-deck.ts', "import { a } from '../settings/print-size';", 'generator may not import settings'],
+        ['the words importing an exercise', 'src/text/english.ts', "import { a } from '../exercises/clock-exercise';", 'text may not import exercises'],
         ['a shared leaf importing a folder', 'src/types.ts', "import { a } from './settings/print-size';", 'leaf may not import settings'],
         ['a dynamic import breaking the rule', 'src/settings/print-size.ts', "const lazy = await import('../ui/print-size-panel');", 'settings may not import ui']
     ])('rejects %s', (unused, path, source, expectedReason) => {

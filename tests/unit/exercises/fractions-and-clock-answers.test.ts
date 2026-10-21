@@ -55,7 +55,7 @@ describe('clock answers', () => {
     const time = { hours: 10, minutes: 10 };
 
     test('a telling task writes the time in its box and the worksheet leaves it blank', () => {
-        const exercise = createClockExercise('telling', 'TELLING TIME', time);
+        const exercise = createClockExercise('telling', time);
         const plain = createRecordingContext();
         const answered = createRecordingContext();
         exercise.render(plain.quadrantContext);
@@ -67,7 +67,7 @@ describe('clock answers', () => {
     });
 
     test('a setting task draws the hands on the key and not on the worksheet', () => {
-        const exercise = createClockExercise('setting', 'SETTING TIME', time);
+        const exercise = createClockExercise('setting', time);
         const plain = createRecordingContext();
         const answered = createRecordingContext();
         exercise.render(plain.quadrantContext);

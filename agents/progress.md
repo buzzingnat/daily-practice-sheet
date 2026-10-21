@@ -35,24 +35,25 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
 1. [x] **Folder dependency check.** Done 2026-10-14: `tests/architecture/`, with the rules in `tests/support/folder-dependencies.ts`.
 2. [x] `plan.md` cleared and the final ledger entry written.
 
-### Next up: small tasks (each fits one sitting)
+### Done: small tasks (each fits one sitting)
 1. [x] **Rename `src/run-test.ts` to `src/make-example-sheet.ts`.** Done. The function `executeTestSheetGeneration` and the "Make Test Sheet" button keep their names; rename them if "test" there is a problem.
 2. [x] **Unit tests for `exercises/kana/kana-rows.ts` and `settings/topic-settings.ts`.** Done 2026-10-14.
 3. [x] **Rename "batch" wording:** the "Make Randomized Batch" button label (`main.ts`) and the `educational-worksheet-batch.pdf` filename (`worksheet/worksheet-layout.ts`). The output is no longer a fixed batch of 20.
-4. [ ] **Share the geography constants:** `exercises/geography/region-map-data.ts` repeats the topology and CSV URLs and the Russia and France codes from `exercises/geography/geography-exercise.ts`. Export them from one place.
-5. [ ] **Continuous integration:** a GitHub workflow running `npm test`, `npm run test:types` and `npm run build` (the first and last already type-check `src/`). Uses `.nvmrc` for the Node version.
-6. [ ] **Unit tests for `exercises/geography/region-map-data.ts`:** `buildRegionMapData` against the real TopoJSON and CSV in `public/maps/`, pinning the target pool sizes. Needs `@types/node` for `fs`, with approval.
-7. [ ] **`tests/manual-checklist.md`:** what only a human with a printer can check (PDF page counts, the 396pt cut line, map frames and fonts by eye, private-window storage).
-8. [ ] **Human review of the 41 added hiragana pronunciation hints** by a native speaker or teacher, especially を, ん, ふ and つ.
+4. [x] **`tests/manual-checklist.md`:** what only a human with a printer can check (PDF page counts, the 396pt cut line, map frames and fonts by eye, private-window storage).
+5. [x] **Human review of the 41 added hiragana pronunciation hints** by a native speaker or teacher, especially を, ん, ふ and つ.
+
+### Next up: small tasks (each fits one sitting)
+1. [ ] **Share the geography constants:** `exercises/geography/region-map-data.ts` repeats the topology and CSV URLs and the Russia and France codes from `exercises/geography/geography-exercise.ts`. Export them from one place.
+2. [ ] **Continuous integration:** a GitHub workflow running `npm test`, `npm run test:types` and `npm run build` (the first and last already type-check `src/`). Uses `.nvmrc` for the Node version.
+3. [ ] **Unit tests for `exercises/geography/region-map-data.ts`:** `buildRegionMapData` against the real TopoJSON and CSV in `public/maps/`, pinning the target pool sizes. Needs `@types/node` for `fs`, with approval.
 
 ### Next up: medium tasks (a few sittings, each with a plan)
 1. [ ] **Testing phase 3, DOM tests with jsdom (`tests/dom/`):** `topic-settings-panel` (last chip cannot be switched off, All chip, radio callbacks), `print-size-panel` (stepper limits, typed values clamp, quick picks), `loadSavedSettings` and the save functions against jsdom `localStorage`, including a storage that throws. `jsdom` is already a dev dependency.
 2. [ ] **Injectable randomness:** clock times, sums and fractions use `Math.random()` inside their modules, so they cannot be tested deterministically. Pass a `RandomSource` in, then test them.
 3. [ ] **Frequency weights** (how often a chosen topic appears across the selected sheets). Plugs into the planner's ranking as uses divided by weight; needs a UI control and tests in the planner suite.
 4. [ ] **Persist deck state** (kana, continents, each region's countries) across clicks and reloads. Decks reset on every click. Needs a design for what a saved deck does when the chosen rows or regions change.
-5. [ ] **Separate Exercise Title and Exercise Type** so the generator can be offered in other languages: each exercise gets a name/id/definition in code and a separate display title. Placed before the large tasks so new topics such as Roman letters are built on it instead of being retrofitted.
+5. [~] **Separate Exercise Title and Exercise Type** (printed words done 2026-10-21; UI text still to do, see the ledger) so the generator can be offered in other languages: each exercise gets a name/id/definition in code and a separate display title. Placed before the large tasks so new topics such as Roman letters are built on it instead of being retrofitted.
 6. [ ] **Generate Exercises in Order** The Kana and Cursive activities have an order to them. The Countries might as well. Make sheets that can be generated in order in addition to the existing random option.
-
 7. [ ] **Simplify the tests.** About 623 tests is far too many for a project this size. Audit `tests/`: merge near-duplicate cases into table-driven ones, drop tests that only restate the implementation or that two other tests already cover, and trim the loop-over-every-seed suites to the rules that have caught real bugs. Keep the architecture tests and the mutation-tested rules. Aim for a suite a person can read in one sitting; record the before and after counts. Needs a short plan first, since AGENTS.md ties tests to rules.
 8. [x] **Three-word half-page identifier** that ties each worksheet half-page to its answer key (done 2026-10-21). A hash of what the half-page draws is turned into three words from a fixed list and printed turned 90 degrees along the right edge, on the worksheet and on its key. Stateless: nothing is stored.
     * [ ] **Later, if the sheets come to be generated from a seed:** swap the hash for the reversible "words that encode the seed" approach. The seed's bits are written out as three words (like BIP39), so typing the words into the app regenerates the exact half-page and its key, with no hashing, no lookup and no collisions. It needs every half-page to be fully deterministic from one seed; today problems are chosen with `Math.random()` inside exercises (see the injectable randomness task above), so that task comes first. The seed space is bounded by the word list (a 1,024-word list gives about 30 bits), so the seed would have to fit in it.
@@ -342,3 +343,16 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * `settings/print-size.ts`: `QUICK_PICK_HALF_PAGES`, the `caption` field of `PrintSizeDescription`, and the helpers only the caption used (`pluralizePages`, the half-page label) are gone. The test that checked the caption went with them (20 cases).
     * The downloaded file is now `practice-sheets.pdf` (was `educational-worksheet-batch.pdf`). Small task 3 is closed.
 * **Open Issues:** the paper check of the three-word identifier (8pt grey words, 20pt margin) is still to be recorded.
+
+### 2026-10-21 - Words moved into a message catalog (Claude)
+* **Status:** Phases 1 to 3 of `plan.md` done, not committed. `npm test` (34 files, 660 passed, 2 skipped), `npm run test:types`, `tsc --noEmit` and `npm run build` pass. Sheets and keys made in the built app and read back with pdf.js: titles, level tags, answer-line labels, Name/Date/ANSWER KEY and cheers look as before, and each key carries its worksheet's three words.
+* **Accomplished:**
+    * New `src/text/` (a leaf folder every other folder may import): `message-catalog.ts` (the `MessageCatalog` interface), `english.ts`, `messages.ts` (`getMessages`, `setLanguage`, `setMessages`). Topic names, exercise titles, level tags (functions, so word order is free), `titleWithLevel`, Name/Date/ANSWER KEY, the cheers and the answer-line labels are in it.
+    * `TOPIC_LABELS` and `TOPIC_SHORT_LABELS` left `types.ts`. Exercise factories, specification types and `createClockExercise` lost their `title` arguments; exercises read the catalog when they draw. The placeholder spec keeps its `title` (a developer stand-in, not an exercise).
+    * Tests: `tests/unit/text/messages.test.ts`, `tests/unit/exercises/printed-titles.test.ts`, `tests/support/marker-catalog.ts` (a made-up language that exposes any hard-coded English); `types.test.ts` was folded into the catalog test. The dependency checker knows the `text` area. Mutation-tested: an exercise reading the wrong title key was caught, then restored.
+* **Decisions:** language choice (a selector or saved setting) is not built; `setLanguage` exists. Titles keep their English capitals in the catalog. Catalog entries are read at draw time, so a language change needs no rebuild.
+* **Open Issues:**
+    * Phase 4, UI text: panel headings, option labels and summary nouns in `settings/topic-settings.ts`, the summary bar, the topic card, `main.ts` and `public/index.html` still hold English. Needs its own plan.
+    * Geography, kana and cursive titles are covered by the catalog but not by a drawn-text test (they need loaded map, image and font data).
+    * A longer translated title may overflow the 266pt quadrant header; nothing measures or shrinks it. Fonts for scripts beyond Latin are not in place.
+    * Country names, hiragana hints and the cursive emoji words are still English-only content.

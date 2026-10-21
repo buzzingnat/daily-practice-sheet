@@ -124,33 +124,30 @@ function createExerciseFromSpecification(specification: ExampleSpecification): Q
     if (specification.type === 'clock') {
         return createClockExercise(
             specification.clockType,
-            specification.title,
             { hours: specification.hours, minutes: specification.minutes },
             specification.digitalDisplayLabel
         );
     } else if (specification.type === 'fractions') {
-        return createFractionsExercise(specification.grade, specification.title);
+        return createFractionsExercise(specification.grade);
     } else if (specification.type === 'subtraction') {
-        return createSubtractionExercise(specification.grade, specification.title);
+        return createSubtractionExercise(specification.grade);
     } else if (specification.type === 'addition') {
-        return createAdditionExercise(specification.grade, specification.title);
+        return createAdditionExercise(specification.grade);
     } else if (specification.type === 'multiplication') {
-        return createMultiplicationExercise(specification.settings, specification.title);
+        return createMultiplicationExercise(specification.settings);
     } else if (specification.type === 'kana') {
         return createKanaExercise(
-            specification.title,
             specification.character,
             specification.pronunciation
         );
     } else if (specification.type === 'cursive') {
         return createCursiveExercise(specification.letter, specification.layout);
     } else if (specification.type === 'geography') {
-        return createGeographyExercise(specification.continent, specification.title);
+        return createGeographyExercise(specification.continent);
     } else if (specification.type === 'regionCountry') {
         return createRegionMapExercise(
             specification.region,
-            specification.targetIdentifier,
-            specification.title
+            specification.targetIdentifier
         );
     } else if (specification.type === 'placeholder') {
         return createPlaceholderExercise(specification.title);

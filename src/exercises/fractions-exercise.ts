@@ -1,4 +1,5 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
+import { getMessages } from '../text/messages';
 import { GradeLevel } from '../types';
 import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from '../constants';
 
@@ -132,8 +133,7 @@ function drawFractionStructureInput(
  * Evaluates the gradeLevel string constraint to build randomized problem pairs.
  */
 export function createFractionsExercise(
-    gradeLevel: GradeLevel = '1st',
-    title: string = 'FRACTIONS'
+    gradeLevel: GradeLevel = '1st'
 ): QuadrantExercise {
     // Automatically randomize values based on the grade difficulty parameters
     const leftProblem = generateRandomFractionProblem(gradeLevel);
@@ -144,13 +144,6 @@ export function createFractionsExercise(
         leftProblem.numerator === rightProblem.numerator
         && leftProblem.denominator === rightProblem.denominator
     )
-    // describe the difficulty level of the problems more accurately
-    let problemLevel = 'Up to Quarters'; // default is 1st grade
-    if (gradeLevel === '2nd') {
-        problemLevel = 'Up to Eighths';
-    } else if (gradeLevel === '3rd') {
-        problemLevel = 'Up to Twelfths';
-    }
 
     // One drawing routine serves both sheets; the answer sheet fills in the fraction boxes
     function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {
@@ -162,7 +155,8 @@ export function createFractionsExercise(
         context.font = `bold 14px ${SANS_SERIF_FONT}`;
         context.textBaseline = 'top';
         context.textAlign = 'left';
-        context.fillText(`${title} (${problemLevel})`, 15, 12);
+        const messages = getMessages();
+        context.fillText(messages.titleWithLevel(messages.exerciseTitles.fractions, messages.levelTags.fractions(gradeLevel)), 15, 12);
 
         // Math Layout Positioning Mechanics (Splitting the 266px width area space)
         const circleRadius = 32;
