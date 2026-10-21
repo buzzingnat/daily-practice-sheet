@@ -48,8 +48,4 @@ describe.each(EVERY_ALLOWED_COUNT)('describePrintSize(%i)', (halfPageCount: numb
     test('flags an odd half-page left over', () => {
         expect(description.hasHalfPageRemainder).toBe(halfPageCount % 2 === 1);
     });
-
-    test('has a caption', () => {
-        expect(description.caption.length).toBeGreaterThan(0);
-    });
 });

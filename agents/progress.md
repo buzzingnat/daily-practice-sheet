@@ -38,7 +38,7 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
 ### Next up: small tasks (each fits one sitting)
 1. [x] **Rename `src/run-test.ts` to `src/make-example-sheet.ts`.** Done. The function `executeTestSheetGeneration` and the "Make Test Sheet" button keep their names; rename them if "test" there is a problem.
 2. [x] **Unit tests for `exercises/kana/kana-rows.ts` and `settings/topic-settings.ts`.** Done 2026-10-14.
-3. [ ] **Rename "batch" wording:** the "Make Randomized Batch" button label (`main.ts`) and the `educational-worksheet-batch.pdf` filename (`worksheet/worksheet-layout.ts`). The output is no longer a fixed batch of 20.
+3. [x] **Rename "batch" wording:** the "Make Randomized Batch" button label (`main.ts`) and the `educational-worksheet-batch.pdf` filename (`worksheet/worksheet-layout.ts`). The output is no longer a fixed batch of 20.
 4. [ ] **Share the geography constants:** `exercises/geography/region-map-data.ts` repeats the topology and CSV URLs and the Russia and France codes from `exercises/geography/geography-exercise.ts`. Export them from one place.
 5. [ ] **Continuous integration:** a GitHub workflow running `npm test`, `npm run test:types` and `npm run build` (the first and last already type-check `src/`). Uses `.nvmrc` for the Node version.
 6. [ ] **Unit tests for `exercises/geography/region-map-data.ts`:** `buildRegionMapData` against the real TopoJSON and CSV in `public/maps/`, pinning the target pool sizes. Needs `@types/node` for `fs`, with approval.
@@ -318,8 +318,6 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * `TOPIC_LABELS` names the topics for people; `buildTopicExample` gives one preview per topic.
 * **Decisions:** "Make Test Sheet" stays in the intro section, not the bar. The bar's shrunk state is not saved. `plan.md` cleared.
 * **Open Issues:**
-    * `QUICK_PICK_HALF_PAGES` and the `caption` from `describePrintSize` in `settings/print-size.ts` are now unused (the quick-pick chips and caption went with the old panel); remove or reuse.
-    * The old `Make Randomized Batch` wording task (small task 3) is partly done for the button ("Make"); the PDF filename is unchanged.
     * No test covers `main.ts` wiring; it was checked by hand in the browser.
     * Next in the roadmap: the Preview PDF step (large task 3), which turns "Make" into "Preview".
 
@@ -337,3 +335,10 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * Nothing printed: look at the 8pt grey words on paper (legibility, 20pt margin). The daisies were not seen near the words in this one sample.
     * The user's edits to the draft list added `appeal` (6 letters) and a second `sing`; the duplicate was dropped and the list is exactly 1,024.
     * `generate-pdf-batch.ts` (the older copy of the pipeline) does not call `renderSingleWorksheetPage`, so it prints no identifier.
+
+### 2026-10-21 - Unused print-size code removed; PDF renamed (Human, documented by Claude)
+* **Status:** Done, not committed when written. `npm test` (33 files, 646 passed, 2 skipped), `tsc --noEmit`, `npm run test:types` and `npm run build` pass.
+* **Accomplished:**
+    * `settings/print-size.ts`: `QUICK_PICK_HALF_PAGES`, the `caption` field of `PrintSizeDescription`, and the helpers only the caption used (`pluralizePages`, the half-page label) are gone. The test that checked the caption went with them (20 cases).
+    * The downloaded file is now `practice-sheets.pdf` (was `educational-worksheet-batch.pdf`). Small task 3 is closed.
+* **Open Issues:** the paper check of the three-word identifier (8pt grey words, 20pt margin) is still to be recorded.

@@ -317,5 +317,5 @@ export async function buildAndDownloadWorksheetBatch(
     }
 
     // Trigger local client file download save execution
-    documentInstance.save('educational-worksheet-batch.pdf');
+    documentInstance.save('practice-sheets.pdf');
 }
