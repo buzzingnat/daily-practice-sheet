@@ -207,3 +207,29 @@ Support helpers (`tests/support/`, 392 lines) get a short pass in step 3: a help
 
 ### What I need from you now
 Approve this table, or mark verdicts you disagree with. The calls I am least sure of: cutting most of the DOM tests; cutting the cursive-emoji and kana data checks (they catch a typo in the data, which no other test would); and keeping `mascots` and `decorations` (they fit "nasty edge cases" but could be judged as drawing code). On your approval I move to step 2, the planner.
+
+### Step 3 done: the audit applied (2026-10-22)
+Five commits on `prune-tests`, each with `npm test` and `npm run test:types` clean, and each rewritten or collapsed test checked by breaking its rule once (see below for the gaps this found).
+
+| After | Test files | Tests | Wall time |
+| --- | --- | --- | --- |
+| Baseline | 36 | 675 | 5.2 to 5.7 s |
+| Settings and text (`b9b47f9`) | 37 | 604 | 5.2 s |
+| Topic settings (`961e166`) | 37 | 472 | 5.4 s |
+| Generator and worksheet (`6848fd0`) | 37 | 451 | 5.2 s |
+| Exercises and cursive layout (`1c32fe9`) | 37 | 338 | 5.1 s |
+| DOM and architecture (`94886e2`) | 37 | 276 | 5.7 s |
+
+The whole suite is still about 5 s because the quick/full config split is step 4: the exhaustive planner file (about 4.8 s) and the jsdom files still run with everything. Running only what the quick tier will hold (`tests/unit`, minus `*.full.test.ts`) gives 30 files, 243 tests and 0.87 to 0.97 s, well under the 2 s goal. The full suite is 37 files and 276 tests.
+
+Differences from the table I proposed:
+- Quick is 243 tests, not about 223, because I kept the kana and emoji data checks and several geometry tests whole.
+- Three DOM tests remain in `tests/dom/` (the two no-hard-coded-English checks plus the summary bar's count line), with the two existing in `topic-settings-panel`; five in all, for the full tier.
+- `dependency-checker` is 14 tests, with a row per rule it guards. A mutation check showed the "generator may not import ui" rule was uncovered once I had cut rows, so I added that row and its mirror back.
+- `src/settings/topic-settings.ts` has `offersAll` flags per panel; since the "offers an All chip" test was cut as a constant restatement, flipping a flag no longer fails any test. The DOM test that checks the catalog's All chip only checks panels that offer one. Say if you want a one-line check restored.
+- The full planner file needed `vi.setConfig({ testTimeout: 60_000 })`: its replay test passed alone but hit Vitest's 5 s default when the other files competed for the processor.
+- One planner mutation (dropping the "unpicked topics first" filter) is equivalent behavior and cannot be caught.
+
+All nine support helpers are still used by two or more test files, so none was removed.
+
+Still to do: step 4 (two configs, `test:full`, CI change, delete the interim note in AGENTS.md), step 5 (re-measure; consider `--no-isolate`), step 6 (AGENTS.md section 8 rules).
