@@ -33,8 +33,9 @@ describe('parseSavedSettings with an empty store', () => {
         expect(empty.viewMode).toBe('normal');
     });
 
-    test.each(PANEL_IDS)('gives the %s panel default', (panel: PanelId) => {
-        expect(empty.panelSelections[panel]).toEqual(defaults[panel]);
+    test('gives every panel its default', () => {
+        const wrong = PANEL_IDS.filter((panel: PanelId) => JSON.stringify(empty.panelSelections[panel]) !== JSON.stringify(defaults[panel]));
+        expect(wrong).toEqual([]);
     });
 });
 
@@ -158,31 +159,23 @@ describe('parseSavedSettings round trip', () => {
         [VIEW_MODE_KEY]: JSON.stringify(original.viewMode)
     });
 
-    test('keeps the view mode', () => {
-        expect(roundTrip.viewMode).toBe('compact');
-    });
-
-    test('keeps valid topics', () => {
-        expect(roundTrip.selectedTopics).toEqual(original.selectedTopics);
-    });
-
-    test('keeps valid kana rows', () => {
-        expect(roundTrip.panelSelections.hiragana).toEqual(original.hiragana);
-    });
-
-    test('keeps valid cursive sets', () => {
-        expect(roundTrip.panelSelections.cursiveLetters).toEqual(original.cursiveLetters);
-    });
-
-    test('keeps a valid cursive layout', () => {
-        expect(roundTrip.panelSelections.cursiveLayout).toEqual(original.cursiveLayout);
-    });
-
-    test('keeps a valid level', () => {
-        expect(roundTrip.panelSelections.subtraction).toEqual(original.subtraction);
-    });
-
-    test('keeps a valid count', () => {
-        expect(roundTrip.halfPageCount).toBe(original.halfPageCount);
+    test('keeps every valid saved value', () => {
+        expect({
+            viewMode: roundTrip.viewMode,
+            selectedTopics: roundTrip.selectedTopics,
+            hiragana: roundTrip.panelSelections.hiragana,
+            cursiveLetters: roundTrip.panelSelections.cursiveLetters,
+            cursiveLayout: roundTrip.panelSelections.cursiveLayout,
+            subtraction: roundTrip.panelSelections.subtraction,
+            halfPageCount: roundTrip.halfPageCount
+        }).toEqual({
+            viewMode: original.viewMode,
+            selectedTopics: original.selectedTopics,
+            hiragana: original.hiragana,
+            cursiveLetters: original.cursiveLetters,
+            cursiveLayout: original.cursiveLayout,
+            subtraction: original.subtraction,
+            halfPageCount: original.halfPageCount
+        });
     });
 });
