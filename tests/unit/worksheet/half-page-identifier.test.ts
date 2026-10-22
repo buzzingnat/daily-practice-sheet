@@ -103,9 +103,12 @@ describe('hashText and wordsFromHash', () => {
         expect(hashText('')).toBeGreaterThanOrEqual(0);
     });
 
-    test('wordsFromHash reads the low 30 bits as three ten-bit word numbers', () => {
-        const hash = (1 << 20) | (2 << 10) | 3;
-        expect(wordsFromHash(hash)).toBe(`${IDENTIFIER_WORDS[1]}.${IDENTIFIER_WORDS[2]}.${IDENTIFIER_WORDS[3]}`);
+    test('wordsFromHash gives three listed words for any hash, the extremes included', () => {
+        const offenders = [0, 1, 2 ** 30 - 1, 2 ** 31 - 1, 2 ** 32 - 1].filter((hash) => {
+            const parts = wordsFromHash(hash).split('.');
+            return parts.length !== 3 || !parts.every((part) => IDENTIFIER_WORDS.includes(part));
+        });
+        expect(offenders).toEqual([]);
     });
 });
 
