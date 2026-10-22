@@ -49,7 +49,7 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
 
 ### Next up: small tasks (each fits one sitting)
 1. [ ] **Share the geography constants:** `exercises/geography/region-map-data.ts` repeats the topology and CSV URLs and the Russia and France codes from `exercises/geography/geography-exercise.ts`. Export them from one place.
-2. [ ] **Continuous integration:** `.github/workflows/pages.yaml` deploys to GitHub Pages on a push to `main` and runs `npm run build` (which type-checks), but nothing runs `npm test` or `npm run test:types` before it. Add a workflow, or a step ahead of the deploy, that runs both; use `.nvmrc` for the Node version.
+2. [x] **Continuous integration.** Done 2026-10-21, not yet run on GitHub: a new `.github/workflows/ci.yaml` runs `npm ci`, `npm test`, `npm run test:types` and `npm run build` on pull requests and on pushes to any branch but `main`; `pages.yaml` now runs the two test commands before it builds and deploys, so a failing test cannot ship.
 3. [ ] **Unit tests for `exercises/geography/region-map-data.ts`:** `buildRegionMapData` against the real TopoJSON and CSV in `public/maps/`, pinning the target pool sizes. Needs `@types/node` for `fs`, with approval.
 4. [ ] **`tests/manual-checklist.md`:** what only a human with a printer can check (PDF page counts, the 396pt cut line, map frames and fonts by eye, private-window storage).
 
@@ -379,3 +379,12 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * Longer translated text may not fit compact cards, the summary bar's one line or the 266pt exercise header. Fonts for non-Latin scripts are not in place.
     * Country names, hiragana pronunciation hints and the cursive emoji words are still English-only content.
     * During this work I overwrote the existing `tests/dom/ui/topic-card.test.ts` and `summary-bar.test.ts` by mistake, then restored them from git and added the new tests on top; the earlier note that the repo has no `tests/dom/` yet is out of date.
+
+### 2026-10-21 - Tests run in CI (Claude)
+* **Status:** Written, not committed, and not verified. The workflow commands were not run locally (the human skipped that step) and neither file has been parsed as YAML here; the first run on GitHub is the first check.
+* **Accomplished:**
+    * New `.github/workflows/ci.yaml`: triggers on `pull_request` and on pushes to branches other than `main`; read-only permissions; one `test` job (checkout, Node from `.nvmrc` with the npm cache, `npm ci`, `npm test`, `npm run test:types`, `npm run build`); a newer push to the same ref cancels the older run.
+    * `.github/workflows/pages.yaml`: `npm test` and `npm run test:types` added between `npm ci` and `npm run build`. Triggers, permissions, environment and deploy steps are unchanged.
+* **Open Issues:**
+    * After pushing, look at the first runs: both workflows should be green, and a pull request should show the CI check.
+    * Consider making the CI check required in the repository's branch protection settings (a setting on GitHub, not in the repo), or a red check will not stop a merge.
