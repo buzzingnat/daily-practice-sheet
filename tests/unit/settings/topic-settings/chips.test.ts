@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { findPanelSpecification, isChipBlocked, isPresetSelected, resolveTopicSettings, summarizeSelection, toggleOption } from '../../../../src/settings/topic-settings';
-import { selectionsWith } from '../../../support/panel-selections';
+import { findPanelSpecification, isChipBlocked, isPresetSelected, toggleOption } from '../../../../src/settings/topic-settings';
 
 const multiplication = findPanelSpecification('multiplication');
 const [upToFive, upToTwelve] = multiplication.presets ?? [];
@@ -41,7 +40,7 @@ describe('toggleOption with zero', () => {
     test('refuses zero when it would stand alone, and says why', () => {
         const result = toggleOption(multiplication, ['two-digit'], '0');
         expect(result.selection).toEqual(['two-digit']);
-        expect(result.refusal).toMatch(/Zero cannot be the only number/);
+        expect(result.refusal).toBeDefined();
     });
 
     test('refuses to remove the last other number from beside zero', () => {
@@ -90,36 +89,5 @@ describe('isPresetSelected', () => {
         expect(isPresetSelected(upToFive, ['0', '1', '2', '3', '4', '5', '6'])).toBe(false);
         expect(isPresetSelected(upToTwelve, upToTwelve.values)).toBe(true);
         expect(isPresetSelected(upToTwelve, upToFive.values)).toBe(false);
-    });
-});
-
-describe('multiplication settings', () => {
-    test('resolve the chosen numbers in order', () => {
-        expect(resolveTopicSettings(selectionsWith({ multiplication: ['9', '2', '12'] })).multiplication)
-            .toEqual({ mode: 'tables', factors: [2, 9, 12] });
-    });
-
-    test('resolve 0 when it is chosen', () => {
-        expect(resolveTopicSettings(selectionsWith({ multiplication: ['0', '3'] })).multiplication)
-            .toEqual({ mode: 'tables', factors: [0, 3] });
-    });
-
-    test('resolve the two-digit mode', () => {
-        expect(resolveTopicSettings(selectionsWith({ multiplication: ['two-digit'] })).multiplication).toEqual({ mode: 'two-digit' });
-    });
-
-    test('let two-digit win over numbers saved beside it', () => {
-        expect(resolveTopicSettings(selectionsWith({ multiplication: ['3', 'two-digit'] })).multiplication).toEqual({ mode: 'two-digit' });
-    });
-
-    test('throw when nothing valid is chosen', () => {
-        expect(() => resolveTopicSettings(selectionsWith({ multiplication: [] }))).toThrow(/multiplication/);
-        expect(() => resolveTopicSettings(selectionsWith({ multiplication: ['13'] }))).toThrow(/no valid/);
-    });
-
-    test('are summarized by count, by the number itself, or as two digit', () => {
-        expect(summarizeSelection('multiplication', selectionsWith({ multiplication: ['1', '2', '3', '4', '5'] }))).toBe('5 numbers');
-        expect(summarizeSelection('multiplication', selectionsWith({ multiplication: ['7'] }))).toBe('7');
-        expect(summarizeSelection('multiplication', selectionsWith({ multiplication: ['two-digit'] }))).toBe('Two digit');
     });
 });

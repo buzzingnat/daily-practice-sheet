@@ -16,14 +16,19 @@ describe('resolveTopicSettings', () => {
         });
     });
 
-    describe.each(LEVEL_TOPICS)('the %s level', (topic: LevelTopics) => {
-        test.each(GRADE_LEVELS)('resolves %s', (level: GradeLevel) => {
-            expect(resolveTopicSettings(selectionsWith({ [topic]: [level] }))[topic]).toEqual({ level });
+    test('resolves every level of every level topic, and takes the lowest when several are somehow chosen', () => {
+        const offenders: string[] = [];
+        LEVEL_TOPICS.forEach((topic: LevelTopics) => {
+            GRADE_LEVELS.forEach((level: GradeLevel) => {
+                if (resolveTopicSettings(selectionsWith({ [topic]: [level] }))[topic].level !== level) {
+                    offenders.push(`${topic} at ${level}`);
+                }
+            });
+            if (resolveTopicSettings(selectionsWith({ [topic]: ['3rd', '2nd'] }))[topic].level !== '2nd') {
+                offenders.push(`${topic} with several levels`);
+            }
         });
-
-        test('takes the lowest level when several are somehow chosen', () => {
-            expect(resolveTopicSettings(selectionsWith({ [topic]: ['3rd', '2nd'] }))[topic]).toEqual({ level: '2nd' });
-        });
+        expect(offenders).toEqual([]);
     });
 
     test('keeps the chosen kana rows in chart order, whatever order they were chosen in', () => {
@@ -39,8 +44,9 @@ describe('resolveTopicSettings', () => {
             .toEqual(['s-m-a-t', 'b-f-o-g', 'd-w-e-n']);
     });
 
-    test.each(['one-large-line', 'two-lines'] as const)('resolves the %s cursive layout', (layout) => {
-        expect(resolveTopicSettings(selectionsWith({ cursiveLayout: [layout] })).cursiveLetters.layout).toBe(layout);
+    test('resolves each cursive layout', () => {
+        const layouts = ['one-large-line', 'two-lines'] as const;
+        expect(layouts.map((layout) => resolveTopicSettings(selectionsWith({ cursiveLayout: [layout] })).cursiveLetters.layout)).toEqual([...layouts]);
     });
 
     test('throws when the cursive layout holds nothing valid', () => {
@@ -79,13 +85,44 @@ describe('resolveTopicSettings', () => {
         expect(selections.hiragana).toEqual(['s', 'zz', 'k']);
     });
 
-    describe.each(CONFIGURABLE_TOPICS)('the %s panel with nothing valid chosen', (topic: ConfigurableTopic) => {
-        test('throws on an empty selection', () => {
-            expect(() => resolveTopicSettings(selectionsWith({ [topic]: [] }))).toThrow(topic);
+    test('throws for every panel when nothing valid is chosen, empty or only strays', () => {
+        const offenders: string[] = [];
+        CONFIGURABLE_TOPICS.forEach((topic: ConfigurableTopic) => {
+            try {
+                resolveTopicSettings(selectionsWith({ [topic]: [] }));
+                offenders.push(`${topic} with an empty selection did not throw`);
+            } catch (error) {
+                if (!(error instanceof Error) || !error.message.includes(topic)) {
+                    offenders.push(`${topic} with an empty selection threw the wrong error`);
+                }
+            }
+            try {
+                resolveTopicSettings(selectionsWith({ [topic]: ['bb', 'Scythia'] }));
+                offenders.push(`${topic} with only strays did not throw`);
+            } catch (error) {
+                if (!(error instanceof Error) || !/no valid/.test(error.message)) {
+                    offenders.push(`${topic} with only strays threw the wrong error`);
+                }
+            }
+        });
+        expect(offenders).toEqual([]);
+    });
+
+    describe('multiplication', () => {
+        test('resolves the chosen numbers in order, zero included', () => {
+            expect(resolveTopicSettings(selectionsWith({ multiplication: ['9', '2', '12'] })).multiplication)
+                .toEqual({ mode: 'tables', factors: [2, 9, 12] });
+            expect(resolveTopicSettings(selectionsWith({ multiplication: ['0', '3'] })).multiplication)
+                .toEqual({ mode: 'tables', factors: [0, 3] });
         });
 
-        test('throws when only strays remain', () => {
-            expect(() => resolveTopicSettings(selectionsWith({ [topic]: ['bb', 'Scythia'] }))).toThrow(/no valid/);
+        test('resolves the two-digit mode, which wins over numbers saved beside it', () => {
+            expect(resolveTopicSettings(selectionsWith({ multiplication: ['two-digit'] })).multiplication).toEqual({ mode: 'two-digit' });
+            expect(resolveTopicSettings(selectionsWith({ multiplication: ['3', 'two-digit'] })).multiplication).toEqual({ mode: 'two-digit' });
+        });
+
+        test('throws when nothing valid is chosen', () => {
+            expect(() => resolveTopicSettings(selectionsWith({ multiplication: ['13'] }))).toThrow(/no valid/);
         });
     });
 });
