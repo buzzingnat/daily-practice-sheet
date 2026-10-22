@@ -233,3 +233,9 @@ Differences from the table I proposed:
 All nine support helpers are still used by two or more test files, so none was removed.
 
 Still to do: step 4 (two configs, `test:full`, CI change, delete the interim note in AGENTS.md), step 5 (re-measure; consider `--no-isolate`), step 6 (AGENTS.md section 8 rules).
+
+### Step 4 done: two tiers (2026-10-22)
+- `vitest.config.mts` is the quick suite: `tests/unit/**` minus `*.full.test.ts`. New `vitest.full.config.mts` runs all of `tests/` with `fsModuleCache: false`. They share nothing but one `environment: 'node'` line (importing one config from the other fails the type-check, and a one-line duplicate is cheaper than a workaround).
+- `package.json`: `test:full` and `pretest:full` (the same Node check and type-check). `tests/tsconfig.json` lists both configs. `ci.yaml` and `pages.yaml` now run `npm run test:full`, so a deploy passes the full suite too.
+- `AGENTS.md`: the interim note is gone; section 8's config line and the Verification Commands describe both tiers. `readme.md` documents `test:full`.
+- Measured, three runs each. Quick: 30 files, 243 tests, 0.72 to 0.83 s in Vitest (about 1.5 s with the type-check and Node check that `npm test` adds). Full: 37 files, 276 tests, 5.4 to 5.7 s.

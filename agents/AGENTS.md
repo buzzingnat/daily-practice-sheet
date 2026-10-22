@@ -165,8 +165,8 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 * Tests that run over many cases (every topic selection, every seed) collect all offenders into a list and expect the list to be empty, so one failure names every case it broke.
 * Randomness is injected. Use `createSeededRandom` from `tests/support/seeded-random.ts`; never `Math.random()` in a test.
 * A new rule in a planner, deck or parser gets a test. Confirm the test can fail by breaking the rule on purpose once, then restore it.
-* `vitest.config.mts` sets `fsModuleCache: false`, because the architecture test lists `src/` with `import.meta.glob` and a cached transform would keep the first list it saw. `tests/support/vite-types.d.ts` gives the tests Vite's `import.meta.glob` types.
-* `tests/tsconfig.json` extends the root config and adds `tests/` and the Vitest config (`vitest.config.mts`, in the project root). The root `tsconfig.json` stays browser-only (`types: []`, `rootDir: ./src`).
+* `vitest.config.mts` is the quick suite: `tests/unit/` only, minus `*.full.test.ts`. `vitest.full.config.mts` is the full suite: all of `tests/`, with `fsModuleCache: false`, because the architecture test lists `src/` with `import.meta.glob` and a cached transform would keep the first list it saw. `tests/support/vite-types.d.ts` gives the tests Vite's `import.meta.glob` types.
+* `tests/tsconfig.json` extends the root config and adds `tests/` and the two Vitest configs (`vitest.config.mts` and `vitest.full.config.mts`, in the project root). The root `tsconfig.json` stays browser-only (`types: []`, `rootDir: ./src`).
 
 ### 9. State & Styling
 * **Vanilla CSS:** Mobile-first, using standard media queries. Prefer Flexbox over other positioning.
@@ -181,7 +181,7 @@ Whenever you are initialized or assigned a new task, you must operate within thi
 2. **The Plan Phase:** For any non-trivial task, do not write code immediately. Create or update `plan.md` mapping out the files you intend to create or change, your architectural reasoning, and type interfaces. Wait for human validation.
 3. **The Act Phase:** Execute the code changes in isolation. Keep git commits or task payloads scoped to one cohesive feature or component at a time.
 4. **The Handoff Phase:** Once tasks pass local TypeScript verification (`npm run build` or `tsc --noEmit`), document your changes at the bottom of `progress.md` under the "Active Session Ledger" section, then clear out the temporary `plan.md`.
-5. **The Merge Prompt:** At the end of every medium or large code change, before the human merges its feature branch into `main`, close your final message by prompting the human to run the full test suite (`npm run test:full`), naming the branch. A change is medium or large when it touches more than a few files or changes what a module does; typo, comment, docs-only and one-line fixes are exempt. Run it yourself too if you can, and report the result faithfully. Never merge into `main` yourself. (Until the test-pruning plan adds `test:full`, `npm test` is the full suite.)
+5. **The Merge Prompt:** At the end of every medium or large code change, before the human merges its feature branch into `main`, close your final message by prompting the human to run the full test suite (`npm run test:full`), naming the branch. A change is medium or large when it touches more than a few files or changes what a module does; typo, comment, docs-only and one-line fixes are exempt. Run it yourself too if you can, and report the result faithfully. Never merge into `main` yourself.
 
 ---
 
@@ -189,5 +189,5 @@ Whenever you are initialized or assigned a new task, you must operate within thi
 Before marking a task as complete, you are expected to run (or request the human to run) these validation blocks to verify your work:
 * **Type Check (Continuous):** `npm run dev:types`
 * **Production Build Check:** `npm run build` (its `prebuild` hook checks the Node version and runs `tsc --noEmit` first)
-* **Tests:** `npm test` (one pass; its `pretest` hook checks the Node version and type-checks `src/` first) or `npm run test:watch` (watch mode). Run the full suite before merging a medium or large change (see step 5 above).
+* **Tests:** `npm test` (the quick suite, one pass; its `pretest` hook checks the Node version and type-checks `src/` first) or `npm run test:watch` (watch mode). `npm run test:full` runs the full suite (the quick tests plus the slow ones), with the same hook. Run the full suite before merging a medium or large change (see step 5 above); CI and the Pages deploy run it too.
 * **Test Type Check:** `npm run test:types` (continuous: `npm run dev:test-types`, which `npm run dev` also starts)
