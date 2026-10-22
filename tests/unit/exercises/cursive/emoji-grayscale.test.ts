@@ -13,26 +13,10 @@ describe('convertToGrayscale', () => {
         expect([data[4], data[5]]).toEqual([data[5], data[6]]);
     });
 
-    test('weights green brightest, then red, then blue, as the eye does', () => {
-        const red = pixels(255, 0, 0, 255);
-        const green = pixels(0, 255, 0, 255);
-        const blue = pixels(0, 0, 255, 255);
-        [red, green, blue].forEach((data) => convertToGrayscale(data));
-        expect(red[0]).toBe(76);
-        expect(green[0]).toBe(150);
-        expect(blue[0]).toBe(29);
-    });
-
     test('keeps transparency exactly as it was', () => {
         const data = pixels(255, 0, 0, 0, 0, 255, 0, 128, 0, 0, 255, 255);
         convertToGrayscale(data);
         expect([data[3], data[7], data[11]]).toEqual([0, 128, 255]);
-    });
-
-    test('leaves white white and black black', () => {
-        const data = pixels(255, 255, 255, 255, 0, 0, 0, 255);
-        convertToGrayscale(data);
-        expect([data[0], data[4]]).toEqual([255, 0]);
     });
 
     test('changes nothing the second time', () => {

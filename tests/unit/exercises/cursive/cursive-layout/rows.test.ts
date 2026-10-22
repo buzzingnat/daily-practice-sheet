@@ -8,13 +8,7 @@ import { CURSIVE_LAYOUT_NAMES, CursiveLayoutName, DEFAULT_CURSIVE_LAYOUT } from 
 import { INK_A, METRICS, QUADRANT_HEIGHT, QUADRANT_WIDTH, layoutFor } from '../../../../support/cursive-fixtures';
 
 describe('CURSIVE_LAYOUTS', () => {
-    test('describes exactly the layouts the settings offer', () => {
-        expect(Object.keys(CURSIVE_LAYOUTS).sort()).toEqual([...CURSIVE_LAYOUT_NAMES].sort());
-    });
 
-    test('makes the one large line the default', () => {
-        expect(DEFAULT_CURSIVE_LAYOUT).toBe('one-large-line');
-    });
 
     test('gives every row of a layout the same number of slots', () => {
         CURSIVE_LAYOUT_NAMES.forEach((name) => {

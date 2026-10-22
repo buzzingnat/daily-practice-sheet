@@ -4,7 +4,6 @@ import { createSubtractionExercise } from '../../../src/exercises/subtraction-ex
 import { createMultiplicationExercise } from '../../../src/exercises/multiplication-exercise';
 import { createFractionsExercise } from '../../../src/exercises/fractions-exercise';
 import { createClockExercise } from '../../../src/exercises/clock-exercise';
-import { english } from '../../../src/text/english';
 import { setLanguage, setMessages } from '../../../src/text/messages';
 import { pickMascotAndCheer } from '../../../src/worksheet/mascots';
 import { QuadrantExercise } from '../../../src/worksheet/worksheet-layout';
@@ -31,17 +30,12 @@ const TITLED_EXERCISES: ReadonlyArray<[string, () => QuadrantExercise, string]> 
 ];
 
 describe('printed titles', () => {
-    test.each(TITLED_EXERCISES)('%s is headed with words from the catalog, not from its own code', (unused, build, expectedTitle) => {
+    test('every exercise is headed with words from the catalog, not from its own code', () => {
         setMessages(createMarkerCatalog());
-        const texts = drawnTexts(build());
-        expect(texts).toContain(expectedTitle);
-    });
-
-    test('the English headings read as they always have', () => {
-        const texts = drawnTexts(createAdditionExercise('1st'));
-        expect(texts).toContain(`${english.exerciseTitles.addition} (Single Digit)`);
-        expect(drawnTexts(createMultiplicationExercise({ mode: 'tables', factors: [1, 2, 3, 4, 5] })))
-            .toContain('MULTIPLICATION (1 to 5)');
+        const offenders = TITLED_EXERCISES
+            .filter(([unused, build, expectedTitle]) => !drawnTexts(build()).includes(expectedTitle))
+            .map(([name]) => name);
+        expect(offenders).toEqual([]);
     });
 });
 

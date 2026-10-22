@@ -25,8 +25,9 @@ describe('KANA_ROW_CARDS', () => {
         expect(Object.keys(KANA_ROW_CARDS).sort()).toEqual([...KANA_ROWS].sort());
     });
 
-    test.each(KANA_ROWS)('has the expected number of cards in the %s row', (row) => {
-        expect(KANA_ROW_CARDS[row]).toHaveLength(EXPECTED_CARDS_PER_ROW[row]);
+    test('has the expected number of cards in every row', () => {
+        const wrong = KANA_ROWS.filter((row) => KANA_ROW_CARDS[row].length !== EXPECTED_CARDS_PER_ROW[row]);
+        expect(wrong).toEqual([]);
     });
 
     test('holds all 46 basic characters', () => {
@@ -74,8 +75,9 @@ describe('listKanaCards', () => {
         expect(listKanaCards([])).toEqual([]);
     });
 
-    test.each(KANA_ROWS)('returns the %s row on its own', (row) => {
-        expect(listKanaCards([row])).toEqual(KANA_ROW_CARDS[row]);
+    test('returns each row on its own', () => {
+        const wrong = KANA_ROWS.filter((row) => JSON.stringify(listKanaCards([row])) !== JSON.stringify(KANA_ROW_CARDS[row]));
+        expect(wrong).toEqual([]);
     });
 
     test('returns every card when every row is chosen', () => {

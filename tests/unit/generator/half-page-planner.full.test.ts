@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { TOPIC_KEYS, TopicKey } from '../../../src/types';
 import {
     countSameQuadrantRepeats,
@@ -8,6 +8,9 @@ import {
 } from '../../support/half-page-planner-rules';
 
 const SEEDS_PER_SELECTION = 30;
+
+// Replaying every selection x seed takes seconds, and more when other test files compete for the processor
+vi.setConfig({ testTimeout: 60_000 });
 
 // Every non-empty subset of the topics, so no combination a human can click goes unplanned
 function allNonEmptySelections(): TopicKey[][] {

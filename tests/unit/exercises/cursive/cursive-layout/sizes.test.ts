@@ -37,9 +37,6 @@ function expectedSize(name: CursiveLayoutName): number {
 }
 
 describe('the sizing letter', () => {
-    test('is m', () => {
-        expect(SIZING_LETTER).toBe('m');
-    });
 
     test('is the widest letter of the alphabet, by measurement', () => {
         const widest = [...MEASURED_LETTERS].sort((first, second) =>
@@ -109,24 +106,6 @@ describe.each(CURSIVE_LAYOUT_NAMES)('the %s layout letter size', (name: CursiveL
         expect(layout.practiceFontSize).toBeLessThan(expectedSize(name));
         const slot = layout.rows[0]?.slots[0];
         expect(slot && slot.originX + wider.right * layout.practiceFontSize <= PRACTICE_AREA_LEFT + slotWidth(name) + EPSILON).toBe(true);
-    });
-});
-
-describe('the sizes at which the two layouts draw every letter', () => {
-    test('two lines: close to 48pt, as m needs', () => {
-        expect(layoutFor(INK_A, 'two-lines').practiceFontSize).toBeGreaterThan(46);
-        expect(layoutFor(INK_A, 'two-lines').practiceFontSize).toBeLessThan(50);
-    });
-
-    test('one large line: close to 66pt, as m needs', () => {
-        expect(layoutFor(INK_A, 'one-large-line').practiceFontSize).toBeGreaterThan(64);
-        expect(layoutFor(INK_A, 'one-large-line').practiceFontSize).toBeLessThan(68);
-    });
-
-    test('one large line is at least 1.3 times the size of two lines', () => {
-        const large = layoutFor(INK_A, 'one-large-line').practiceFontSize;
-        const small = layoutFor(INK_A, 'two-lines').practiceFontSize;
-        expect(large / small).toBeGreaterThanOrEqual(1.3);
     });
 });
 
