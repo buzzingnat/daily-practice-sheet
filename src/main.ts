@@ -11,6 +11,7 @@ import { createCursiveExercise } from './exercises/cursive/cursive-exercise';
 import { loadCursiveFonts } from './exercises/cursive/cursive-fonts';
 import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWorksheetBatch } from './worksheet/worksheet-layout';
 import { preloadMascotImages } from './worksheet/mascots';
+import { getMessages } from './text/messages';
 import { createPlaceholderExercise, createBlankExercise } from './utils';
 import { loadGeographyData, createGeographyExercise } from './exercises/geography/geography-exercise';
 import { loadRegionMapData } from './exercises/geography/region-map-data';
@@ -265,7 +266,7 @@ function renderMainInitial() {
     const introSection = document.createElement('section');
     introSection.id = 'intro-section';
     const instructionPara = document.createElement('p');
-    instructionPara.textContent = 'Select up to six topics below. Choose how many half-pages to print. Each half-page mixes the selected topics across its quadrants.';
+    instructionPara.textContent = getMessages().ui.page.introduction;
     introSection.appendChild(instructionPara);
     mainElement.appendChild(introSection);
 
@@ -323,7 +324,26 @@ export function renderApp() {
     }
 }
 
+// The page's own words come from the catalog, so the HTML holds structure and nothing a translator would need to touch
+function applyPageWords(): void {
+    const words = getMessages().ui.page;
+    document.documentElement.lang = words.languageCode;
+    document.title = words.title;
+    const setText = (id: string, text: string): void => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = text;
+        }
+    };
+    setText('page-heading', words.heading);
+    setText('page-subheading', words.subheading);
+    setText('credit-before-link', words.creditBeforeLink);
+    setText('credit-after-link', words.creditAfterLink);
+    document.getElementById('logo')?.setAttribute('alt', words.logoAlt);
+}
+
 async function initializeApp() {
+    applyPageWords();
     try {
         // preload all image assets
         const [kanaGuide] = await Promise.all([

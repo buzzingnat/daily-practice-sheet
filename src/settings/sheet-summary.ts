@@ -8,8 +8,6 @@ import {
 import { TopicKey } from '../types';
 import { getMessages } from '../text/messages';
 
-export const NOTHING_CHOSEN_TEXT = 'Nothing chosen yet. Add a topic below.';
-
 // More than this many chosen items are counted rather than listed, so the short line stays short
 const MAXIMUM_LISTED_IN_SHORT = 3;
 
@@ -21,6 +19,7 @@ export interface SheetSummary {
 }
 
 function describePanel(specification: PanelSpecification, selections: PanelSelections, isShort: boolean): string {
+    const summaryWords = getMessages().ui.summary;
     const choices = listChoices(specification);
     const chosen = choices.filter((option) => selections[specification.id].includes(option.value));
     const nameOf = (option: { label: string; shortLabel?: string }): string => {
@@ -31,11 +30,11 @@ function describePanel(specification: PanelSpecification, selections: PanelSelec
         const option = chosen[0];
         return option ? nameOf(option).toLowerCase() : '';
     } else if (chosen.length === choices.length) {
-        return 'all';
+        return summaryWords.all;
     } else if (isShort && chosen.length > MAXIMUM_LISTED_IN_SHORT) {
-        return `${chosen.length} ${specification.summaryNoun}`;
+        return summaryWords.countOf(chosen.length, specification.summaryNoun);
     } else {
-        return chosen.map(nameOf).join(isShort ? ' ' : ', ');
+        return summaryWords.joinChoices(chosen.map(nameOf), isShort);
     }
 }
 
@@ -48,17 +47,17 @@ export function describeTopicDetail(topic: TopicKey, selections: PanelSelections
     if (!configurableTopic) {
         return '';
     }
-    return findPanelSpecifications(configurableTopic)
+    const details = findPanelSpecifications(configurableTopic)
         .map((specification) => describePanel(specification, selections, isShort))
-        .filter((detail) => detail !== '')
-        .join(isShort ? ' ' : '; ');
+        .filter((detail) => detail !== '');
+    return getMessages().ui.summary.joinPanels(details, isShort);
 }
 
 function describeTopic(topic: TopicKey, selections: PanelSelections, isShort: boolean): string {
     const names = getMessages().topics[topic];
     const name = isShort ? names.shortName : names.name;
     const detail = describeTopicDetail(topic, selections, isShort);
-    return detail !== '' ? `${name}: ${detail}` : name;
+    return detail !== '' ? getMessages().ui.summary.topicLine(name, detail) : name;
 }
 
 /**
@@ -67,11 +66,12 @@ function describeTopic(topic: TopicKey, selections: PanelSelections, isShort: bo
  * name different things.
  */
 export function describeSheet(selectedTopics: readonly TopicKey[], selections: PanelSelections): SheetSummary {
+    const summaryWords = getMessages().ui.summary;
     if (selectedTopics.length === 0) {
-        return { full: NOTHING_CHOSEN_TEXT, short: NOTHING_CHOSEN_TEXT };
+        return { full: summaryWords.nothingChosen, short: summaryWords.nothingChosen };
     }
     return {
-        full: selectedTopics.map((topic) => `${describeTopic(topic, selections, false)}.`).join(' '),
-        short: selectedTopics.map((topic) => describeTopic(topic, selections, true)).join(' · ')
+        full: summaryWords.joinTopics(selectedTopics.map((topic) => describeTopic(topic, selections, false)), false),
+        short: summaryWords.joinTopics(selectedTopics.map((topic) => describeTopic(topic, selections, true)), true)
     };
 }

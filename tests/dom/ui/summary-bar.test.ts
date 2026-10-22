@@ -1,6 +1,9 @@
 // @vitest-environment jsdom
-import { describe, expect, test, vi } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { createSummaryBar, SummaryBarState } from '../../../src/ui/summary-bar';
+import { setLanguage, setMessages } from '../../../src/text/messages';
+import { createMarkerCatalog } from '../../support/marker-catalog';
+import { collectWords, findUnmarkedWords } from '../../support/visible-words';
 
 const baseState: SummaryBarState = {
     selectedTopicCount: 4,
@@ -124,5 +127,36 @@ describe('createSummaryBar', () => {
         bar.element.querySelector<HTMLButtonElement>('.summary-collapse')?.click();
         bar.update({ ...baseState, selectedTopicCount: 5 });
         expect(bar.element.classList.contains('collapsed')).toBe(true);
+    });
+});
+
+describe('createSummaryBar words', () => {
+    const handlers = { onViewModeChange: vi.fn(), onHalfPageCountChange: vi.fn(), onMake: vi.fn() };
+
+    afterEach(() => {
+        setLanguage('en');
+    });
+
+    test('writes no English of its own, in either view', () => {
+        setMessages(createMarkerCatalog());
+        const offenders: string[] = [];
+        for (const viewMode of ['normal', 'compact'] as const) {
+            const bar = createSummaryBar({ ...baseState, viewMode, fullSummary: 'summary:full', shortSummary: 'summary:short' }, handlers);
+            findUnmarkedWords(collectWords(bar.element)).forEach((word) => offenders.push(`${viewMode}: ${word}`));
+        }
+        expect(offenders).toEqual([]);
+    });
+
+    test('hands the count line the numbers and lets the catalog say them', () => {
+        setMessages(createMarkerCatalog());
+        const bar = createSummaryBar(baseState, handlers);
+        expect(bar.element.querySelector('.summary-count')?.textContent).toBe('bar:count:4:6:1');
+        expect(bar.element.querySelector('.make-button')?.textContent).toBe('bar:make');
+    });
+
+    test('labels the bar in English as it always has', () => {
+        const bar = createSummaryBar(baseState, handlers);
+        expect(bar.element.querySelector('.make-button')?.textContent).toBe('Make');
+        expect(bar.element.getAttribute('aria-label')).toBe('Your sheet');
     });
 });

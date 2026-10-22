@@ -9,8 +9,7 @@ import {
     toggleOption
 } from '../settings/topic-settings';
 import { TopicKey } from '../types';
-
-const ALL_CHIP_LABEL = 'All';
+import { getMessages } from '../text/messages';
 
 /**
  * A group of radio buttons dressed as a segmented control. A radio group
@@ -105,7 +104,7 @@ function buildMultipleChoice(
     };
 
     if (specification.offersAll) {
-        allChip = makeChip(ALL_CHIP_LABEL);
+        allChip = makeChip(getMessages().ui.settings.allChip);
         allChip.addEventListener('click', () => {
             selections[panelId] = specification.options.map((option) => option.value);
             showRefusal(undefined);

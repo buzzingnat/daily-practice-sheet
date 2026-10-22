@@ -23,8 +23,6 @@ export interface TopicCardHandlers {
     onSettingsChange(): void;
 }
 
-const LOCKED_HINT = 'Remove a topic to add this one';
-
 /**
  * One card per topic: the example on top, then the name with its on/off toggle, a
  * one-line summary, and the settings while the topic is chosen. The card holds no
@@ -35,7 +33,8 @@ export function createTopicCard(
     selections: PanelSelections,
     handlers: TopicCardHandlers
 ): TopicCard {
-    const label = getMessages().topics[topic].name;
+    const messages = getMessages();
+    const label = messages.topics[topic].name;
     let isSelected = false;
     let viewMode: ViewMode = 'normal';
     let fullSummary = '';
@@ -49,7 +48,7 @@ export function createTopicCard(
     const previewSlot = document.createElement('div');
     previewSlot.classList.add('topic-preview');
     previewSlot.setAttribute('role', 'img');
-    previewSlot.setAttribute('aria-label', `${label} example`);
+    previewSlot.setAttribute('aria-label', messages.ui.topicCard.exampleLabel(label));
 
     const header = document.createElement('div');
     header.classList.add('topic-header');
@@ -74,7 +73,7 @@ export function createTopicCard(
 
     const lockedHint = document.createElement('p');
     lockedHint.classList.add('topic-locked-hint');
-    lockedHint.textContent = LOCKED_HINT;
+    lockedHint.textContent = messages.ui.topicCard.lockedHint;
     lockedHint.hidden = true;
 
     element.appendChild(previewSlot);
@@ -85,7 +84,7 @@ export function createTopicCard(
 
     const showToggleState = (): void => {
         toggle.setAttribute('aria-pressed', String(isSelected));
-        toggle.textContent = isSelected ? 'Added' : 'Add';
+        toggle.textContent = isSelected ? messages.ui.topicCard.added : messages.ui.topicCard.add;
         element.classList.toggle('selected', isSelected);
     };
     showToggleState();

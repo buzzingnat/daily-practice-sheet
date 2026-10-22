@@ -16,6 +16,8 @@ import {
     TopicKey,
     TopicSettings
 } from '../types';
+import { OptionWords } from '../text/message-catalog';
+import { getMessages } from '../text/messages';
 
 export interface ChoiceOption {
     // Compared in code
@@ -66,109 +68,124 @@ const MULTIPLICATION_FACTORS: readonly number[] = Array.from({ length: 13 }, (un
 
 const GRADE_LEVELS: readonly GradeLevel[] = ['1st', '2nd', '3rd'];
 
-const ADDITION_OPTIONS: readonly ChoiceOption[] = [
-    { value: '1st', label: 'Single digit', shortLabel: '1-dig' },
-    { value: '2nd', label: 'Double digit', shortLabel: '2-dig' },
-    { value: '3rd', label: 'Triple digit', shortLabel: '3-dig' }
-];
+// A chip whose words are looked up when read, so a change of language reaches chips already built
+function wordedOption(value: string, findWords: () => OptionWords): ChoiceOption {
+    return {
+        value,
+        get label(): string {
+            return findWords().label;
+        },
+        get shortLabel(): string {
+            return findWords().shortLabel;
+        }
+    };
+}
 
-const SUBTRACTION_OPTIONS: readonly ChoiceOption[] = [
-    { value: '1st', label: 'Up to 20', shortLabel: 'To 20' },
-    { value: '2nd', label: 'Double digit', shortLabel: '2-dig' },
-    { value: '3rd', label: 'Triple digit', shortLabel: '3-dig' }
-];
+function gradeOptions(findLevels: () => Record<GradeLevel, OptionWords>): readonly ChoiceOption[] {
+    return GRADE_LEVELS.map((level) => wordedOption(level, () => findLevels()[level]));
+}
+
+const ADDITION_OPTIONS = gradeOptions(() => getMessages().ui.settings.additionLevels);
+
+const SUBTRACTION_OPTIONS = gradeOptions(() => getMessages().ui.settings.subtractionLevels);
 
 const MULTIPLICATION_OPTIONS: readonly ChoiceOption[] = MULTIPLICATION_FACTORS.map((factor) => {
     return { value: String(factor), label: String(factor) };
 });
 
-const MULTIPLICATION_TWO_DIGIT_OPTION: ChoiceOption = { value: MULTIPLICATION_TWO_DIGIT, label: 'Two digit', shortLabel: '2-dig' };
+const MULTIPLICATION_TWO_DIGIT_OPTION = wordedOption(MULTIPLICATION_TWO_DIGIT, () => getMessages().ui.settings.multiplication.twoDigit);
 
 const MULTIPLICATION_PRESETS: readonly ChoicePreset[] = [
-    { label: 'Up to 5', values: MULTIPLICATION_FACTORS.filter((factor) => factor <= 5).map(String) },
-    { label: 'Up to 12', values: MULTIPLICATION_FACTORS.filter((factor) => factor >= 1).map(String) }
+    {
+        get label(): string {
+            return getMessages().ui.settings.multiplication.upToFive;
+        },
+        values: MULTIPLICATION_FACTORS.filter((factor) => factor <= 5).map(String)
+    },
+    {
+        get label(): string {
+            return getMessages().ui.settings.multiplication.upToTwelve;
+        },
+        values: MULTIPLICATION_FACTORS.filter((factor) => factor >= 1).map(String)
+    }
 ];
 
 // The fraction levels differ by how finely the circle is cut
-const FRACTIONS_OPTIONS: readonly ChoiceOption[] = [
-    { value: '1st', label: 'Up to fourths', shortLabel: 'To 4ths' },
-    { value: '2nd', label: 'Up to eighths', shortLabel: 'To 8ths' },
-    { value: '3rd', label: 'Up to twelfths', shortLabel: 'To 12ths' }
-];
+const FRACTIONS_OPTIONS = gradeOptions(() => getMessages().ui.settings.fractionLevels);
 
-const KANA_ROW_OPTIONS: readonly ChoiceOption[] = [
-    { value: 'vowels', label: 'あ vowels', shortLabel: 'あ' },
-    { value: 'k', label: 'か k', shortLabel: 'か' },
-    { value: 's', label: 'さ s', shortLabel: 'さ' },
-    { value: 't', label: 'た t', shortLabel: 'た' },
-    { value: 'n', label: 'な n', shortLabel: 'な' },
-    { value: 'h', label: 'は h', shortLabel: 'は' },
-    { value: 'm', label: 'ま m', shortLabel: 'ま' },
-    { value: 'y', label: 'や y', shortLabel: 'や' },
-    { value: 'r', label: 'ら r', shortLabel: 'ら' },
-    { value: 'wn', label: 'わ w + n', shortLabel: 'わ' }
-];
+const KANA_ROW_OPTIONS: readonly ChoiceOption[] = KANA_ROWS.map((row) => {
+    return wordedOption(row, () => getMessages().ui.settings.kanaRows[row]);
+});
 
 // The Montessori sets, labeled the way a teacher says them: "s m a t"
 const CURSIVE_GROUP_OPTIONS: readonly ChoiceOption[] = CURSIVE_GROUPS.map((group) => {
     return { value: group, label: group.split('-').join(' ') };
 });
 
-const CURSIVE_LAYOUT_OPTIONS: readonly ChoiceOption[] = [
-    { value: 'one-large-line', label: 'One large line', shortLabel: '1 line' },
-    { value: 'two-lines', label: 'Two lines', shortLabel: '2 lines' }
-];
-
-const REGION_SHORT_LABELS: Record<PopulatedRegion, string> = {
-    'Africa': 'Afr',
-    'Asia': 'Asia',
-    'Central America': 'C.Am',
-    'Europe': 'Eur',
-    'North America': 'N.Am',
-    'Oceania': 'Oce',
-    'South America': 'S.Am'
-};
+const CURSIVE_LAYOUT_OPTIONS: readonly ChoiceOption[] = CURSIVE_LAYOUT_NAMES.map((layout) => {
+    return wordedOption(layout, () => getMessages().ui.settings.cursiveLayouts[layout]);
+});
 
 const REGION_OPTIONS: readonly ChoiceOption[] = POPULATED_REGIONS.map((region) => {
-    return { value: region, label: region, shortLabel: REGION_SHORT_LABELS[region] };
+    return wordedOption(region, () => getMessages().ui.settings.regions[region]);
 });
+
+// Everything about a panel but its words, which are read from the catalog each time they are asked for
+type PanelData = Omit<PanelSpecification, 'heading' | 'summaryNoun'>;
+
+function withPanelWords(data: PanelData): PanelSpecification {
+    return {
+        ...data,
+        get heading(): string {
+            return getMessages().ui.settings.panels[data.id].heading;
+        },
+        get summaryNoun(): string {
+            return getMessages().ui.settings.panels[data.id].summaryNoun;
+        }
+    };
+}
 
 // In topic order, which is the order the panels appear
 export const PANEL_SPECIFICATIONS: readonly PanelSpecification[] = [
-    {
-        id: 'fractions', topic: 'fractions', heading: 'Fractions', kind: 'single',
-        options: FRACTIONS_OPTIONS, defaultValues: ['1st'], summaryNoun: '', offersAll: false
-    },
-    {
-        id: 'addition', topic: 'addition', heading: 'Addition', kind: 'single',
-        options: ADDITION_OPTIONS, defaultValues: ['1st'], summaryNoun: '', offersAll: false
-    },
-    {
-        id: 'subtraction', topic: 'subtraction', heading: 'Subtraction', kind: 'single',
-        options: SUBTRACTION_OPTIONS, defaultValues: ['1st'], summaryNoun: '', offersAll: false
-    },
-    {
-        id: 'multiplication', topic: 'multiplication', heading: 'Multiplication', kind: 'multiple',
-        options: MULTIPLICATION_OPTIONS, defaultValues: ['1', '2', '3', '4', '5'], summaryNoun: 'numbers', offersAll: false,
+    withPanelWords({
+        id: 'fractions', topic: 'fractions', kind: 'single',
+        options: FRACTIONS_OPTIONS, defaultValues: ['1st'], offersAll: false
+    }),
+    withPanelWords({
+        id: 'addition', topic: 'addition', kind: 'single',
+        options: ADDITION_OPTIONS, defaultValues: ['1st'], offersAll: false
+    }),
+    withPanelWords({
+        id: 'subtraction', topic: 'subtraction', kind: 'single',
+        options: SUBTRACTION_OPTIONS, defaultValues: ['1st'], offersAll: false
+    }),
+    withPanelWords({
+        id: 'multiplication', topic: 'multiplication', kind: 'multiple',
+        options: MULTIPLICATION_OPTIONS, defaultValues: ['1', '2', '3', '4', '5'], offersAll: false,
         presets: MULTIPLICATION_PRESETS, exclusiveOption: MULTIPLICATION_TWO_DIGIT_OPTION,
-        needsCompanion: { value: '0', message: 'Zero cannot be the only number chosen. Choose at least one other number first.' }
-    },
-    {
-        id: 'hiragana', topic: 'hiragana', heading: 'Hiragana rows', kind: 'multiple',
-        options: KANA_ROW_OPTIONS, defaultValues: ['vowels'], summaryNoun: 'rows', offersAll: true
-    },
-    {
-        id: 'cursiveLetters', topic: 'cursiveLetters', heading: 'Cursive letters: sets', kind: 'multiple',
-        options: CURSIVE_GROUP_OPTIONS, defaultValues: ['s-m-a-t'], summaryNoun: 'sets', offersAll: true
-    },
-    {
-        id: 'cursiveLayout', topic: 'cursiveLetters', heading: 'Cursive letters: practice lines', kind: 'single',
-        options: CURSIVE_LAYOUT_OPTIONS, defaultValues: [DEFAULT_CURSIVE_LAYOUT], summaryNoun: '', offersAll: false
-    },
-    {
-        id: 'countries', topic: 'countries', heading: 'Countries: regions', kind: 'multiple',
-        options: REGION_OPTIONS, defaultValues: ['Africa'], summaryNoun: 'regions', offersAll: true
-    }
+        needsCompanion: {
+            value: '0',
+            get message(): string {
+                return getMessages().ui.settings.multiplication.zeroNeedsCompanion;
+            }
+        }
+    }),
+    withPanelWords({
+        id: 'hiragana', topic: 'hiragana', kind: 'multiple',
+        options: KANA_ROW_OPTIONS, defaultValues: ['vowels'], offersAll: true
+    }),
+    withPanelWords({
+        id: 'cursiveLetters', topic: 'cursiveLetters', kind: 'multiple',
+        options: CURSIVE_GROUP_OPTIONS, defaultValues: ['s-m-a-t'], offersAll: true
+    }),
+    withPanelWords({
+        id: 'cursiveLayout', topic: 'cursiveLetters', kind: 'single',
+        options: CURSIVE_LAYOUT_OPTIONS, defaultValues: [DEFAULT_CURSIVE_LAYOUT], offersAll: false
+    }),
+    withPanelWords({
+        id: 'countries', topic: 'countries', kind: 'multiple',
+        options: REGION_OPTIONS, defaultValues: ['Africa'], offersAll: true
+    })
 ];
 
 // Every chip a panel can hold a selection of: the options, then the exclusive one
@@ -327,16 +344,17 @@ function summarizePanel(specification: PanelSpecification, selections: PanelSele
     const chosen = selections[specification.id];
     const choices = listChoices(specification);
     const chosenOptions = choices.filter((option) => chosen.includes(option.value));
+    const summaryWords = getMessages().ui.summary;
 
     if (specification.kind === 'single') {
         const option = chosenOptions[0];
         return option ? option.label.toLowerCase() : '';
     } else if (chosenOptions.length === choices.length) {
-        return 'all';
+        return summaryWords.all;
     } else if (chosenOptions.length === 1 && chosenOptions[0]) {
         return chosenOptions[0].label;
     } else {
-        return `${chosenOptions.length} ${specification.summaryNoun}`;
+        return summaryWords.countOf(chosenOptions.length, specification.summaryNoun);
     }
 }
 
@@ -344,8 +362,8 @@ function summarizePanel(specification: PanelSpecification, selections: PanelSele
  * A few words for the topic button: each of the topic's panels summarized, joined by commas.
  */
 export function summarizeSelection(topic: ConfigurableTopic, selections: PanelSelections): string {
-    return findPanelSpecifications(topic)
+    const summaries = findPanelSpecifications(topic)
         .map((specification) => summarizePanel(specification, selections))
-        .filter((summary) => summary !== '')
-        .join(', ');
+        .filter((summary) => summary !== '');
+    return getMessages().ui.summary.joinButtonPanels(summaries);
 }

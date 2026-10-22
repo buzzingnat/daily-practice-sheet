@@ -1,3 +1,4 @@
+import { getMessages } from '../text/messages';
 import {
     clampHalfPageCount,
     describePrintSize,
@@ -75,10 +76,11 @@ export function createSummaryBar(initialState: SummaryBarState, handlers: Summar
     let state = initialState;
     let isExpanded = false;
     let isCollapsed = false;
+    const words = getMessages().ui.summaryBar;
 
     const element = document.createElement('section');
     element.classList.add('summary-bar');
-    element.setAttribute('aria-label', 'Your sheet');
+    element.setAttribute('aria-label', words.ariaLabel);
 
     const countRow = document.createElement('div');
     countRow.classList.add('summary-count-row');
@@ -86,14 +88,14 @@ export function createSummaryBar(initialState: SummaryBarState, handlers: Summar
     countLine.classList.add('summary-count');
     const stepper = document.createElement('div');
     stepper.classList.add('summary-stepper');
-    const decreaseButton = buildStepperButton('One fewer half-page', '-');
+    const decreaseButton = buildStepperButton(words.fewerHalfPages, '-');
     const halfPageInput = document.createElement('input');
     halfPageInput.type = 'number';
     halfPageInput.min = String(MINIMUM_HALF_PAGES);
     halfPageInput.max = String(MAXIMUM_HALF_PAGES);
     halfPageInput.step = '1';
-    halfPageInput.setAttribute('aria-label', 'Half-pages');
-    const increaseButton = buildStepperButton('One more half-page', '+');
+    halfPageInput.setAttribute('aria-label', words.halfPages);
+    const increaseButton = buildStepperButton(words.moreHalfPages, '+');
     // Decorative; the count line says the same thing in words. Normal view only.
     const pageDiagram = document.createElement('div');
     pageDiagram.classList.add('page-diagram');
@@ -130,13 +132,13 @@ export function createSummaryBar(initialState: SummaryBarState, handlers: Summar
     const viewToggle = document.createElement('div');
     viewToggle.classList.add('view-toggle');
     viewToggle.setAttribute('role', 'group');
-    viewToggle.setAttribute('aria-label', 'Card size');
+    viewToggle.setAttribute('aria-label', words.cardSize);
     const viewButtons = new Map<ViewMode, HTMLButtonElement>();
     (['compact', 'normal'] as const).forEach((viewMode) => {
         const button = document.createElement('button');
         button.type = 'button';
         button.classList.add('view-toggle-button');
-        button.setAttribute('aria-label', viewMode === 'compact' ? 'Compact view' : 'Normal view');
+        button.setAttribute('aria-label', viewMode === 'compact' ? words.compactView : words.normalView);
         button.appendChild(buildViewIcon(viewMode));
         button.addEventListener('click', () => handlers.onViewModeChange(viewMode));
         viewButtons.set(viewMode, button);
@@ -146,7 +148,7 @@ export function createSummaryBar(initialState: SummaryBarState, handlers: Summar
     makeButton.type = 'button';
     makeButton.id = MAKE_BUTTON_ID;
     makeButton.classList.add('make-button');
-    makeButton.textContent = 'Make';
+    makeButton.textContent = words.make;
     makeButton.addEventListener('click', handlers.onMake);
     buttonRow.append(viewToggle, makeButton);
 
@@ -164,10 +166,9 @@ export function createSummaryBar(initialState: SummaryBarState, handlers: Summar
         const isCompact = state.viewMode === 'compact';
         element.classList.toggle('collapsed', isCollapsed);
         collapseButton.setAttribute('aria-expanded', String(!isCollapsed));
-        collapseButton.setAttribute('aria-label', isCollapsed ? 'Grow the bar' : 'Shrink the bar');
+        collapseButton.setAttribute('aria-label', isCollapsed ? words.growBar : words.shrinkBar);
         const pageCount = describePrintSize(state.halfPageCount).pageCount;
-        countLine.textContent = `${state.selectedTopicCount} of ${state.maximumTopicCount} topics - `
-            + `${pageCount} ${pageCount === 1 ? 'page' : 'pages'}`;
+        countLine.textContent = words.topicsAndPages(state.selectedTopicCount, state.maximumTopicCount, pageCount);
 
         pageDiagram.hidden = isCompact;
         pageDiagram.replaceChildren();
@@ -195,7 +196,7 @@ export function createSummaryBar(initialState: SummaryBarState, handlers: Summar
         summaryText.classList.toggle('one-line', showsShortText);
         chevron.hidden = !isCompact;
         chevron.setAttribute('aria-expanded', String(isExpanded));
-        chevron.setAttribute('aria-label', isExpanded ? 'Show less' : 'Show full summary');
+        chevron.setAttribute('aria-label', isExpanded ? words.showLess : words.showFullSummary);
         chevron.textContent = isExpanded ? '▾' : '▴';
 
         viewButtons.forEach((button, viewMode) => {

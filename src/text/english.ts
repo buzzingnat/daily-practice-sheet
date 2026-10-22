@@ -71,5 +71,109 @@ export const english: MessageCatalog = {
         continentAnswerLabel: 'Continent:',
         countryAnswerLabel: 'Country:'
     },
+    ui: {
+        page: {
+            languageCode: 'en',
+            title: 'Daily Practice Sheet Generator',
+            heading: 'Daily Practice Sheet',
+            subheading: 'A generator for worksheet printables',
+            logoAlt: 'Daily Practice Sheet Logo',
+            introduction: 'Select up to six topics below. Choose how many half-pages to print. Each half-page mixes the selected topics across its quadrants.',
+            creditBeforeLink: 'spratth c 2026 \u00b7 Animal illustrations from ',
+            creditAfterLink: ' (CC0)'
+        },
+        summary: {
+            nothingChosen: 'Nothing chosen yet. Add a topic below.',
+            all: 'all',
+            countOf: (count, noun) => `${count} ${noun}`,
+            joinChoices: (items, isShort) => items.join(isShort ? ' ' : ', '),
+            joinPanels: (details, isShort) => details.join(isShort ? ' ' : '; '),
+            joinButtonPanels: (summaries) => summaries.join(', '),
+            topicLine: (name, detail) => `${name}: ${detail}`,
+            joinTopics: (lines, isShort) => (isShort ? lines.join(' · ') : lines.map((line) => `${line}.`).join(' '))
+        },
+        topicCard: {
+            add: 'Add',
+            added: 'Added',
+            lockedHint: 'Remove a topic to add this one',
+            exampleLabel: (topicName) => `${topicName} example`
+        },
+        summaryBar: {
+            ariaLabel: 'Your sheet',
+            fewerHalfPages: 'One fewer half-page',
+            halfPages: 'Half-pages',
+            moreHalfPages: 'One more half-page',
+            cardSize: 'Card size',
+            compactView: 'Compact view',
+            normalView: 'Normal view',
+            growBar: 'Grow the bar',
+            shrinkBar: 'Shrink the bar',
+            showLess: 'Show less',
+            showFullSummary: 'Show full summary',
+            make: 'Make',
+            topicsAndPages: (topicCount, maximumTopicCount, pageCount) => {
+                return `${topicCount} of ${maximumTopicCount} topics - ${pageCount} ${pageCount === 1 ? 'page' : 'pages'}`;
+            }
+        },
+        settings: {
+            allChip: 'All',
+            panels: {
+                fractions: { heading: 'Fractions', summaryNoun: '' },
+                addition: { heading: 'Addition', summaryNoun: '' },
+                subtraction: { heading: 'Subtraction', summaryNoun: '' },
+                multiplication: { heading: 'Multiplication', summaryNoun: 'numbers' },
+                hiragana: { heading: 'Hiragana rows', summaryNoun: 'rows' },
+                cursiveLetters: { heading: 'Cursive letters: sets', summaryNoun: 'sets' },
+                cursiveLayout: { heading: 'Cursive letters: practice lines', summaryNoun: '' },
+                countries: { heading: 'Countries: regions', summaryNoun: 'regions' }
+            },
+            additionLevels: {
+                '1st': { label: 'Single digit', shortLabel: '1-dig' },
+                '2nd': { label: 'Double digit', shortLabel: '2-dig' },
+                '3rd': { label: 'Triple digit', shortLabel: '3-dig' }
+            },
+            subtractionLevels: {
+                '1st': { label: 'Up to 20', shortLabel: 'To 20' },
+                '2nd': { label: 'Double digit', shortLabel: '2-dig' },
+                '3rd': { label: 'Triple digit', shortLabel: '3-dig' }
+            },
+            fractionLevels: {
+                '1st': { label: 'Up to fourths', shortLabel: 'To 4ths' },
+                '2nd': { label: 'Up to eighths', shortLabel: 'To 8ths' },
+                '3rd': { label: 'Up to twelfths', shortLabel: 'To 12ths' }
+            },
+            multiplication: {
+                twoDigit: { label: 'Two digit', shortLabel: '2-dig' },
+                upToFive: 'Up to 5',
+                upToTwelve: 'Up to 12',
+                zeroNeedsCompanion: 'Zero cannot be the only number chosen. Choose at least one other number first.'
+            },
+            kanaRows: {
+                vowels: { label: 'あ vowels', shortLabel: 'あ' },
+                k: { label: 'か k', shortLabel: 'か' },
+                s: { label: 'さ s', shortLabel: 'さ' },
+                t: { label: 'た t', shortLabel: 'た' },
+                n: { label: 'な n', shortLabel: 'な' },
+                h: { label: 'は h', shortLabel: 'は' },
+                m: { label: 'ま m', shortLabel: 'ま' },
+                y: { label: 'や y', shortLabel: 'や' },
+                r: { label: 'ら r', shortLabel: 'ら' },
+                wn: { label: 'わ w + n', shortLabel: 'わ' }
+            },
+            cursiveLayouts: {
+                'one-large-line': { label: 'One large line', shortLabel: '1 line' },
+                'two-lines': { label: 'Two lines', shortLabel: '2 lines' }
+            },
+            regions: {
+                'Africa': { label: 'Africa', shortLabel: 'Afr' },
+                'Asia': { label: 'Asia', shortLabel: 'Asia' },
+                'Central America': { label: 'Central America', shortLabel: 'C.Am' },
+                'Europe': { label: 'Europe', shortLabel: 'Eur' },
+                'North America': { label: 'North America', shortLabel: 'N.Am' },
+                'Oceania': { label: 'Oceania', shortLabel: 'Oce' },
+                'South America': { label: 'South America', shortLabel: 'S.Am' }
+            }
+        }
+    },
     titleWithLevel: (title, levelTag) => `${title} (${levelTag})`
 };

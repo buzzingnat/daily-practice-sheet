@@ -1,4 +1,18 @@
-import { GradeLevel, MultiplicationSettings, TopicKey } from '../types';
+import {
+    CursiveLayoutName,
+    GradeLevel,
+    KanaRow,
+    MultiplicationSettings,
+    PanelId,
+    PopulatedRegion,
+    TopicKey
+} from '../types';
+
+// A chip's words in full, and cut short for the compact view and the summary bar
+export interface OptionWords {
+    label: string;
+    shortLabel: string;
+}
 
 /**
  * Every word a person reads, for one language. Code names things by id (`TopicKey`, the specification
@@ -38,6 +52,70 @@ export interface MessageCatalog {
         answerKeyCheer: string;
         continentAnswerLabel: string;
         countryAnswerLabel: string;
+    };
+    ui: {
+        // The static page around the cards. The credit's link, a web address, stays in the page itself.
+        page: {
+            languageCode: string;
+            title: string;
+            heading: string;
+            subheading: string;
+            logoAlt: string;
+            introduction: string;
+            creditBeforeLink: string;
+            creditAfterLink: string;
+        };
+        // How a choice is told back to the person. Functions, so a language may join and punctuate in its own way.
+        summary: {
+            nothingChosen: string;
+            all: string;
+            countOf(count: number, noun: string): string;
+            joinChoices(items: readonly string[], isShort: boolean): string;
+            joinPanels(details: readonly string[], isShort: boolean): string;
+            joinButtonPanels(summaries: readonly string[]): string;
+            topicLine(name: string, detail: string): string;
+            joinTopics(lines: readonly string[], isShort: boolean): string;
+        };
+        topicCard: {
+            add: string;
+            added: string;
+            lockedHint: string;
+            // Read aloud for the picture of the example, which has no text of its own
+            exampleLabel(topicName: string): string;
+        };
+        summaryBar: {
+            ariaLabel: string;
+            fewerHalfPages: string;
+            halfPages: string;
+            moreHalfPages: string;
+            cardSize: string;
+            compactView: string;
+            normalView: string;
+            growBar: string;
+            shrinkBar: string;
+            showLess: string;
+            showFullSummary: string;
+            make: string;
+            // The count line: topics chosen of the most allowed, and the pages they fill
+            topicsAndPages(topicCount: number, maximumTopicCount: number, pageCount: number): string;
+        };
+        settings: {
+            allChip: string;
+            // The noun counts the chosen chips on a button ("3 regions"); panels that choose one thing leave it empty
+            panels: Record<PanelId, { heading: string; summaryNoun: string }>;
+            additionLevels: Record<GradeLevel, OptionWords>;
+            subtractionLevels: Record<GradeLevel, OptionWords>;
+            fractionLevels: Record<GradeLevel, OptionWords>;
+            multiplication: {
+                twoDigit: OptionWords;
+                upToFive: string;
+                upToTwelve: string;
+                zeroNeedsCompanion: string;
+            };
+            kanaRows: Record<KanaRow, OptionWords>;
+            cursiveLayouts: Record<CursiveLayoutName, OptionWords>;
+            regions: Record<PopulatedRegion, OptionWords>;
+        };
     };
     // A title with its level tag, as printed in the quadrant's heading
     titleWithLevel(title: string, levelTag: string): string;

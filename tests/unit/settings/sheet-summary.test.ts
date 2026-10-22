@@ -1,10 +1,14 @@
-import { describe, expect, test } from 'vitest';
-import { describeSheet, describeTopicDetail, NOTHING_CHOSEN_TEXT } from '../../../src/settings/sheet-summary';
+import { afterEach, describe, expect, test } from 'vitest';
+import { describeSheet, describeTopicDetail } from '../../../src/settings/sheet-summary';
+import { summarizeSelection } from '../../../src/settings/topic-settings';
+import { setLanguage, setMessages } from '../../../src/text/messages';
+import { createMarkerCatalog } from '../../support/marker-catalog';
+import { english } from '../../../src/text/english';
 import { selectionsWith } from '../../support/panel-selections';
 
 describe('describeSheet', () => {
     test('says so when nothing is chosen', () => {
-        expect(describeSheet([], selectionsWith({}))).toEqual({ full: NOTHING_CHOSEN_TEXT, short: NOTHING_CHOSEN_TEXT });
+        expect(describeSheet([], selectionsWith({}))).toEqual({ full: english.ui.summary.nothingChosen, short: english.ui.summary.nothingChosen });
     });
 
     test('writes a level topic in words and in short', () => {
@@ -55,5 +59,22 @@ describe('describeTopicDetail', () => {
 
     test('is empty for a topic without settings', () => {
         expect(describeTopicDetail('setTime', selectionsWith({}), false)).toBe('');
+    });
+});
+
+describe('the summary\'s own words', () => {
+    afterEach(() => {
+        setLanguage('en');
+    });
+
+    test('come from the catalog, in every part of a sentence', () => {
+        setMessages(createMarkerCatalog());
+        const selections = selectionsWith({ addition: ['2nd'], countries: ['Africa', 'Asia', 'Europe', 'Oceania'], hiragana: ['k', 's'] });
+        const summary = describeSheet(['addition', 'hiragana', 'countries'], selections);
+        expect(describeSheet([], selections).full).toBe('summary:nothingChosen');
+        expect(summary.short).toContain('summary:count:4:noun:countries');
+        expect(summary.short).toContain('summary:topic:');
+        expect(summary.full.startsWith('summary:topics:')).toBe(true);
+        expect(summarizeSelection('countries', selections)).toBe('summary:buttonPanels:summary:count:4:noun:countries');
     });
 });
