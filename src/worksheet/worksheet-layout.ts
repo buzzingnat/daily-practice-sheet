@@ -77,24 +77,6 @@ export function batchHasAnswers(workbookBatch: HalfPageLayout[][]): boolean {
     }));
 }
 
-// Helper to fetch the raw binary font and convert it to Base64
-async function loadFontAsBase64(url: string): Promise<string> {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            const base64String = reader.result as string;
-            if (!base64String) {
-                return Error('The font did not get saved correctly');
-            }
-            // Strip out the data URL prefix (e.g., "data:font/ttf;base64,")
-            resolve(base64String.split(",")[1] as string);
-        };
-        reader.readAsDataURL(blob);
-    });
-}
-
 /**
  * Creates a high-DPI canvas for a quadrant, runs the component renderer,
  * and embeds the final output into the jsPDF document.

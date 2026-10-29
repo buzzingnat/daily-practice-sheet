@@ -1,7 +1,6 @@
 import {
   buildCompositeWorksheet,
-  HalfPageLayout,
-  QuadrantExercise
+  HalfPageLayout
 } from './worksheet/worksheet-layout';
 import { createClockExercise } from './exercises/clock-exercise';
 import { createKanaExercise } from './exercises/kana/kana-exercise';
