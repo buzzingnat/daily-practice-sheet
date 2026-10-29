@@ -33,19 +33,18 @@ describe('clampHalfPageCount', () => {
         expect(clampHalfPageCount(Number.NaN)).toBe(DEFAULT_HALF_PAGES);
     });
 
-    test.each(EVERY_ALLOWED_COUNT)('leaves the valid count %i alone', (halfPageCount: number) => {
-        expect(clampHalfPageCount(halfPageCount)).toBe(halfPageCount);
+    test('leaves every valid count alone', () => {
+        const changed = EVERY_ALLOWED_COUNT.filter((halfPageCount) => clampHalfPageCount(halfPageCount) !== halfPageCount);
+        expect(changed).toEqual([]);
     });
 });
 
-describe.each(EVERY_ALLOWED_COUNT)('describePrintSize(%i)', (halfPageCount: number) => {
-    const description = describePrintSize(halfPageCount);
-
-    test('counts the pages touched', () => {
-        expect(description.pageCount).toBe(Math.ceil(halfPageCount / 2));
-    });
-
-    test('flags an odd half-page left over', () => {
-        expect(description.hasHalfPageRemainder).toBe(halfPageCount % 2 === 1);
+describe('describePrintSize', () => {
+    test('counts the pages touched, and flags an odd half-page left over, for every allowed count', () => {
+        const wrong = EVERY_ALLOWED_COUNT.filter((halfPageCount) => {
+            const description = describePrintSize(halfPageCount);
+            return description.pageCount !== Math.ceil(halfPageCount / 2) || description.hasHalfPageRemainder !== (halfPageCount % 2 === 1);
+        });
+        expect(wrong).toEqual([]);
     });
 });

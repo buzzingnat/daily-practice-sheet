@@ -13,6 +13,7 @@
     "predev": "npm run check-node",
     "pretest": "npm run check-node && tsc --noEmit",
     "pretest:watch": "npm run check-node && tsc --noEmit",
+    "pretest:full": "npm run check-node && tsc --noEmit",
     "prebuild": "npm run check-node && tsc --noEmit",
     "dev:build": "node build.js --watch",
     "dev:server": "servor dist index.html 3000 --reload",
@@ -22,7 +23,8 @@
     "build": "node build.js && esbuild src/main.ts --bundle --outfile=dist/bundle.js --minify --sourcemap",
     "test:watch": "vitest",
     "test:types": "tsc --noEmit -p tests",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:full": "vitest run --config vitest.full.config.mts"
   },
   "devDependencies": {
     "@types/d3": "^7.4.3",

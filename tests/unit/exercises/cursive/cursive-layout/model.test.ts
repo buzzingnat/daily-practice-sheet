@@ -18,9 +18,6 @@ import {
 } from '../../../../support/cursive-fixtures';
 
 describe('the model panel', () => {
-    test('has a model font limit of 84pt, a fifth larger than the earlier 70pt', () => {
-        expect(MODEL_FONT_SIZE_LIMIT).toBeCloseTo(70 * 1.2, 9);
-    });
 
     test.each(CURSIVE_LAYOUT_NAMES)('draws every letter at the limit on the %s layout, since the panel fits the widest', (name: CursiveLayoutName) => {
         MEASURED_LETTERS.forEach((letter) => {
@@ -72,9 +69,6 @@ describe('the picture under the model', () => {
         expect(layout.emoji.centerX).toBeCloseTo(MODEL_PANEL.left + MODEL_PANEL.width / 2, 9);
     });
 
-    test('is large enough to recognize: at least 20pt', () => {
-        expect(layout.emoji.fontSize).toBeGreaterThanOrEqual(20);
-    });
 
     test('is the same on every layout and for every letter', () => {
         MEASURED_LETTERS.forEach((letter) => {

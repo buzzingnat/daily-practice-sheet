@@ -22,7 +22,6 @@ interface DrawnSheet {
     tops: number[];
     bottoms: number[];
     results: number[];
-    title: string;
     signs: string[];
 }
 
@@ -35,7 +34,6 @@ function drawSheet(settings: MultiplicationSettings, seed: number): DrawnSheet {
         tops: numbersAt(answers.texts, TOP_ROW_Y),
         bottoms: numbersAt(answers.texts, BOTTOM_ROW_Y),
         results: numbersAt(answers.texts, ANSWER_ROW_Y),
-        title: answers.texts[0]?.text ?? '',
         signs: answers.texts.filter((entry) => entry.text === 'x').map((entry) => entry.text)
     };
 }
@@ -61,8 +59,8 @@ describe('multiplication exercise', () => {
         ['two digit', { mode: 'two-digit' }]
     ];
 
-    test.each(settingsToTry)('draws three different problems for %s, with the product as the answer', (name, settings) => {
-        const offenders = collect(settings, (sheet) => {
+    test('draws three different problems for every kind of setting, with the product as the answer', () => {
+        const offenders = settingsToTry.flatMap(([name, settings]) => collect(settings, (sheet) => {
             const keys = sheet.tops.map((top, index) => `${top}x${sheet.bottoms[index]}`);
             const expected = sheet.tops.map((top, index) => top * (sheet.bottoms[index] as number));
             if (sheet.tops.length !== 3 || new Set(keys).size !== 3) {
@@ -75,7 +73,7 @@ describe('multiplication exercise', () => {
                 return `${sheet.signs.length} times signs`;
             }
             return undefined;
-        });
+        }).map((problem) => `${name}, ${problem}`));
         expect(offenders).toEqual([]);
     });
 
@@ -106,13 +104,6 @@ describe('multiplication exercise', () => {
         expect(offenders).toEqual([]);
     });
 
-    test('lets zero turn up when it is chosen', () => {
-        const zeros = Array.from({ length: SEEDS }, (unused, index) => drawSheet({ mode: 'tables', factors: [0, 1, 2] }, index + 1))
-            .flatMap((sheet) => [...sheet.tops, ...sheet.bottoms])
-            .filter((value) => value === 0);
-        expect(zeros.length).toBeGreaterThan(0);
-    });
-
     test('makes zero rarer than any other chosen number', () => {
         const counts = new Map<number, number>();
         for (let seed = 1; seed <= SEEDS * 4; seed++) {
@@ -123,15 +114,6 @@ describe('multiplication exercise', () => {
         const offenders = [1, 2, 3, 4, 5].filter((value) => (counts.get(value) ?? 0) <= zeroCount);
         expect(zeroCount).toBeGreaterThan(0);
         expect(offenders).toEqual([]);
-    });
-
-    test.each([
-        [{ mode: 'tables', factors: [1, 2, 3, 4, 5] }, 'MULTIPLICATION (1 to 5)'],
-        [{ mode: 'tables', factors: [2, 7, 12] }, 'MULTIPLICATION (Mixed)'],
-        [{ mode: 'tables', factors: [7] }, 'MULTIPLICATION (7 Table)'],
-        [{ mode: 'two-digit' }, 'MULTIPLICATION (Two Digit)']
-    ] as [MultiplicationSettings, string][])('titles %j as "%s"', (settings, expectedTitle) => {
-        expect(drawSheet(settings, 1).title).toBe(expectedTitle);
     });
 
     test('draws the same problems on the worksheet, which stays free of answers', () => {

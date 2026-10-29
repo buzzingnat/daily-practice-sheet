@@ -41,17 +41,6 @@ describe('the settings panels\' words', () => {
         expect(findPanelSpecification('multiplication').needsCompanion?.message).toBe('ui:zeroNeedsCompanion');
     });
 
-    test('keep the English wording the cards have always shown', () => {
-        expect(findPanelSpecification('addition').options.map((option) => option.label))
-            .toEqual(['Single digit', 'Double digit', 'Triple digit']);
-        expect(findPanelSpecification('fractions').options.map((option) => option.shortLabel))
-            .toEqual(['To 4ths', 'To 8ths', 'To 12ths']);
-        expect(findPanelSpecification('hiragana').options[9]?.label).toBe('わ w + n');
-        expect(findPanelSpecification('countries').options[2]?.shortLabel).toBe('C.Am');
-        expect(findPanelSpecification('multiplication').presets?.map((preset) => preset.label)).toEqual(['Up to 5', 'Up to 12']);
-        expect(findPanelSpecification('multiplication').exclusiveOption?.label).toBe('Two digit');
-    });
-
     test('never change an option\'s value, which is what is saved', () => {
         setMessages(createMarkerCatalog());
         const marked = findPanelSpecification('countries').options.map((option) => option.value);

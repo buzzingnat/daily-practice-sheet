@@ -9,14 +9,11 @@ function draw(answer?: string) {
 }
 
 describe('drawAnswerLine', () => {
-    test('the worksheet gets the label and the line and nothing written on it', () => {
-        const recording = draw();
-        expect(recording.texts.map((entry) => entry.text)).toEqual(['Country:']);
-        expect(recording.calls.filter((call) => call.name === 'lineTo')).toHaveLength(1);
-    });
-
-    test('the answer sheet writes the answer above the line, after the label', () => {
+    test('the worksheet gets the label and the line with nothing written on it; the key adds the answer above the same line', () => {
         const worksheet = draw();
+        expect(worksheet.texts.map((entry) => entry.text)).toEqual(['Country:']);
+        expect(worksheet.calls.filter((call) => call.name === 'lineTo')).toHaveLength(1);
+
         const key = draw('Brazil');
         expect(key.texts.map((entry) => entry.text)).toEqual(['Country:', 'Brazil']);
         const [label, answer] = key.texts as [typeof key.texts[number], typeof key.texts[number]];

@@ -11,13 +11,14 @@ For development, run:
 It starts four watchers in one terminal: the esbuild bundler (writes `dist/bundle.js` and copies `public/` into `dist/`), the local server at http://localhost:3000, and a TypeScript error check for the app and another for the tests.
 
 To run the tests:
-`npm test` <-- runs the whole suite once
-`npm run test:watch` <-- reruns tests as files change
+`npm test` <-- the quick suite (unit tests, under two seconds), once
+`npm run test:watch` <-- reruns the quick tests as files change
+`npm run test:full` <-- the full suite: the quick tests plus the slower ones (exhaustive sweeps, jsdom, file-system checks); run it before merging a branch, and CI runs it
 
-`npm test` and `npm run build` type-check the code first, so a type error stops them.
+`npm test`, `npm run test:full` and `npm run build` type-check the code first, so a type error stops them.
 
 ### Running one test file or one named test
-To run a single test file, give `npm test` part of its path after a `--`:
+To run a single test file, give `npm test` (or `npm run test:full`, for a file under `tests/dom/` or `tests/architecture/`, or a `*.full.test.ts` file) part of its path after a `--`:
 `npm test -- tests/unit/settings/print-size.test.ts` <-- one file
 `npm test -- topic-settings` <-- every file whose path contains "topic-settings"
 
@@ -37,7 +38,7 @@ To run a single named test, add `-t` and part of the test's name. The name is ma
 * `ui/` is the DOM code. It may import `settings/`, `text/` and the shared leaves.
 * `main.ts`, `make-example-sheet.ts` and `utils.ts` are the app-level files and may import anything. Nothing imports `main.ts`, and only these three files import `utils.ts`.
 
-The purpose is to keep logic you can test in Node (`settings/`, `generator/`) apart from code that needs a browser (`ui/`), and to stop low-level folders from depending on high-level ones. `tests/architecture/src-folder-dependencies.test.ts` enforces it: any import that breaks the rule fails `npm test` with one sentence naming the file and the import. The full rule is in `agents/AGENTS.md`, section 7.
+The purpose is to keep logic you can test in Node (`settings/`, `generator/`) apart from code that needs a browser (`ui/`), and to stop low-level folders from depending on high-level ones. `tests/architecture/src-folder-dependencies.test.ts` enforces it: any import that breaks the rule fails `npm run test:full` with one sentence naming the file and the import. The full rule is in `agents/AGENTS.md`, section 7.
 
 ### Adding a folder
 * **A new topic under `exercises/`** (for example `exercises/letters/`) needs no setup. Put the files there and the check treats them as exercises. Add tests in the matching `tests/unit/exercises/letters/` folder.

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { MASCOT_HEIGHT, MASCOTS, getMascotRectangle, pickMascotAndCheer } from '../../../src/worksheet/mascots';
+import { MASCOTS, getMascotRectangle, pickMascotAndCheer } from '../../../src/worksheet/mascots';
 import { english } from '../../../src/text/english';
 import { GRID_BOTTOM_OFFSET, HALF_PAGE_HEIGHT, MASCOT_MAX_REACH_INTO_GRID, getMascotBottomEdge } from '../../../src/worksheet/worksheet-layout';
 
@@ -13,12 +13,6 @@ const HALF_PAGE_STARTS = [0, HALF_PAGE_HEIGHT];
 const LONGEST_CHEER_LETTERS = 16;
 
 describe('pickMascotAndCheer', () => {
-    test('uses every animal and every cheer', () => {
-        const picks = Array.from({ length: 56 }, (unused, halfPageNumber) => pickMascotAndCheer(halfPageNumber));
-        expect(new Set(picks.map((pick) => pick.mascot.name)).size).toBe(MASCOTS.length);
-        expect(new Set(picks.map((pick) => pick.cheer)).size).toBe(english.worksheet.cheers.length);
-    });
-
     test('gives the same answer for the same half-page, so a key matches its worksheet', () => {
         expect(pickMascotAndCheer(5)).toEqual(pickMascotAndCheer(5));
     });
@@ -38,14 +32,6 @@ describe('pickMascotAndCheer', () => {
 });
 
 describe('getMascotRectangle', () => {
-    test('is the same height for every animal and keeps each animal in proportion', () => {
-        const offenders = MASCOTS.filter((mascot) => {
-            const rectangle = getMascotRectangle(mascot, RIGHT_EDGE, getMascotBottomEdge(0));
-            return rectangle.height !== MASCOT_HEIGHT || Math.abs(rectangle.width - (MASCOT_HEIGHT * mascot.artWidthUnits / 945)) > 0.001;
-        });
-        expect(offenders.map((mascot) => mascot.name)).toEqual([]);
-    });
-
     test('stands clear of the cutting line and the printer\'s blind strip, in both halves of the paper', () => {
         const offenders: string[] = [];
         for (const mascot of MASCOTS) {

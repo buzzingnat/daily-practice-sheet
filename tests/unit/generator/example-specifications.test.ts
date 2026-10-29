@@ -6,10 +6,6 @@ import { TOPIC_KEYS } from '../../../src/types';
 const defaultSettings = resolveTopicSettings(createDefaultSelections());
 
 describe('buildExampleSpecifications', () => {
-    test('shows the default addition example when addition is chosen', () => {
-        expect(buildExampleSpecifications(['addition'], defaultSettings)).toEqual([{ type: 'addition', grade: '1st' }]);
-    });
-
     test('follows the addition level the user picks', () => {
         const selections = { ...createDefaultSelections(), addition: ['3rd'] };
         const settings = resolveTopicSettings(selections);
@@ -67,17 +63,5 @@ describe('buildTopicExample', () => {
         expect(example).toMatchObject({ type: 'regionCountry', region: expect.any(String) });
         const all = buildExampleSpecifications(['countries'], resolveTopicSettings(selections));
         expect(example).toEqual(all[0]);
-    });
-
-    test('follows the level chosen for a level topic', () => {
-        const selections = { ...createDefaultSelections(), addition: ['3rd'] };
-        expect(buildTopicExample('addition', resolveTopicSettings(selections))).toEqual({ type: 'addition', grade: '3rd' });
-    });
-});
-
-describe('the continents example', () => {
-    test('is a single pane', () => {
-        const examples = buildExampleSpecifications(['continents'], defaultSettings);
-        expect(examples.map((spec) => spec.type)).toEqual(['geography']);
     });
 });

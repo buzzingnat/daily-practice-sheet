@@ -42,37 +42,50 @@ function dealEverySeed(itemCount: number, copiesPerCycle: number): DealtRun[] {
     return runs;
 }
 
-describe.each(DECK_SIZES)('createShuffledDeck with $itemCount items x $copiesPerCycle copies ($note)', ({ itemCount, copiesPerCycle }) => {
-    const runs = dealEverySeed(itemCount, copiesPerCycle);
-    const cycleLength = itemCount * copiesPerCycle;
+/**
+ * Each deck size is dealt for every seed and checked by the two rules below, and each rule collects
+ * what it finds amiss from every size, so one failure names the size and the seed.
+ */
+describe('createShuffledDeck', () => {
+    const dealtBySize = DECK_SIZES.map(({ itemCount, copiesPerCycle, note }) => ({
+        label: `${itemCount} items x ${copiesPerCycle} copies (${note})`,
+        itemCount,
+        copiesPerCycle,
+        runs: dealEverySeed(itemCount, copiesPerCycle)
+    }));
 
     test('holds every item exactly copiesPerCycle times in each aligned cycle', () => {
         const violations: string[] = [];
-        runs.forEach(({ seed, draws }) => {
-            let blockStart = 0;
-            while (blockStart < draws.length) {
-                const blockCounts = countBy(draws.slice(blockStart, blockStart + cycleLength));
-                if (blockCounts.size !== itemCount) {
-                    violations.push(`seed ${seed}: block at ${blockStart} holds ${blockCounts.size} of ${itemCount} items`);
-                }
-                blockCounts.forEach((count, item) => {
-                    if (count !== copiesPerCycle) {
-                        violations.push(`seed ${seed}: "${item}" appeared ${count} times in block at ${blockStart}`);
+        dealtBySize.forEach(({ label, itemCount, copiesPerCycle, runs }) => {
+            const cycleLength = itemCount * copiesPerCycle;
+            runs.forEach(({ seed, draws }) => {
+                let blockStart = 0;
+                while (blockStart < draws.length) {
+                    const blockCounts = countBy(draws.slice(blockStart, blockStart + cycleLength));
+                    if (blockCounts.size !== itemCount) {
+                        violations.push(`${label}, seed ${seed}: block at ${blockStart} holds ${blockCounts.size} of ${itemCount} items`);
                     }
-                });
-                blockStart = blockStart + cycleLength;
-            }
+                    blockCounts.forEach((count, item) => {
+                        if (count !== copiesPerCycle) {
+                            violations.push(`${label}, seed ${seed}: "${item}" appeared ${count} times in block at ${blockStart}`);
+                        }
+                    });
+                    blockStart = blockStart + cycleLength;
+                }
+            });
         });
         expect(violations).toEqual([]);
     });
 
-    test.skipIf(itemCount < 2)('never deals a card twice in a row, cycle seams included', () => {
+    test('never deals a card twice in a row, cycle seams included, whenever there is more than one item', () => {
         const violations: string[] = [];
-        runs.forEach(({ seed, draws }) => {
-            draws.forEach((draw, drawIndex) => {
-                if (drawIndex > 0 && draw === draws[drawIndex - 1]) {
-                    violations.push(`seed ${seed}: "${draw}" dealt twice in a row at draw ${drawIndex}`);
-                }
+        dealtBySize.filter(({ itemCount }) => itemCount >= 2).forEach(({ label, runs }) => {
+            runs.forEach(({ seed, draws }) => {
+                draws.forEach((draw, drawIndex) => {
+                    if (drawIndex > 0 && draw === draws[drawIndex - 1]) {
+                        violations.push(`${label}, seed ${seed}: "${draw}" dealt twice in a row at draw ${drawIndex}`);
+                    }
+                });
             });
         });
         expect(violations).toEqual([]);

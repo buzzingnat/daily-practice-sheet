@@ -14,12 +14,14 @@ describe('CURSIVE_EMOJI', () => {
         expect(Object.keys(CURSIVE_EMOJI).sort()).toEqual(ALPHABET);
     });
 
-    test.each(ALPHABET)('names a word that begins with %s', (letter) => {
-        expect(findCursiveEmoji(letter).word.toLowerCase().startsWith(letter)).toBe(true);
+    test('names a word that begins with its letter', () => {
+        const offenders = ALPHABET.filter((letter) => !findCursiveEmoji(letter).word.toLowerCase().startsWith(letter));
+        expect(offenders).toEqual([]);
     });
 
-    test.each(ALPHABET)('gives %s exactly one picture', (letter) => {
-        expect(graphemeCount(findCursiveEmoji(letter).emoji)).toBe(1);
+    test('gives every letter exactly one picture', () => {
+        const offenders = ALPHABET.filter((letter) => graphemeCount(findCursiveEmoji(letter).emoji) !== 1);
+        expect(offenders).toEqual([]);
     });
 
     test('never uses the same picture twice', () => {
@@ -37,7 +39,15 @@ describe('findCursiveEmoji', () => {
         expect(findCursiveEmoji('a').word).toBe('apple');
     });
 
-    test.each(['', 'A', '1', 'ab'])('throws for "%s", which is not a lowercase letter', (text) => {
-        expect(() => findCursiveEmoji(text)).toThrow(/No picture/);
+    test('throws for text that is not a lowercase letter', () => {
+        const offenders = ['', 'A', '1', 'ab'].filter((text) => {
+            try {
+                findCursiveEmoji(text);
+                return true;
+            } catch (error) {
+                return !(error instanceof Error) || !/No picture/.test(error.message);
+            }
+        });
+        expect(offenders).toEqual([]);
     });
 });

@@ -156,17 +156,24 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 * New files use kebab-case (`clock-exercise.ts`). Existing files keep their names until a dedicated rename task with its own `plan.md`, so imports and documents change together. Moving a file is also a task with its own `plan.md`; move with `git mv` so history follows.
 
 ### 8. Testing
-* **Tests mirror `src/`.** One test file per source module, named `<module>.test.ts`, in the same folder path under `tests/unit/` as the module has under `src/`: `src/generator/shuffled-deck.ts` is tested by `tests/unit/generator/shuffled-deck.test.ts`, and `src/exercises/kana/kana-rows.ts` by `tests/unit/exercises/kana/kana-rows.test.ts`. A module that needs `document` or `window` is tested the same way under `tests/dom/` (add `// @vitest-environment jsdom` at the top of the file); the folder path mirrors `src/` there too.
+* **Test the critical core only.** Before writing a test, name which of three things it checks, and write it only if it is one of them:
+    * the money path: the core logic or math whose failure means the app is broken (the planner's fairness rules, the shuffled deck, answers matching their problems, the half-page identifier);
+    * a complex data transformation: messy input reshaped into structured output (saved settings parsed into valid settings, selections resolved into typed settings, a selection turned into a summary);
+    * a nasty edge case: null, empty, negative, a boundary that regularly causes crashes (zero beside another number, an empty selection, a count past the maximum).
+  Skip boilerplate getters and setters, simple UI wrappers, calls into third-party libraries, and any test that copies a constant, a label, a default or a list order into an assertion. When in doubt, leave it out; a bug that slips through is cheaper than a suite nobody trusts.
+* **A test checks behavior, not implementation.** If renaming an internal, reordering a list, rewording a label or changing a constant breaks a test while the behavior stays the same, the test is coupled to the implementation: rewrite it against the behavior or delete it. Words a person reads are checked through `createMarkerCatalog()`, never as literal English.
+* **Two tiers.** The quick suite (`npm test`, `npm run test:watch`) finishes in under 2 seconds and stays in memory: no jsdom, no file system, no network. A test that needs one of those, or takes more than about 100 ms, goes in the full tier (`npm run test:full`): a `*.full.test.ts` file, `tests/dom/` or `tests/architecture/`. The full tier passes the same critical-core gate; slow is not a reason to add a test. A heavy sweep gets a small sampled twin in the quick suite, sharing its rules through `tests/support/` (`half-page-planner-rules.ts`). After adding tests, run `npm test` and check the time; if the quick suite creeps past 2 seconds, prune or move something.
+* **Tests mirror `src/`, for the modules that earn a test.** A module that passes the gate above gets one file, named `<module>.test.ts`, in the same folder path under `tests/unit/` as the module has under `src/`: `src/generator/shuffled-deck.ts` is tested by `tests/unit/generator/shuffled-deck.test.ts`. Many modules (constants, drawing wrappers, UI wiring) get none, and that is fine. A test that needs `document` or `window` goes under `tests/dom/` (add `// @vitest-environment jsdom` at the top of the file), and the folder path mirrors `src/` there too; it runs in the full tier only.
 * **Long test files split into a folder.** A test file is held to the same roughly 200-line limit as source: once a module's tests pass it, replace the file with a folder named after the module (`tests/unit/settings/topic-settings/`), holding one file per function or behavior group (`panels.test.ts`, `resolve.test.ts`).
 * **Architecture tests** live in `tests/architecture/`. They check the shape of the project, not one module, so they do not mirror `src/`. `dependency-checker.test.ts` tests the checker on made-up projects; `src-folder-dependencies.test.ts` runs it on the real `src/`.
 * **Reading what an exercise drew:** `createRecordingContext` in `tests/support/recording-context.ts` is a canvas stand-in that records every call and every `fillText`. Answer tests use it to check the drawn answers against the drawn problems.
 * **Shared helpers** live in `tests/support/`; add one there only when two test files use it.
 * Tests import from `src/` with relative paths. `src/` holds no test code.
-* Tests that run over many cases (every topic selection, every seed) collect all offenders into a list and expect the list to be empty, so one failure names every case it broke.
+* Tests that run over many cases (every topic selection, every seed, every panel) collect all offenders into a list and expect the list to be empty, so one failure names every case it broke. Prefer one collecting test to a `test.each` that makes a test per item.
 * Randomness is injected. Use `createSeededRandom` from `tests/support/seeded-random.ts`; never `Math.random()` in a test.
 * A new rule in a planner, deck or parser gets a test. Confirm the test can fail by breaking the rule on purpose once, then restore it.
-* `vitest.config.mts` sets `fsModuleCache: false`, because the architecture test lists `src/` with `import.meta.glob` and a cached transform would keep the first list it saw. `tests/support/vite-types.d.ts` gives the tests Vite's `import.meta.glob` types.
-* `tests/tsconfig.json` extends the root config and adds `tests/` and the Vitest config (`vitest.config.mts`, in the project root). The root `tsconfig.json` stays browser-only (`types: []`, `rootDir: ./src`).
+* `vitest.config.mts` is the quick suite: `tests/unit/` only, minus `*.full.test.ts`. `vitest.full.config.mts` is the full suite: all of `tests/`, with `fsModuleCache: false`, because the architecture test lists `src/` with `import.meta.glob` and a cached transform would keep the first list it saw. `tests/support/vite-types.d.ts` gives the tests Vite's `import.meta.glob` types.
+* `tests/tsconfig.json` extends the root config and adds `tests/` and the two Vitest configs (`vitest.config.mts` and `vitest.full.config.mts`, in the project root). The root `tsconfig.json` stays browser-only (`types: []`, `rootDir: ./src`).
 
 ### 9. State & Styling
 * **Vanilla CSS:** Mobile-first, using standard media queries. Prefer Flexbox over other positioning.
@@ -181,6 +188,7 @@ Whenever you are initialized or assigned a new task, you must operate within thi
 2. **The Plan Phase:** For any non-trivial task, do not write code immediately. Create or update `plan.md` mapping out the files you intend to create or change, your architectural reasoning, and type interfaces. Wait for human validation.
 3. **The Act Phase:** Execute the code changes in isolation. Keep git commits or task payloads scoped to one cohesive feature or component at a time.
 4. **The Handoff Phase:** Once tasks pass local TypeScript verification (`npm run build` or `tsc --noEmit`), document your changes at the bottom of `progress.md` under the "Active Session Ledger" section, then clear out the temporary `plan.md`.
+5. **The Merge Prompt:** At the end of every medium or large code change, before the human merges its feature branch into `main`, close your final message by prompting the human to run the full test suite (`npm run test:full`), naming the branch. A change is medium or large when it touches more than a few files or changes what a module does; typo, comment, docs-only and one-line fixes are exempt. Run it yourself too if you can, and report the result faithfully. Never merge into `main` yourself.
 
 ---
 
@@ -188,5 +196,20 @@ Whenever you are initialized or assigned a new task, you must operate within thi
 Before marking a task as complete, you are expected to run (or request the human to run) these validation blocks to verify your work:
 * **Type Check (Continuous):** `npm run dev:types`
 * **Production Build Check:** `npm run build` (its `prebuild` hook checks the Node version and runs `tsc --noEmit` first)
-* **Tests:** `npm test` (one pass; its `pretest` hook checks the Node version and type-checks `src/` first) or `npm run test:watch` (watch mode)
+* **Tests:** `npm test` (the quick suite, one pass; its `pretest` hook checks the Node version and type-checks `src/` first) or `npm run test:watch` (watch mode). `npm run test:full` runs the full suite (the quick tests plus the slow ones), with the same hook. Run the full suite before merging a medium or large change (see step 5 above); CI and the Pages deploy run it too.
 * **Test Type Check:** `npm run test:types` (continuous: `npm run dev:test-types`, which `npm run dev` also starts)
+
+## Planning
+Always propose a written plan (phases + files touched) and wait for approval before any change that touches 3+ files, including refactors like color centralization or src/ reorganization. When proposing a design, present 2-3 options (mockups if UI) before picking one, and check whether the existing system (e.g. the level system) actually fits before reusing it.
+
+## Git workflow
+Never commit directly to main. Before the first commit of any task, create a feature branch. Before pushing follow-up work, check whether the branch's PR is already merged (`gh pr view --json state`); if so, create a new branch from updated main. Never commit .DS_Store files.
+
+## Environment
+This is macOS: use BSD-compatible commands (`sed -i ''`, not `sed -i`), or prefer the Edit tool over sed for file changes. Node version is enforced by a check-node-version script; Vitest/dev require the Node version in .nvmrc, so run `nvm use` first. Do not suggest engine-strict as a fix.
+
+## Testing
+Run the quick tier (`npm test`, about 0.8s) after edits and the full tier (`npm run test:full`) before merging. A hook in `.claude/settings.json` runs `npm test` after every Edit or Write and shows the last 20 lines, and warns at session start if the shell's Node is too old; on an old Node both print the plain "run nvm use" message instead of failing obscurely. Before writing a test file, check whether it already exists, and extend it rather than overwrite it. Verify that new tests fail without the fix, so they are not weak or tautological.
+
+## UI verification
+After UI changes, verify in the browser and check every element the user listed in the original request (e.g. toggles, visualizers) before marking a phase complete. Do not remove existing UI elements unless asked.
