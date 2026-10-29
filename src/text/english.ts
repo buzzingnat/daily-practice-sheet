@@ -28,6 +28,7 @@ export const english: MessageCatalog = {
         addition: { name: 'Addition', shortName: 'Add' },
         subtraction: { name: 'Subtraction', shortName: 'Sub' },
         multiplication: { name: 'Multiplication', shortName: 'Mult' },
+        division: { name: 'Division', shortName: 'Div' },
         setTime: { name: 'Setting time', shortName: 'Set' },
         tellTime: { name: 'Telling time', shortName: 'Tell' },
         hiragana: { name: 'Hiragana', shortName: 'Hira' },
@@ -40,6 +41,7 @@ export const english: MessageCatalog = {
         addition: 'ADDITION',
         subtraction: 'SUBTRACTION',
         multiplication: 'MULTIPLICATION',
+        division: 'DIVISION',
         settingTime: 'SETTING TIME',
         tellingTime: 'TELLING TIME',
         hiragana: 'HIRAGANA PRACTICE',
@@ -51,7 +53,8 @@ export const english: MessageCatalog = {
         addition: (level) => DIGIT_TAGS[level],
         subtraction: (level) => (level === '1st' ? 'Up to 20' : DIGIT_TAGS[level]),
         fractions: (level) => ({ '1st': 'Up to Quarters', '2nd': 'Up to Eighths', '3rd': 'Up to Twelfths' })[level],
-        multiplication: describeMultiplication
+        multiplication: describeMultiplication,
+        division: (level) => ({ '1st': 'Facts to 5', '2nd': 'Facts to 12', '3rd': 'Triple Digit' })[level]
     },
     worksheet: {
         nameLine: 'Name: ___________________________',
@@ -122,6 +125,7 @@ export const english: MessageCatalog = {
                 addition: { heading: 'Addition', summaryNoun: '' },
                 subtraction: { heading: 'Subtraction', summaryNoun: '' },
                 multiplication: { heading: 'Multiplication', summaryNoun: 'numbers' },
+                division: { heading: 'Division', summaryNoun: '' },
                 hiragana: { heading: 'Hiragana rows', summaryNoun: 'rows' },
                 cursiveLetters: { heading: 'Cursive letters: sets', summaryNoun: 'sets' },
                 cursiveLayout: { heading: 'Cursive letters: practice lines', summaryNoun: '' },
@@ -135,6 +139,11 @@ export const english: MessageCatalog = {
             subtractionLevels: {
                 '1st': { label: 'Up to 20', shortLabel: 'To 20' },
                 '2nd': { label: 'Double digit', shortLabel: '2-dig' },
+                '3rd': { label: 'Triple digit', shortLabel: '3-dig' }
+            },
+            divisionLevels: {
+                '1st': { label: 'Facts to 5', shortLabel: 'To 5' },
+                '2nd': { label: 'Facts to 12', shortLabel: 'To 12' },
                 '3rd': { label: 'Triple digit', shortLabel: '3-dig' }
             },
             fractionLevels: {

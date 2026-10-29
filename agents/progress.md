@@ -410,3 +410,12 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * Nothing now fails if a panel's `offersAll` flag changes; a one-line check can be restored.
     * The full tier has no local safety net beyond CI and the Merge Prompt; a git hook would need a tool or hand-made files.
     * `AGENTS.md` has a "Testing" paragraph added by the human that names `npm run test:quick`, which does not exist (`npm test` is the quick suite). Either add a `test:quick` script or change the paragraph; it also says to run the full tier "before committing", while section 8 and the Merge Prompt say before merging.
+
+### 2026-10-28 - Division exercise (Claude)
+* **Status:** Done on branch `division-exercise` (cut from `prune-tests`), not merged. `npm test`, `npm run test:types` and `npm run test:full` pass; the card, its three-level panel and the previews were checked in the browser. A PDF with its answer key was not generated.
+* **Accomplished:**
+    * `exercises/division-exercise.ts`: long-division brackets with the answer box above the bar, three levels on the existing `GradeLevel` system. Facts to 5 (divisor 2 to 5, quotient 1 to 5), Facts to 12 (divisor 2 to 9, quotient 2 to 12), Triple digit (divisor 2 to 9, dividend 100 to 999). Every problem is exact; the dividend is the product of a chosen divisor and quotient.
+    * Wired through `types.ts`, `settings/topic-settings.ts`, the message catalog and `english.ts`, `example-specifications.ts`, the generator and `main.ts`. Saved settings needed no change.
+    * Tests: `tests/unit/exercises/division-exercise.test.ts` (even division, level limits, no repeats; quotient under the right problem; no answers on the worksheet), each rule checked by breaking it once. Division joins `printed-titles.test.ts`, the marker catalog, `panel-selections.ts` and the defaults fixture in `resolve.test.ts`.
+* **Decisions:** no remainders (the box fits no "R"); no zero dividend (not asked for). Plan in `agents/plan-division.md`.
+* **Open Issues:** the second new exercise, number patterns and skip counting, still needs its own plan.

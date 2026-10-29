@@ -18,6 +18,7 @@ export type ExampleSpecification =
     | { type: 'subtraction'; grade: GradeLevel }
     | { type: 'addition'; grade: GradeLevel }
     | { type: 'multiplication'; settings: MultiplicationSettings }
+    | { type: 'division'; grade: GradeLevel }
     | { type: 'kana'; character: string; pronunciation: string }
     | { type: 'cursive'; letter: string; layout: CursiveLayoutName }
     | { type: 'geography'; continent: Continent }
@@ -77,6 +78,8 @@ function buildTopicExamples(topic: TopicKey, settings: TopicSettings): ExampleSp
         return [{ type: 'subtraction', grade: settings.subtraction.level }];
     } else if (topic === 'multiplication') {
         return [{ type: 'multiplication', settings: settings.multiplication }];
+    } else if (topic === 'division') {
+        return [{ type: 'division', grade: settings.division.level }];
     } else if (topic === 'hiragana') {
         const card = listKanaCards(settings.hiragana.rows)[0];
         return card

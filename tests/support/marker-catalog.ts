@@ -25,7 +25,8 @@ export function createMarkerCatalog(): MessageCatalog {
             addition: (level) => `level:addition:${level}`,
             subtraction: (level) => `level:subtraction:${level}`,
             fractions: (level) => `level:fractions:${level}`,
-            multiplication: (settings) => `level:multiplication:${settings.mode}`
+            multiplication: (settings) => `level:multiplication:${settings.mode}`,
+            division: (level) => `level:division:${level}`
         },
         worksheet: {
             nameLine: 'worksheet:nameLine',
@@ -85,6 +86,7 @@ export function createMarkerCatalog(): MessageCatalog {
                 ) as MessageCatalog['ui']['settings']['panels'],
                 additionLevels: markOptions('addition', ['1st', '2nd', '3rd']),
                 subtractionLevels: markOptions('subtraction', ['1st', '2nd', '3rd']),
+                divisionLevels: markOptions('division', ['1st', '2nd', '3rd']),
                 fractionLevels: markOptions('fractions', ['1st', '2nd', '3rd']),
                 multiplication: {
                     twoDigit: { label: 'option:multiplication:two-digit', shortLabel: 'short:multiplication:two-digit' },
