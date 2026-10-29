@@ -9,7 +9,7 @@ import {
 } from '../../../src/settings/saved-settings';
 import { DEFAULT_HALF_PAGES, MAXIMUM_HALF_PAGES } from '../../../src/settings/print-size';
 import { createDefaultSelections } from '../../../src/settings/topic-settings';
-import { PANEL_IDS, PanelId, TOPIC_KEYS, TopicKey } from '../../../src/types';
+import { PANEL_IDS, PanelId, TOPIC_KEYS } from '../../../src/types';
 
 const SAVED_TOPIC_LIMIT = 6;
 

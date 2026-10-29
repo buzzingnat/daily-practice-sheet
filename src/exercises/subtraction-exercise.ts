@@ -69,7 +69,6 @@ export function createSubtractionExercise(
     function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {
         const context = quadrantContext.context;
         const width = quadrantContext.width;
-        const height = quadrantContext.height;
 
         // Title Text Rendering (Appends Grade Tag)
         context.fillStyle = COLOR_BLACK;

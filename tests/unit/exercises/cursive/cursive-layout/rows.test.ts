@@ -4,7 +4,7 @@ import {
     MODEL_PANEL,
     PRACTICE_AREA_LEFT
 } from '../../../../../src/exercises/cursive/cursive-layout';
-import { CURSIVE_LAYOUT_NAMES, CursiveLayoutName, DEFAULT_CURSIVE_LAYOUT } from '../../../../../src/types';
+import { CURSIVE_LAYOUT_NAMES, CursiveLayoutName } from '../../../../../src/types';
 import { INK_A, METRICS, QUADRANT_HEIGHT, QUADRANT_WIDTH, layoutFor } from '../../../../support/cursive-fixtures';
 
 describe('CURSIVE_LAYOUTS', () => {
