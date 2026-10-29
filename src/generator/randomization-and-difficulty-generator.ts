@@ -2,6 +2,7 @@ import { HalfPageLayout, QuadrantExercise } from '../worksheet/worksheet-layout'
 import { createKanaExercise } from '../exercises/kana/kana-exercise';
 import { createAdditionExercise } from '../exercises/addition-exercise';
 import { createSubtractionExercise } from '../exercises/subtraction-exercise';
+import { createDivisionExercise } from '../exercises/division-exercise';
 import { createMultiplicationExercise } from '../exercises/multiplication-exercise';
 import { ClockType, createClockExercise } from '../exercises/clock-exercise';
 import { createFractionsExercise } from '../exercises/fractions-exercise';
@@ -29,6 +30,7 @@ export interface ContentDecks {
 export interface ExerciseFactories {
     createClockExercise(clockType: ClockType): QuadrantExercise;
     createSubtractionExercise(level: GradeLevel): QuadrantExercise;
+    createDivisionExercise(level: GradeLevel): QuadrantExercise;
     createAdditionExercise(level: GradeLevel): QuadrantExercise;
     createMultiplicationExercise(settings: MultiplicationSettings): QuadrantExercise;
     createKanaExercise(card: KanaCard): QuadrantExercise;
@@ -85,6 +87,8 @@ function instantiateExercise(
         return factories.createAdditionExercise(settings.addition.level);
     } else if (topic === 'multiplication') {
         return factories.createMultiplicationExercise(settings.multiplication);
+    } else if (topic === 'division') {
+        return factories.createDivisionExercise(settings.division.level);
     } else if (topic === 'hiragana') {
         return factories.createKanaExercise(decks.kana.drawNext());
     } else if (topic === 'cursiveLetters') {
@@ -144,6 +148,9 @@ export function createWorkbookExerciseFactories(): ExerciseFactories {
         },
         createSubtractionExercise: (level: GradeLevel): QuadrantExercise => {
             return createSubtractionExercise(level);
+        },
+        createDivisionExercise: (level: GradeLevel): QuadrantExercise => {
+            return createDivisionExercise(level);
         },
         createAdditionExercise: (level: GradeLevel): QuadrantExercise => {
             return createAdditionExercise(level);

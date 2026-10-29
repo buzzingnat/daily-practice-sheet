@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test } from 'vitest';
 import { createAdditionExercise } from '../../../src/exercises/addition-exercise';
 import { createSubtractionExercise } from '../../../src/exercises/subtraction-exercise';
+import { createDivisionExercise } from '../../../src/exercises/division-exercise';
 import { createMultiplicationExercise } from '../../../src/exercises/multiplication-exercise';
 import { createFractionsExercise } from '../../../src/exercises/fractions-exercise';
 import { createClockExercise } from '../../../src/exercises/clock-exercise';
@@ -24,6 +25,7 @@ const TITLED_EXERCISES: ReadonlyArray<[string, () => QuadrantExercise, string]> 
     ['addition', () => createAdditionExercise('2nd'), 'title:addition|level:addition:2nd'],
     ['subtraction', () => createSubtractionExercise('1st'), 'title:subtraction|level:subtraction:1st'],
     ['multiplication', () => createMultiplicationExercise({ mode: 'two-digit' }), 'title:multiplication|level:multiplication:two-digit'],
+    ['division', () => createDivisionExercise('2nd'), 'title:division|level:division:2nd'],
     ['fractions', () => createFractionsExercise('3rd'), 'title:fractions|level:fractions:3rd'],
     ['telling time', () => createClockExercise('telling', { hours: 3, minutes: 15 }), 'title:tellingTime'],
     ['setting time', () => createClockExercise('setting', { hours: 3, minutes: 15 }), 'title:settingTime']

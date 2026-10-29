@@ -2,7 +2,7 @@ export type GradeLevel = '1st' | '2nd' | '3rd';
 
 // One list, so the UI buttons and the generator cannot disagree about what exists.
 export const TOPIC_KEYS = [
-    'fractions', 'addition', 'subtraction', 'multiplication',
+    'fractions', 'addition', 'subtraction', 'multiplication', 'division',
     'setTime', 'tellTime', 'hiragana',
     'cursiveLetters', 'continents', 'countries'
 ] as const;
@@ -57,14 +57,14 @@ export const DEFAULT_CURSIVE_LAYOUT: CursiveLayoutName = 'one-large-line';
 
 // Topics that come with a settings panel
 export const CONFIGURABLE_TOPICS = [
-    'fractions', 'addition', 'subtraction', 'multiplication', 'hiragana', 'cursiveLetters', 'countries'
+    'fractions', 'addition', 'subtraction', 'multiplication', 'division', 'hiragana', 'cursiveLetters', 'countries'
 ] as const;
 
 export type ConfigurableTopic = typeof CONFIGURABLE_TOPICS[number];
 
 // Settings panels. A topic usually has one, named for the topic, but may have several.
 export const PANEL_IDS = [
-    'fractions', 'addition', 'subtraction', 'multiplication', 'hiragana', 'cursiveLetters', 'cursiveLayout', 'countries'
+    'fractions', 'addition', 'subtraction', 'multiplication', 'division', 'hiragana', 'cursiveLetters', 'cursiveLayout', 'countries'
 ] as const;
 
 export type PanelId = typeof PANEL_IDS[number];
@@ -80,6 +80,7 @@ export interface TopicSettings {
     addition: { level: GradeLevel };
     subtraction: { level: GradeLevel };
     multiplication: MultiplicationSettings;
+    division: { level: GradeLevel };
     hiragana: { rows: readonly KanaRow[] };
     cursiveLetters: { groups: readonly CursiveGroup[]; layout: CursiveLayoutName };
     countries: { regions: readonly PopulatedRegion[] };

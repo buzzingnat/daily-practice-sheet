@@ -131,7 +131,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
   text/        message-catalog.ts  english.ts  messages.ts          every word a person reads, per language
   worksheet/   worksheet-layout.ts  generate-pdf-batch.ts            layout contract and PDF assembly
                half-page-identifier.ts  identifier-words.ts     three-word half-page names
-  exercises/   addition, subtraction, multiplication, fractions, clock (one *-exercise.ts each)
+  exercises/   addition, subtraction, multiplication, division, fractions, clock (one *-exercise.ts each)
       kana/        kana-exercise.ts  kana-rows.ts
       cursive/     cursive-exercise.ts  cursive-cards.ts  cursive-layout.ts  cursive-fonts.ts
       geography/   geography-exercise.ts  europe-asia-boundary.ts  region-map-exercise.ts  answer-line.ts
