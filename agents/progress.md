@@ -419,3 +419,4 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * Tests: `tests/unit/exercises/division-exercise.test.ts` (even division, level limits, no repeats; quotient under the right problem; no answers on the worksheet), each rule checked by breaking it once. Division joins `printed-titles.test.ts`, the marker catalog, `panel-selections.ts` and the defaults fixture in `resolve.test.ts`.
 * **Decisions:** no remainders (the box fits no "R"); no zero dividend (not asked for). Plan in `agents/plan-division.md`.
 * **Open Issues:** the second new exercise, number patterns and skip counting, still needs its own plan.
+    * Resolved 2026-10-28: the `AGENTS.md` Testing paragraph now says `npm test` and "before merging", and `.claude/settings.json` was repaired (it named the missing `test:quick` script and `check-node-version.js`, and began with a comment that made it invalid JSON).

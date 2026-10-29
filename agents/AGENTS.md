@@ -198,3 +198,18 @@ Before marking a task as complete, you are expected to run (or request the human
 * **Production Build Check:** `npm run build` (its `prebuild` hook checks the Node version and runs `tsc --noEmit` first)
 * **Tests:** `npm test` (the quick suite, one pass; its `pretest` hook checks the Node version and type-checks `src/` first) or `npm run test:watch` (watch mode). `npm run test:full` runs the full suite (the quick tests plus the slow ones), with the same hook. Run the full suite before merging a medium or large change (see step 5 above); CI and the Pages deploy run it too.
 * **Test Type Check:** `npm run test:types` (continuous: `npm run dev:test-types`, which `npm run dev` also starts)
+
+## Planning
+Always propose a written plan (phases + files touched) and wait for approval before any change that touches 3+ files, including refactors like color centralization or src/ reorganization. When proposing a design, present 2-3 options (mockups if UI) before picking one, and check whether the existing system (e.g. the level system) actually fits before reusing it.
+
+## Git workflow
+Never commit directly to main. Before the first commit of any task, create a feature branch. Before pushing follow-up work, check whether the branch's PR is already merged (`gh pr view --json state`); if so, create a new branch from updated main. Never commit .DS_Store files.
+
+## Environment
+This is macOS: use BSD-compatible commands (`sed -i ''`, not `sed -i`), or prefer the Edit tool over sed for file changes. Node version is enforced by a check-node-version script; Vitest/dev require the Node version in .nvmrc, so run `nvm use` first. Do not suggest engine-strict as a fix.
+
+## Testing
+Run the quick tier (`npm test`, about 0.8s) after edits and the full tier (`npm run test:full`) before merging. A hook in `.claude/settings.json` runs `npm test` after every Edit or Write and shows the last 20 lines, and warns at session start if the shell's Node is too old; on an old Node both print the plain "run nvm use" message instead of failing obscurely. Before writing a test file, check whether it already exists, and extend it rather than overwrite it. Verify that new tests fail without the fix, so they are not weak or tautological.
+
+## UI verification
+After UI changes, verify in the browser and check every element the user listed in the original request (e.g. toggles, visualizers) before marking a phase complete. Do not remove existing UI elements unless asked.

@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [{ "type": "command", "command": "npm test --silent 2>&1 | tail -20" }]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [{ "type": "command", "command": "node scripts/check-node-version.mjs || echo 'WARNING: wrong Node version, run nvm use'" }]
+      }
+    ]
+  }
+}
