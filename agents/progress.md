@@ -409,4 +409,4 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * Visual or snapshot testing (see "Decide later") could replace the DOM tests that were cut and the emoji and kana data checks.
     * Nothing now fails if a panel's `offersAll` flag changes; a one-line check can be restored.
     * The full tier has no local safety net beyond CI and the Merge Prompt; a git hook would need a tool or hand-made files.
-    * `AGENTS.md` has a "Testing" paragraph added by the human that names `npm run test:quick`, which does not exist (`npm test` is the quick suite). Either add a `test:quick` script or change the paragraph; it also says to run the full tier "before committing", while section 8 and the Merge Prompt say before merging.
+    * Resolved 2026-10-28: the `AGENTS.md` Testing paragraph now says `npm test` and "before merging", and `.claude/settings.json` was repaired (it named the missing `test:quick` script and `check-node-version.js`, and began with a comment that made it invalid JSON).
