@@ -81,8 +81,8 @@ export function createDivisionExercise(
 
         // Arrange the brackets evenly across the available width
         const totalProblems = problems.length;
-        const startCoordinateY = 40;
-        const barY = startCoordinateY + 42;
+        const startCoordinateY = 30;
+        const barY = startCoordinateY + 38;
         const dividendBaselineY = barY + 20;
 
         problems.forEach((problem, problemIndex) => {
@@ -122,7 +122,7 @@ export function createDivisionExercise(
             context.beginPath();
             context.moveTo(barRightX, barY);
             context.lineTo(bracketLeftX, barY);
-            context.quadraticCurveTo(bracketLeftX - 4, barY + 13, bracketLeftX - 1, barY + 26);
+            context.quadraticCurveTo(bracketLeftX + 5, barY + 13, bracketLeftX, barY + 26);
             context.stroke();
         });
     }
