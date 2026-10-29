@@ -101,4 +101,42 @@ describe('division', () => {
         );
         expect(offenders).toEqual([]);
     });
+
+    test('the answer key writes each quotient with its problem, and the worksheet shows none', () => {
+        const offenders: string[] = [];
+        for (const level of ['1st', '2nd', '3rd'] as const) {
+            for (let seed = 1; seed <= SEEDS; seed++) {
+                vi.spyOn(Math, 'random').mockImplementation(createSeededRandom(seed));
+                const exercise = createDivisionExercise(level);
+                const plain = createRecordingContext();
+                const answered = createRecordingContext();
+                exercise.render(plain.quadrantContext);
+                exercise.renderAnswers?.(answered.quadrantContext);
+                const toNumbers = (texts: { text: string }[]): number[] => {
+                    return texts.filter((entry) => /^\d+$/.test(entry.text)).map((entry) => Number(entry.text));
+                };
+                const worksheetNumbers = toNumbers(plain.texts);
+                const keyNumbers = toNumbers(answered.texts);
+
+                // The key writes quotient, divisor, dividend for each problem; dropping the quotients must leave the worksheet
+                const quotients: number[] = [];
+                const rest: number[] = [];
+                const wrongPairs: string[] = [];
+                for (let index = 0; index + 2 < keyNumbers.length; index += 3) {
+                    const quotient = keyNumbers[index] as number;
+                    const divisor = keyNumbers[index + 1] as number;
+                    const dividend = keyNumbers[index + 2] as number;
+                    quotients.push(quotient);
+                    rest.push(divisor, dividend);
+                    if (quotient * divisor !== dividend) {
+                        wrongPairs.push(`${dividend}/${divisor}=${quotient}`);
+                    }
+                }
+                if (quotients.length !== 3 || wrongPairs.length > 0 || rest.join() !== worksheetNumbers.join()) {
+                    offenders.push(`${level} seed ${seed}: ${wrongPairs.join() || 'worksheet differs from key'}`);
+                }
+            }
+        }
+        expect(offenders).toEqual([]);
+    });
 });
