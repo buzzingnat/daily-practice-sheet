@@ -119,29 +119,7 @@ const CELL_HEIGHT = 26;
 const CELL_WIDTH = 38;
 const ROW_LEFT = 19;
 
-// How the three tasks are told apart. Exactly one option block below is live at a time.
-
-// ---- Option 1: a line in the gap below each task but the last (commented out) ----
-// const ROW_SPACING = 36;
-// const drawTaskSeparator = drawDividingLine;
-
-// function drawDividingLine(context: CanvasRenderingContext2D, cellTop: number, rowIndex: number, rowCount: number): void {
-//     if (rowIndex === rowCount - 1) {
-//         return;
-//     }
-//     const lineY = cellTop + CELL_HEIGHT + (ROW_SPACING - CELL_HEIGHT) / 2;
-//     context.strokeStyle = COLOR_LIGHT_GREY;     // COLOR_MEDIUM_GREY for a stronger line
-//     context.lineWidth = 1;
-//     context.lineCap = 'round';                  // dashes need 'butt' instead
-//     // context.setLineDash([4, 3]);             // uncomment for dashes (and set lineCap to 'butt' above)
-//     context.beginPath();
-//     context.moveTo(15, lineY);
-//     context.lineTo(251, lineY);
-//     context.stroke();
-//     context.setLineDash([]);
-// }
-
-// ---- Option 2: a box around each task (live) ----
+// How the three tasks are told apart: a box around each task
 const ROW_SPACING = 38;
 const drawTaskSeparator = drawTaskBox;
 
