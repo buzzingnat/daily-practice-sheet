@@ -3,6 +3,7 @@ import { createKanaExercise } from '../exercises/kana/kana-exercise';
 import { createAdditionExercise } from '../exercises/addition-exercise';
 import { createSubtractionExercise } from '../exercises/subtraction-exercise';
 import { createDivisionExercise } from '../exercises/division-exercise';
+import { createSkipCountingExercise } from '../exercises/skip-counting-exercise';
 import { createMultiplicationExercise } from '../exercises/multiplication-exercise';
 import { ClockType, createClockExercise } from '../exercises/clock-exercise';
 import { createFractionsExercise } from '../exercises/fractions-exercise';
@@ -31,6 +32,7 @@ export interface ExerciseFactories {
     createClockExercise(clockType: ClockType): QuadrantExercise;
     createSubtractionExercise(level: GradeLevel): QuadrantExercise;
     createDivisionExercise(level: GradeLevel): QuadrantExercise;
+    createSkipCountingExercise(level: GradeLevel): QuadrantExercise;
     createAdditionExercise(level: GradeLevel): QuadrantExercise;
     createMultiplicationExercise(settings: MultiplicationSettings): QuadrantExercise;
     createKanaExercise(card: KanaCard): QuadrantExercise;
@@ -89,6 +91,8 @@ function instantiateExercise(
         return factories.createMultiplicationExercise(settings.multiplication);
     } else if (topic === 'division') {
         return factories.createDivisionExercise(settings.division.level);
+    } else if (topic === 'skipCounting') {
+        return factories.createSkipCountingExercise(settings.skipCounting.level);
     } else if (topic === 'hiragana') {
         return factories.createKanaExercise(decks.kana.drawNext());
     } else if (topic === 'cursiveLetters') {
@@ -151,6 +155,9 @@ export function createWorkbookExerciseFactories(): ExerciseFactories {
         },
         createDivisionExercise: (level: GradeLevel): QuadrantExercise => {
             return createDivisionExercise(level);
+        },
+        createSkipCountingExercise: (level: GradeLevel): QuadrantExercise => {
+            return createSkipCountingExercise(level);
         },
         createAdditionExercise: (level: GradeLevel): QuadrantExercise => {
             return createAdditionExercise(level);

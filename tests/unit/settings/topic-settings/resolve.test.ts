@@ -11,6 +11,7 @@ describe('resolveTopicSettings', () => {
             subtraction: { level: '1st' },
             multiplication: { mode: 'tables', factors: [1, 2, 3, 4, 5] },
             division: { level: '1st' },
+            skipCounting: { level: '1st' },
             hiragana: { rows: ['vowels'] },
             cursiveLetters: { groups: ['s-m-a-t'], layout: 'one-large-line' },
             countries: { regions: ['Africa'] }
