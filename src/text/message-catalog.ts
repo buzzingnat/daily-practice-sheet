@@ -29,6 +29,7 @@ export interface MessageCatalog {
         subtraction: string;
         multiplication: string;
         division: string;
+        skipCounting: string;
         settingTime: string;
         tellingTime: string;
         hiragana: string;
@@ -43,6 +44,7 @@ export interface MessageCatalog {
         fractions(level: GradeLevel): string;
         multiplication(settings: MultiplicationSettings): string;
         division(level: GradeLevel): string;
+        skipCounting(level: GradeLevel): string;
     };
     worksheet: {
         // The blanks are part of the string, since a language may want different lengths
@@ -108,6 +110,7 @@ export interface MessageCatalog {
             additionLevels: Record<GradeLevel, OptionWords>;
             subtractionLevels: Record<GradeLevel, OptionWords>;
             divisionLevels: Record<GradeLevel, OptionWords>;
+            skipCountingLevels: Record<GradeLevel, OptionWords>;
             fractionLevels: Record<GradeLevel, OptionWords>;
             multiplication: {
                 twoDigit: OptionWords;

@@ -5,6 +5,7 @@ import { createClockExercise } from './exercises/clock-exercise';
 import { createAdditionExercise} from './exercises/addition-exercise';
 import { createSubtractionExercise } from './exercises/subtraction-exercise';
 import { createDivisionExercise } from './exercises/division-exercise';
+import { createSkipCountingExercise } from './exercises/skip-counting-exercise';
 import { createMultiplicationExercise } from './exercises/multiplication-exercise';
 import { createFractionsExercise } from './exercises/fractions-exercise';
 import { createKanaExercise } from './exercises/kana/kana-exercise';
@@ -51,6 +52,7 @@ const localState: Record<TopicKey, number>= {
     subtraction: 0,
     multiplication: 0,
     division: 0,
+    skipCounting: 0,
     hiragana: 0,
     cursiveLetters: 0,
     continents: 0,
@@ -140,6 +142,8 @@ function createExerciseFromSpecification(specification: ExampleSpecification): Q
         return createMultiplicationExercise(specification.settings);
     } else if (specification.type === 'division') {
         return createDivisionExercise(specification.grade);
+    } else if (specification.type === 'skipCounting') {
+        return createSkipCountingExercise(specification.grade);
     } else if (specification.type === 'kana') {
         return createKanaExercise(
             specification.character,

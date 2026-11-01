@@ -91,6 +91,8 @@ const SUBTRACTION_OPTIONS = gradeOptions(() => getMessages().ui.settings.subtrac
 
 const DIVISION_OPTIONS = gradeOptions(() => getMessages().ui.settings.divisionLevels);
 
+const SKIP_COUNTING_OPTIONS = gradeOptions(() => getMessages().ui.settings.skipCountingLevels);
+
 const MULTIPLICATION_OPTIONS: readonly ChoiceOption[] = MULTIPLICATION_FACTORS.map((factor) => {
     return { value: String(factor), label: String(factor) };
 });
@@ -177,6 +179,10 @@ export const PANEL_SPECIFICATIONS: readonly PanelSpecification[] = [
         options: DIVISION_OPTIONS, defaultValues: ['1st'], offersAll: false
     }),
     withPanelWords({
+        id: 'skipCounting', topic: 'skipCounting', kind: 'single',
+        options: SKIP_COUNTING_OPTIONS, defaultValues: ['1st'], offersAll: false
+    }),
+    withPanelWords({
         id: 'hiragana', topic: 'hiragana', kind: 'multiple',
         options: KANA_ROW_OPTIONS, defaultValues: ['vowels'], offersAll: true
     }),
@@ -225,6 +231,7 @@ export function createDefaultSelections(): PanelSelections {
         subtraction: [...findPanelSpecification('subtraction').defaultValues],
         multiplication: [...findPanelSpecification('multiplication').defaultValues],
         division: [...findPanelSpecification('division').defaultValues],
+        skipCounting: [...findPanelSpecification('skipCounting').defaultValues],
         hiragana: [...findPanelSpecification('hiragana').defaultValues],
         cursiveLetters: [...findPanelSpecification('cursiveLetters').defaultValues],
         cursiveLayout: [...findPanelSpecification('cursiveLayout').defaultValues],
@@ -338,6 +345,7 @@ export function resolveTopicSettings(selections: PanelSelections): TopicSettings
         subtraction: { level: pickLevel(selections.subtraction, 'subtraction') },
         multiplication: pickMultiplication(selections.multiplication),
         division: { level: pickLevel(selections.division, 'division') },
+        skipCounting: { level: pickLevel(selections.skipCounting, 'skipCounting') },
         hiragana: { rows: pickChosen(kanaRows, selections.hiragana, 'hiragana') },
         cursiveLetters: {
             groups: pickChosen(cursiveGroups, selections.cursiveLetters, 'cursiveLetters'),

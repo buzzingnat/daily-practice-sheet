@@ -26,7 +26,8 @@ describe('summarizeSelection', () => {
         const offenders: string[] = [];
         LEVEL_TOPICS.forEach((topic) => {
             GRADE_LEVELS.forEach((level) => {
-                if (summarize(topic, selectionsWith({ [topic]: [level] })) !== `option:${topic}:${level}`) {
+                // A single-choice summary is lowercased, and a topic key such as skipCounting has capitals
+                if (summarize(topic, selectionsWith({ [topic]: [level] })) !== `option:${topic}:${level}`.toLowerCase()) {
                     offenders.push(`${topic} at ${level}`);
                 }
             });

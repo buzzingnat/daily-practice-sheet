@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from 'vitest';
 import { createAdditionExercise } from '../../../src/exercises/addition-exercise';
 import { createSubtractionExercise } from '../../../src/exercises/subtraction-exercise';
 import { createDivisionExercise } from '../../../src/exercises/division-exercise';
+import { createSkipCountingExercise } from '../../../src/exercises/skip-counting-exercise';
 import { createMultiplicationExercise } from '../../../src/exercises/multiplication-exercise';
 import { createFractionsExercise } from '../../../src/exercises/fractions-exercise';
 import { createClockExercise } from '../../../src/exercises/clock-exercise';
@@ -26,6 +27,7 @@ const TITLED_EXERCISES: ReadonlyArray<[string, () => QuadrantExercise, string]> 
     ['subtraction', () => createSubtractionExercise('1st'), 'title:subtraction|level:subtraction:1st'],
     ['multiplication', () => createMultiplicationExercise({ mode: 'two-digit' }), 'title:multiplication|level:multiplication:two-digit'],
     ['division', () => createDivisionExercise('2nd'), 'title:division|level:division:2nd'],
+    ['skip counting', () => createSkipCountingExercise('3rd'), 'title:skipCounting|level:skipCounting:3rd'],
     ['fractions', () => createFractionsExercise('3rd'), 'title:fractions|level:fractions:3rd'],
     ['telling time', () => createClockExercise('telling', { hours: 3, minutes: 15 }), 'title:tellingTime'],
     ['setting time', () => createClockExercise('setting', { hours: 3, minutes: 15 }), 'title:settingTime']
