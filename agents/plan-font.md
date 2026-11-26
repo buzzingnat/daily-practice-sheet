@@ -125,6 +125,14 @@ Git needs file deletion to clear its own lock files. The human allowed deletion 
 
 **Check by eye:** the page at desktop and phone width.
 
+**Step 3a, shared exercise type styles** (added 2026-11-26; the human designed the constants and converted the clock, Claude carried them through):
+* `constants.ts`, in one commented block:
+    * `EXERCISE_TITLE_SIZE`, `EXERCISE_TITLE_WEIGHT` and the full `EXERCISE_TITLE_FONT` (bold 14px), used by every exercise's title
+    * `EXERCISE_MATH_NUMBER_SIZE`, `EXERCISE_MATH_NUMBER_WEIGHT` and the full `EXERCISE_MATH_NUMBER_FONT` (normal 18px), used for the numbers a child works with: clock answer and target times, addition, subtraction, multiplication, division and skip counting
+    * `EXERCISE_FRACTION_ANSWER_FONT` (normal 12px): a deliberate exception, like the clock face's numerals, because the key's fraction answers sit in 30 x 16 boxes and look better printed smaller
+* The clock's answer-box times change from bold 16px to the shared normal 18px (step 2c's bold 16px is superseded). Every time the code can make still fits; the widest, "10:00", is 43.1px in the 80px box.
+* All exercise files read these constants; none writes its own title or main-number font string.
+
 **Step 4, PDFs.**
 * `worksheet/sans-serif-fonts.ts`: the startup fetch of the two `.ttf` files as base64, and `registerPdfFonts(documentInstance)`.
 * `constants.ts`: add `PDF_FONT`.
@@ -142,6 +150,7 @@ Git needs file deletion to clear its own lock files. The human allowed deletion 
 * `AGENTS.md`: the typography section. The human approves the exact wording before it is committed, since it governs later agents.
 * `progress.md`: the ledger entry, and these roadmap items:
     * remove `worksheet/generate-pdf-batch.ts` (section 8, answer 4)
+    * remove the "Make Test Sheet" button and the code only it uses (`make-example-sheet.ts`, `renderTestWorksheetButton` in `main.ts`): left over from early development, and the site is now shared with other people. High priority, but its own small task, not part of the font change (the human, 2026-11-26)
     * from the step reviews, left out of this plan as outside its scope:
         * a shared `createScaledCanvas` helper for the three places that build a scaled canvas
         * one font-loading helper shared by the cursive and sans-serif loaders (the cursive loader has the same missing-weight gap the sans-serif loader now guards against)

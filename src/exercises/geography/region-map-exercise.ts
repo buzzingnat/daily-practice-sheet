@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import { QuadrantExercise, QuadrantContext } from '../../worksheet/worksheet-layout';
 import { getMessages } from '../../text/messages';
 import { drawAnswerLine } from './answer-line';
-import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY, COLOR_MEDIUM_GREY, COLOR_WHITE } from '../../constants';
+import { COLOR_BLACK, COLOR_LIGHT_GREY, COLOR_MEDIUM_GREY, COLOR_WHITE, EXERCISE_TITLE_FONT } from '../../constants';
 import { createAsiaSidePolygon, createEuropeSidePolygon, createUralBoundaryLine } from './europe-asia-boundary';
 import { getRegionMapData, RegionCountry } from './region-map-data';
 import { createRegionProjection, getMapBox } from './region-views';
@@ -57,7 +57,7 @@ export function createRegionMapExercise(
 
         // Title text, placed where every other module puts theirs
         context.fillStyle = COLOR_BLACK;
-        context.font = `bold 14px ${SANS_SERIF_FONT}`;
+        context.font = EXERCISE_TITLE_FONT;
         context.textBaseline = 'top';
         context.textAlign = 'left';
         context.fillText(getMessages().exerciseTitles.countries, 15, 12);

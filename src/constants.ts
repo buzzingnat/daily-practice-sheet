@@ -32,5 +32,19 @@ export const COLOR_MEDIUM_GREY = '#999999';
 export const COLOR_PDF_CROSSHAIR = '#C8C8C8';
 export const COLOR_PDF_PERFORATION = '#969696';
 
+// Type styles shared across exercises: one title style for every exercise, and one for the numbers
+// a student works with in the math exercises. Informational or decorative numbers, such as the clock
+// face's numerals, keep sizes of their own.
+export const EXERCISE_TITLE_SIZE = '14px';
+export const EXERCISE_TITLE_WEIGHT = 'bold';
+export const EXERCISE_TITLE_FONT = `${EXERCISE_TITLE_WEIGHT} ${EXERCISE_TITLE_SIZE} ${SANS_SERIF_FONT}`;
+export const EXERCISE_MATH_NUMBER_SIZE = '18px';
+export const EXERCISE_MATH_NUMBER_WEIGHT = 'normal';
+export const EXERCISE_MATH_NUMBER_FONT = `${EXERCISE_MATH_NUMBER_WEIGHT} ${EXERCISE_MATH_NUMBER_SIZE} ${SANS_SERIF_FONT}`;
+
+// Keep the exercise looking neat and tidy rather than crammed by making a size exception
+// for the fraction answers and keeping them smaller than the rest of the numbers
+export const EXERCISE_FRACTION_ANSWER_FONT = `normal 12px ${SANS_SERIF_FONT}`;
+
 // for preloading assets
 export const KANA_IMAGE_URL = "./img/kana-stroke-order.jpg";
