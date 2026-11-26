@@ -1,7 +1,12 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
 import { getMessages } from '../text/messages';
 import { GradeLevel } from '../types';
-import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from '../constants';
+import {
+    COLOR_BLACK,
+    COLOR_LIGHT_GREY,
+    EXERCISE_TITLE_FONT,
+    EXERCISE_MATH_NUMBER_FONT
+} from '../constants';
 import { pickRandomWithRareZero } from './problem-numbers';
 
 interface AdditionProblem {
@@ -72,7 +77,7 @@ export function createAdditionExercise(
 
         // Title text, with the grade tag appended
         context.fillStyle = COLOR_BLACK;
-        context.font = `bold 14px ${SANS_SERIF_FONT}`;
+        context.font = EXERCISE_TITLE_FONT;
         context.textBaseline = 'top';
         context.textAlign = 'left';
         const messages = getMessages();
@@ -87,7 +92,7 @@ export function createAdditionExercise(
             const columnCenterX = (sectionWidth * problemIndex) + (sectionWidth / 2);
 
             context.fillStyle = COLOR_BLACK;
-            context.font = `normal 18px ${SANS_SERIF_FONT}`;
+            context.font = EXERCISE_MATH_NUMBER_FONT;
             context.textAlign = 'right';
             context.textBaseline = 'alphabetic';
 
@@ -116,7 +121,7 @@ export function createAdditionExercise(
             context.strokeRect(alignmentOffset - boxWidth + 5, startCoordinateY + 62, boxWidth, boxHeight);
             if (showAnswers) {
                 context.fillStyle = COLOR_BLACK;
-                context.font = `normal 18px ${SANS_SERIF_FONT}`;
+                context.font = EXERCISE_MATH_NUMBER_FONT;
                 context.textAlign = 'right';
                 context.textBaseline = 'alphabetic';
                 context.fillText((problem.topNumber + problem.bottomNumber).toString(), alignmentOffset, startCoordinateY + 82);

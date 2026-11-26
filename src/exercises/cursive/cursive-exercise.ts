@@ -8,7 +8,7 @@ import {
     CURSIVE_DASHED_FONT,
     CURSIVE_REGULAR_FONT,
     EMOJI_FONT,
-    SANS_SERIF_FONT
+    EXERCISE_TITLE_FONT
 } from '../../constants';
 import { areCursiveFontsLoaded, measureFontMetrics, measureLetterInk } from './cursive-fonts';
 import { CursiveLayoutName } from '../../types';
@@ -125,7 +125,7 @@ export function createCursiveExercise(letter: string, layoutName: CursiveLayoutN
 
             // Header title
             context.fillStyle = COLOR_BLACK;
-            context.font = `bold 14px ${SANS_SERIF_FONT}`;
+            context.font = EXERCISE_TITLE_FONT;
             context.textBaseline = 'top';
             context.textAlign = 'left';
             context.fillText(getMessages().exerciseTitles.cursive, 15, 12);

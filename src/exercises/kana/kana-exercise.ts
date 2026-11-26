@@ -1,7 +1,7 @@
 import { QuadrantExercise, QuadrantContext, EXERCISE_HEIGHT, EXERCISE_WIDTH } from '../../worksheet/worksheet-layout';
 import { getMessages } from '../../text/messages';
 import { getSharedImageSync } from '../../asset-manager';
-import { KANA_IMAGE_URL, SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from '../../constants';
+import { KANA_IMAGE_URL, SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY, EXERCISE_TITLE_FONT } from '../../constants';
 
 interface SpritePosition {
     sourceX: number;
@@ -151,7 +151,7 @@ export function createKanaExercise(
 
             // Header title
             context.fillStyle = COLOR_BLACK;
-            context.font = `bold 14px ${SANS_SERIF_FONT}`;
+            context.font = EXERCISE_TITLE_FONT;
             context.textBaseline = 'top';
             context.textAlign = 'left';
             context.fillText(getMessages().exerciseTitles.hiragana, 15, 12);

@@ -11,7 +11,7 @@ import { GeoJsonProperties, GeometryCollection, MultiLineString, MultiPolygon } 
 import { QuadrantExercise, QuadrantContext } from '../../worksheet/worksheet-layout';
 import { getMessages } from '../../text/messages';
 import { drawAnswerLine } from './answer-line';
-import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY } from '../../constants';
+import { COLOR_BLACK, COLOR_MEDIUM_GREY, EXERCISE_TITLE_FONT } from '../../constants';
 import { traceAsiaSideRegion, traceEuropeSideRegion, traceUralBoundary } from './europe-asia-boundary';
 
 export const CONTINENTS = [
@@ -314,7 +314,7 @@ export function createGeographyExercise(
 
         // Title text, placed where every other module puts theirs
         context.fillStyle = COLOR_BLACK;
-        context.font = `bold 14px ${SANS_SERIF_FONT}`;
+        context.font = EXERCISE_TITLE_FONT;
         context.textBaseline = 'top';
         context.textAlign = 'left';
         context.fillText(getMessages().exerciseTitles.continents, 15, 12);

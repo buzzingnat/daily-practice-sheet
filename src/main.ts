@@ -13,6 +13,7 @@ import { createCursiveExercise } from './exercises/cursive/cursive-exercise';
 import { loadCursiveFonts } from './exercises/cursive/cursive-fonts';
 import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWorksheetBatch } from './worksheet/worksheet-layout';
 import { preloadMascotImages } from './worksheet/mascots';
+import { loadSansSerifFonts } from './worksheet/sans-serif-fonts';
 import { getMessages } from './text/messages';
 import { createPlaceholderExercise, createBlankExercise } from './utils';
 import { loadGeographyData, createGeographyExercise } from './exercises/geography/geography-exercise';
@@ -102,14 +103,28 @@ function makeRandomizedWorksheetBatch(): void {
     );
 }
 
-function drawExample(exerciseType: QuadrantExercise) {
-    const canvas = document.createElement('canvas');
-    canvas.height = EXERCISE_HEIGHT;
-    canvas.width = EXERCISE_WIDTH;
+// Past four canvas pixels per point no eye can tell the difference, and a big zoom on a dense screen
+// would otherwise ask a dozen canvases for more memory than some phones will lend
+const MAXIMUM_PREVIEW_SCALE = 4;
+
+function drawExample(
+    exerciseType: QuadrantExercise,
+    canvas: HTMLCanvasElement,
+    displayWidth: number,
+    pixelRatio: number
+): void {
+    // Drawn on exactly the screen pixels it will cover, so the browser shows it as drawn. A picture
+    // of any other size gets stretched soft or squeezed crunchy on its way to the card.
+    const scale = Math.min((displayWidth * pixelRatio) / EXERCISE_WIDTH, MAXIMUM_PREVIEW_SCALE);
+    // Whole pixels first, then the scale that fills them exactly, so no sliver is left at the edges.
+    // Setting the size also wipes the canvas and its old scale, which suits a repaint nicely.
+    canvas.width = Math.max(1, Math.round(EXERCISE_WIDTH * scale));
+    canvas.height = Math.max(1, Math.round(EXERCISE_HEIGHT * scale));
     const context = canvas.getContext('2d');
     if (!context) {
-        return Error('no context to draw with');
+        throw new Error('No canvas context to draw the example with.');
     }
+    context.scale(canvas.width / EXERCISE_WIDTH, canvas.height / EXERCISE_HEIGHT);
     context.fillStyle = COLOR_WHITE;
     context.strokeStyle = COLOR_MEDIUM_GREY;
     context.lineWidth = 4;
@@ -117,7 +132,6 @@ function drawExample(exerciseType: QuadrantExercise) {
     context.fillRect(x, y, width, height);
     context.strokeRect(x, y, width, height);
     exerciseType.render({context, width: EXERCISE_WIDTH, height: EXERCISE_HEIGHT});
-    return canvas;
 }
 
 /**
@@ -183,12 +197,16 @@ function refreshPreview(topic: TopicKey): void {
         if (!specification) {
             return;
         }
-        const exampleCanvas = drawExample(createExerciseFromSpecification(specification));
-        if (exampleCanvas instanceof Error) {
-            console.error(`Could not draw ${topic} example:`, exampleCanvas);
-            return;
-        }
-        card.setPreview(exampleCanvas);
+        const exercise = createExerciseFromSpecification(specification);
+        card.setPreviewPainter((canvas, displayWidth, pixelRatio) => {
+            try {
+                drawExample(exercise, canvas, displayWidth, pixelRatio);
+                return true;
+            } catch (error: unknown) {
+                console.error(`Could not draw ${topic} example:`, error);
+                return false;
+            }
+        });
     } catch (error: unknown) {
         console.error(`Could not build ${topic} example:`, error);
     }
@@ -359,6 +377,7 @@ async function initializeApp() {
             loadGeographyData(),
             loadRegionMapData(),
             loadCursiveFonts(),
+            loadSansSerifFonts(),
             preloadMascotImages()
         ]);
 
@@ -366,6 +385,10 @@ async function initializeApp() {
 
         // Now that the image is 100% ready, safely create your component layouts
         renderApp();
+        // Zoom and a move to another monitor change the screen's density, which only the window hears
+        window.addEventListener('resize', () => {
+            topicCards.forEach((card) => card.repaintPreviewIfResized());
+        });
 
     } catch (error) {
         console.error("Critical asset failed to load. Cannot render worksheet:", error);

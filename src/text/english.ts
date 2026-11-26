@@ -60,8 +60,8 @@ export const english: MessageCatalog = {
         skipCounting: (level) => ({ '1st': 'By 2, 5, 10', '2nd': 'By 3 to 9', '3rd': 'Up and Down' })[level]
     },
     worksheet: {
-        nameLine: 'Name: ___________________________',
-        dateLine: 'Date: __________________',
+        nameLabel: 'Name:',
+        dateLabel: 'Date:',
         answerKey: 'ANSWER KEY',
         // Seven cheers against eight animals: no pair of animal and cheer repeats until 56 half-pages have gone by
         cheers: [

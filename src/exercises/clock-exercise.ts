@@ -1,6 +1,12 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
 import { getMessages } from '../text/messages';
-import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY } from '../constants';
+import {
+    SANS_SERIF_FONT,
+    COLOR_BLACK,
+    COLOR_MEDIUM_GREY,
+    EXERCISE_TITLE_FONT,
+    EXERCISE_MATH_NUMBER_FONT
+} from '../constants';
 
 export type ClockType = 'telling' | 'setting';
 
@@ -44,7 +50,7 @@ export function formatClockTime(time: ClockTime): string {
 function drawTitle(context: CanvasRenderingContext2D, clockType: ClockType): void {
     const titles = getMessages().exerciseTitles;
     context.fillStyle = INK_COLOR;
-    context.font = `bold 14px ${SANS_SERIF_FONT}`;
+    context.font = EXERCISE_TITLE_FONT;
     context.textBaseline = 'top';
     context.textAlign = 'left';
     context.fillText(clockType === 'setting' ? titles.settingTime : titles.tellingTime, 15, 12);
@@ -137,7 +143,7 @@ function drawAnswerBox(
     if (clockType === 'telling') {
         context.strokeRect(boxLeft, boxCenterY - 15, 65, 30);
         context.fillStyle = INK_COLOR;
-        context.font = `bold 16px ${SANS_SERIF_FONT}`;
+        context.font = EXERCISE_MATH_NUMBER_FONT;
         context.textBaseline = 'middle';
         context.textAlign = 'center';
         // The answer sheet writes the time where the student wrote it
@@ -145,7 +151,8 @@ function drawAnswerBox(
     } else {
         context.strokeRect(boxLeft, boxCenterY - 15, 80, 30);
         context.fillStyle = INK_COLOR;
-        context.font = `normal 13px ${SANS_SERIF_FONT}`;
+        // The time is part of the 'math' category of exercises, so it uses the same style
+        context.font = EXERCISE_MATH_NUMBER_FONT;
         context.textBaseline = 'middle';
         context.textAlign = 'center';
         context.fillText(displayLabel, boxLeft + 40, boxCenterY + 1);

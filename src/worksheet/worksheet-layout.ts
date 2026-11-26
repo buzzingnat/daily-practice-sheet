@@ -1,9 +1,10 @@
 import { jsPDF } from 'jspdf';
-import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY, COLOR_PDF_CROSSHAIR, COLOR_PDF_PERFORATION, COLOR_WHITE } from '../constants';
+import { PDF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY, COLOR_PDF_CROSSHAIR, COLOR_PDF_PERFORATION, COLOR_WHITE } from '../constants';
 import { drawHalfPageDecorations } from './decorations';
 import { getHalfPageIdentifier } from './half-page-identifier';
 import { drawMascotBand, pickMascotAndCheer } from './mascots';
 import { getMessages } from '../text/messages';
+import { registerPdfFonts } from './sans-serif-fonts';
 
 const PAGE_WIDTH = 612;
 const MARGIN_X = 40;
@@ -22,8 +23,31 @@ const MASCOT_GAP_ABOVE_CUTTING_LINE = 2;
 // Every exercise stops drawing by 147pt down its 155pt quadrant (checked by drawing them all), so a mascot may
 // reach this far up into the grid's bottom edge without touching anything. Re-check if an exercise changes.
 export const MASCOT_MAX_REACH_INTO_GRID = 6;
-// The identifier's letters rise from this line toward the left; 20pt in from the paper's edge clears the printer's blind strip
-const IDENTIFIER_FONT_SIZE = 8;
+
+// Canvas pixels per point in the PDF's pictures. Paper notices anything less.
+export const CANVAS_SCALE_MULTIPLIER = 3;
+
+// The Name and Date write-in lines: drawn, not typed as underscores, which a rounded font prints
+// as dashes and every language would have to count afresh. Each starts a little after its label
+// and ends where the Helvetica underscore lines used to, so the header keeps its shape. The line
+// sits 2pt under the baseline at 20pt, which leaves about 3.5pt of air above the grid at 26pt.
+const HEADER_FONT_SIZE = 12;
+const ANSWER_KEY_FONT_SIZE = 9;
+const NAME_DATE_BASELINE_OFFSET = 20;
+const DATE_LABEL_OFFSET_X = 340;
+const NAME_LINE_END_OFFSET_X = 220;
+const DATE_LINE_END_OFFSET_X = 153;
+const WRITE_IN_LINE_GAP = 4;
+const WRITE_IN_LINE_DROP = 2;
+const WRITE_IN_LINE_WIDTH = 1;
+// Room for a name, however long the label grows in translation
+const MINIMUM_WRITE_IN_LINE_LENGTH = 60;
+
+// At 12pt a parent can match a key to its sheet without squinting. The longest name runs 150pt of the grid's
+// 310pt, its letters stop 8pt short of the grid, and it stays well below the daisies at the top right.
+const IDENTIFIER_FONT_SIZE = 12;
+// The identifier's letters rise from this line toward the left. 20pt in from the paper's edge leaves the
+// descenders, which reach 3pt the other way, clear of the printer's blind strip.
 const IDENTIFIER_BASELINE_COORDINATE_X = PAGE_WIDTH - 20;
 
 /**
@@ -90,8 +114,8 @@ async function renderQuadrantToPdf(
     pdfHeight: number,
     showAnswers: boolean
 ): Promise<void> {
-    // Scale factor (3x) for crisp high-DPI printing text and lines
-    const scaleMultiplier = 3;
+    // Drawn at several canvas pixels per point, so printed text and lines stay crisp
+    const scaleMultiplier = CANVAS_SCALE_MULTIPLIER;
     const canvas = document.createElement('canvas');
     canvas.width = pdfWidth * scaleMultiplier;
     canvas.height = pdfHeight * scaleMultiplier;
@@ -124,7 +148,7 @@ function renderHalfPageLayerToPdf(
     halfPageNumber: number,
     showAnswers: boolean
 ): void {
-    const scaleMultiplier = 3;
+    const scaleMultiplier = CANVAS_SCALE_MULTIPLIER;
     const canvas = document.createElement('canvas');
     canvas.width = PAGE_WIDTH * scaleMultiplier;
     canvas.height = HALF_PAGE_HEIGHT * scaleMultiplier;
@@ -165,7 +189,7 @@ function createFingerprintContext(): CanvasRenderingContext2D {
  * on the grid. Native text, so it stays sharp. The worksheet and its key print the same words.
  */
 function drawHalfPageIdentifier(documentInstance: jsPDF, identifier: string, startCoordinateY: number): void {
-    documentInstance.setFont(SANS_SERIF_FONT, 'normal');
+    documentInstance.setFont(PDF_FONT, 'normal');
     documentInstance.setFontSize(IDENTIFIER_FONT_SIZE);
     documentInstance.setTextColor(COLOR_MEDIUM_GREY);
     // Rotated text starts at its bottom end, so the start sits half the text's length below the middle
@@ -193,18 +217,22 @@ async function renderSingleWorksheetPage(
 
     const renderHalfSheet = async (layout: HalfPageLayout, startCoordinateY: number, halfPageNumber: number) => {
         // Name / Date header lines rendered inside native PDF vector space
-        documentInstance.setFont(SANS_SERIF_FONT, 'bold');
-        documentInstance.setFontSize(12);
+        documentInstance.setFont(PDF_FONT, 'bold');
+        documentInstance.setFontSize(HEADER_FONT_SIZE);
         const wording = getMessages().worksheet;
-        const nameText = wording.nameLine;
-        const dateCoordinateX = marginX + 340;
-        documentInstance.text(nameText, marginX, startCoordinateY + 20);
-        documentInstance.text(wording.dateLine, dateCoordinateX, startCoordinateY + 20);
+        const baselineCoordinateY = startCoordinateY + NAME_DATE_BASELINE_OFFSET;
+        const dateCoordinateX = marginX + DATE_LABEL_OFFSET_X;
+        const nameLineEndCoordinateX = drawLabelWithWriteInLine(
+            documentInstance, wording.nameLabel, marginX, marginX + NAME_LINE_END_OFFSET_X, baselineCoordinateY
+        );
+        drawLabelWithWriteInLine(
+            documentInstance, wording.dateLabel, dateCoordinateX, dateCoordinateX + DATE_LINE_END_OFFSET_X, baselineCoordinateY
+        );
         if (showAnswers) {
             // Small, and in the gap between Name and Date, where the grid starts too close below for a label
-            const gapMiddleCoordinateX = (marginX + documentInstance.getTextWidth(nameText) + dateCoordinateX) / 2;
-            documentInstance.setFontSize(9);
-            documentInstance.text(wording.answerKey, gapMiddleCoordinateX, startCoordinateY + 20, { align: 'center' });
+            const gapMiddleCoordinateX = (nameLineEndCoordinateX + dateCoordinateX) / 2;
+            documentInstance.setFontSize(ANSWER_KEY_FONT_SIZE);
+            documentInstance.text(wording.answerKey, gapMiddleCoordinateX, baselineCoordinateY, { align: 'center' });
         }
 
         const gridTopCoordinateY = startCoordinateY + GRID_TOP_OFFSET;
@@ -241,17 +269,51 @@ async function renderSingleWorksheetPage(
 }
 
 /**
+ * Writes a header label and rules the line after it, from just past the label to a fixed end, and
+ * says where the line really ended. A label long enough to crowd the end, in some wordy language,
+ * still gets a line long enough for a name. The caller sets the header's font and size first,
+ * since the label's width is measured in them.
+ */
+function drawLabelWithWriteInLine(
+    documentInstance: jsPDF,
+    label: string,
+    labelCoordinateX: number,
+    lineEndCoordinateX: number,
+    baselineCoordinateY: number
+): number {
+    documentInstance.setTextColor(COLOR_BLACK);
+    documentInstance.text(label, labelCoordinateX, baselineCoordinateY);
+    const lineStartCoordinateX = labelCoordinateX + documentInstance.getTextWidth(label) + WRITE_IN_LINE_GAP;
+    const lineCoordinateY = baselineCoordinateY + WRITE_IN_LINE_DROP;
+    documentInstance.setDrawColor(COLOR_BLACK);
+    documentInstance.setLineWidth(WRITE_IN_LINE_WIDTH);
+    const actualLineEndCoordinateX = Math.max(lineEndCoordinateX, lineStartCoordinateX + MINIMUM_WRITE_IN_LINE_LENGTH);
+    documentInstance.line(lineStartCoordinateX, lineCoordinateY, actualLineEndCoordinateX, lineCoordinateY);
+    return actualLineEndCoordinateX;
+}
+
+/**
+ * A blank letter-size PDF that already knows the worksheets' fonts. Every document starts here,
+ * so none can forget to register them and fall back, unannounced, to Helvetica.
+ */
+function createWorksheetDocument(): jsPDF {
+    const documentInstance = new jsPDF({
+        orientation: 'portrait',
+        unit: 'pt',
+        format: 'letter' // 612pt wide x 792pt high
+    });
+    registerPdfFonts(documentInstance);
+    return documentInstance;
+}
+
+/**
  * Builds a single composite worksheet instance.
  */
 export async function buildCompositeWorksheet(
     topHalf: HalfPageLayout,
     bottomHalf: HalfPageLayout
 ): Promise<jsPDF> {
-    const documentInstance = new jsPDF({
-        orientation: 'portrait',
-        unit: 'pt',
-        format: 'letter' // 612pt wide x 792pt high
-    });
+    const documentInstance = createWorksheetDocument();
 
     await renderSingleWorksheetPage(documentInstance, topHalf, bottomHalf, 0);
 
@@ -265,11 +327,7 @@ export async function buildCompositeWorksheet(
 export async function buildAndDownloadWorksheetBatch(
     workbookBatch: HalfPageLayout[][]
 ): Promise<void> {
-    const documentInstance = new jsPDF({
-        orientation: 'portrait',
-        unit: 'pt',
-        format: 'letter'
-    });
+    const documentInstance = createWorksheetDocument();
 
     let sheetIndex = 0;
     while (sheetIndex < workbookBatch.length) {

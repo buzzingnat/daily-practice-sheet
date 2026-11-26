@@ -1,7 +1,12 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
 import { getMessages } from '../text/messages';
 import { GradeLevel } from '../types';
-import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_LIGHT_GREY } from '../constants';
+import {
+    COLOR_BLACK,
+    COLOR_LIGHT_GREY,
+    EXERCISE_TITLE_FONT,
+    EXERCISE_FRACTION_ANSWER_FONT
+} from '../constants';
 
 interface FractionProblem {
     numerator: number;
@@ -121,7 +126,7 @@ function drawFractionStructureInput(
     // The answer sheet fills both boxes
     if (answer) {
         context.fillStyle = COLOR_BLACK;
-        context.font = `normal 12px ${SANS_SERIF_FONT}`;
+        context.font = EXERCISE_FRACTION_ANSWER_FONT;
         context.textBaseline = 'middle';
         context.textAlign = 'center';
         context.fillText(answer.numerator.toString(), centerX, startY + (boxHeight / 2) + 1);
@@ -152,7 +157,7 @@ export function createFractionsExercise(
 
         // Render Main Quadrant Header Typography
         context.fillStyle = COLOR_BLACK;
-        context.font = `bold 14px ${SANS_SERIF_FONT}`;
+        context.font = EXERCISE_TITLE_FONT;
         context.textBaseline = 'top';
         context.textAlign = 'left';
         const messages = getMessages();
