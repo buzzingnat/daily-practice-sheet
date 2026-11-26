@@ -172,6 +172,11 @@ button:disabled {
     opacity: .6;
 }
 
+/* Holds the example's shape before its picture arrives, so the grid does not jump */
+.topic-preview {
+    aspect-ratio: 266 / 155;
+}
+
 .topic-preview canvas {
     display: block;
     width: 100%;

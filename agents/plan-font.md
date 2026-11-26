@@ -106,8 +106,18 @@ Git needs file deletion to clear its own lock files. The human allowed deletion 
 
 **Step 2b, sharp previews** (added 2026-11-25, after the human saw slightly blurry text on the cards):
 * The card previews were drawn at one canvas pixel per quadrant point (266 x 155) and stretched by CSS to the card's width, so text smeared on high-density screens. Quicksand's thin, round strokes and the faded (60% opacity) unselected cards made it easy to see; the PDFs were never affected, since they draw at 3x.
-* `main.ts` (and `make-example-sheet.ts` if it draws its own preview canvas): draw previews at the same 3x scale as the PDF pipeline. The canvas becomes 798 x 465 pixels, the context is scaled by 3, CSS keeps sizing it to the card, and exercises still draw in 266 x 155 units.
-* **Check by eye:** card text looks crisp on the human's screen, selected and faded alike.
+* A fixed 3x was tried first; the browser's shrinking made text look over-sharpened. Final approach: draw each preview on exactly the screen pixels it covers (the preview's CSS width x `devicePixelRatio`, capped at 4 canvas pixels per point), and repaint it when that changes.
+    * `ui/topic-card.ts`: the card owns one canvas and takes a `PreviewPainter` from `main.ts` (`ui/` cannot import exercises). A `ResizeObserver` on the preview slot repaints after the width settles (120 ms; the first paint is immediate), ignoring wobbles under half a pixel. `repaintPreviewIfResized()` also catches density changes.
+    * `main.ts`: `drawExample` draws into the card's canvas, rounding the canvas size first and scaling to fill it exactly; it now throws instead of returning an `Error`. One window `resize` listener asks every card to re-check, which covers zoom and moving between monitors.
+    * `worksheet-layout.ts`: the PDF's two `3`s become the shared `CANVAS_SCALE_MULTIPLIER`.
+    * `styles.css`: `.topic-preview` keeps the quadrant's aspect ratio before its picture arrives.
+* **Check by eye:** card text looks crisp and natural (neither soft nor crunchy), selected and faded alike, in both views, and after resizing the window and zooming.
+
+**Step 2c, sizes the new font needs** (added 2026-11-25, from the human's look at the cards):
+* `exercises/clock-exercise.ts`: the target time in the setting-time box was `normal 13px`, too small in Quicksand. It becomes `bold 16px`, the same as the time written into the telling box on the answer key. Measured with Quicksand Bold, "12:45" is 38px wide in the 80px box.
+* Anything else the human finds too small or too large goes here too, one line each.
+
+**Test trim (the human, 2026-11-25):** after every even-numbered step (2 and 4), cut the tests this feature added by two-thirds. As of step 2c, the feature has added no tests, so there is nothing to trim yet.
 
 **Step 3, the page** (section 8):
 * the page's own font: Arial becomes `Quicksand` in `styles.css` (one line)
@@ -130,7 +140,11 @@ Git needs file deletion to clear its own lock files. The human allowed deletion 
 
 **Step 5, docs and handoff.**
 * `AGENTS.md`: the typography section. The human approves the exact wording before it is committed, since it governs later agents.
-* `progress.md`: the ledger entry, and the roadmap item to remove `worksheet/generate-pdf-batch.ts` (section 8, answer 4).
+* `progress.md`: the ledger entry, and these roadmap items:
+    * remove `worksheet/generate-pdf-batch.ts` (section 8, answer 4)
+    * from the step reviews, left out of this plan as outside its scope:
+        * a shared `createScaledCanvas` helper for the three places that build a scaled canvas
+        * one font-loading helper shared by the cursive and sans-serif loaders (the cursive loader has the same missing-weight gap the sans-serif loader now guards against)
 * Remove `agents/plan-font.md`, now done, in a commit of its own; git history keeps it.
 * Stop for the human's review, and prompt for `npm run test:full` and the pull request.
 

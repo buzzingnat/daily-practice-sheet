@@ -13,8 +13,23 @@ export interface TopicCard {
     setSummary(fullText: string, shortText: string): void;
     // The compact view shows the short name and summary, and keeps the settings out of sight
     setViewMode(viewMode: ViewMode): void;
-    setPreview(canvas: HTMLCanvasElement): void;
+    // Hands over the example's painter and paints it now. The card repaints it whenever its width changes.
+    setPreviewPainter(painter: PreviewPainter): void;
+    // Repaints the preview if its width or the screen's density changed since the last paint.
+    // The card hears its own width change; a density change (zoom, another monitor) comes from the window.
+    repaintPreviewIfResized(): void;
 }
+
+// Draws the example on the card's canvas at a width in CSS pixels and a screen density, and says
+// whether it managed. The card keeps the painter, so a resize repaints the same example instead
+// of rolling a fresh one.
+export type PreviewPainter = (canvas: HTMLCanvasElement, displayWidth: number, pixelRatio: number) => boolean;
+
+// A resize repaints once the window holds still; until then CSS stretches the last picture
+const RESIZE_SETTLE_MILLISECONDS = 120;
+
+// Widths within half a CSS pixel are the same width; layout wobbles finer than that are not news
+const WIDTH_TOLERANCE = 0.5;
 
 export interface TopicCardHandlers {
     // The toggle was clicked. The owner flips its own state, then calls setSelected.
@@ -49,6 +64,55 @@ export function createTopicCard(
     previewSlot.classList.add('topic-preview');
     previewSlot.setAttribute('role', 'img');
     previewSlot.setAttribute('aria-label', messages.ui.topicCard.exampleLabel(label));
+
+    const previewCanvas = document.createElement('canvas');
+    let previewPainter: PreviewPainter | null = null;
+    let paintedWidth = 0;
+    let paintedPixelRatio = 0;
+    let resizeTimer: number | undefined;
+
+    // The slot has no padding, border or transform, so its box is the canvas's box, fractions and
+    // all. clientWidth would round, and a rounded width resamples a little.
+    function measurePreviewWidth(): number {
+        return previewSlot.getBoundingClientRect().width;
+    }
+
+    function currentPixelRatio(): number {
+        return window.devicePixelRatio || 1;
+    }
+
+    function paintPreview(): void {
+        const displayWidth = measurePreviewWidth();
+        if (!previewPainter || displayWidth === 0) {
+            return;
+        }
+        const pixelRatio = currentPixelRatio();
+        if (previewPainter(previewCanvas, displayWidth, pixelRatio)) {
+            if (previewCanvas.parentElement !== previewSlot) {
+                previewSlot.replaceChildren(previewCanvas);
+            }
+            paintedWidth = displayWidth;
+            paintedPixelRatio = pixelRatio;
+        }
+    }
+
+    function repaintPreviewIfResized(): void {
+        window.clearTimeout(resizeTimer);
+        const isSameSize = Math.abs(measurePreviewWidth() - paintedWidth) < WIDTH_TOLERANCE
+            && currentPixelRatio() === paintedPixelRatio;
+        if (isSameSize) {
+            return;
+        }
+        // The first picture goes up at once; later ones wait for the window to hold still
+        const delay = paintedWidth === 0 ? 0 : RESIZE_SETTLE_MILLISECONDS;
+        resizeTimer = window.setTimeout(paintPreview, delay);
+    }
+
+    // Window resizes, the compact view and the grid reflowing all reach the card as a new width.
+    // A jsdom test page has no ResizeObserver, and no screen to be sharp on.
+    if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(repaintPreviewIfResized).observe(previewSlot);
+    }
 
     const header = document.createElement('div');
     header.classList.add('topic-header');
@@ -127,8 +191,10 @@ export function createTopicCard(
             element.classList.toggle('compact', viewMode === 'compact');
             showTexts();
         },
-        setPreview(canvas: HTMLCanvasElement): void {
-            previewSlot.replaceChildren(canvas);
-        }
+        setPreviewPainter(painter: PreviewPainter): void {
+            previewPainter = painter;
+            paintPreview();
+        },
+        repaintPreviewIfResized
     };
 }

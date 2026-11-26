@@ -22,6 +22,10 @@ const MASCOT_GAP_ABOVE_CUTTING_LINE = 2;
 // Every exercise stops drawing by 147pt down its 155pt quadrant (checked by drawing them all), so a mascot may
 // reach this far up into the grid's bottom edge without touching anything. Re-check if an exercise changes.
 export const MASCOT_MAX_REACH_INTO_GRID = 6;
+
+// Canvas pixels per point in the PDF's pictures. Paper notices anything less.
+export const CANVAS_SCALE_MULTIPLIER = 3;
+
 // The identifier's letters rise from this line toward the left; 20pt in from the paper's edge clears the printer's blind strip
 const IDENTIFIER_FONT_SIZE = 8;
 const IDENTIFIER_BASELINE_COORDINATE_X = PAGE_WIDTH - 20;
@@ -90,8 +94,8 @@ async function renderQuadrantToPdf(
     pdfHeight: number,
     showAnswers: boolean
 ): Promise<void> {
-    // Scale factor (3x) for crisp high-DPI printing text and lines
-    const scaleMultiplier = 3;
+    // Drawn at several canvas pixels per point, so printed text and lines stay crisp
+    const scaleMultiplier = CANVAS_SCALE_MULTIPLIER;
     const canvas = document.createElement('canvas');
     canvas.width = pdfWidth * scaleMultiplier;
     canvas.height = pdfHeight * scaleMultiplier;
@@ -124,7 +128,7 @@ function renderHalfPageLayerToPdf(
     halfPageNumber: number,
     showAnswers: boolean
 ): void {
-    const scaleMultiplier = 3;
+    const scaleMultiplier = CANVAS_SCALE_MULTIPLIER;
     const canvas = document.createElement('canvas');
     canvas.width = PAGE_WIDTH * scaleMultiplier;
     canvas.height = HALF_PAGE_HEIGHT * scaleMultiplier;
