@@ -1,4 +1,6 @@
 import {
+    CHINESE_GROUPS,
+    CHINESE_SCOPES,
     CONFIGURABLE_TOPICS,
     ConfigurableTopic,
     CURSIVE_GROUPS,
@@ -121,6 +123,15 @@ const KANA_ROW_OPTIONS: readonly ChoiceOption[] = KANA_ROWS.map((row) => {
     return wordedOption(row, () => getMessages().ui.settings.kanaRows[row]);
 });
 
+// The Chinese word groups in the order a class meets them; one chip each, the furthest one reached chosen
+const CHINESE_GROUP_OPTIONS: readonly ChoiceOption[] = CHINESE_GROUPS.map((group) => {
+    return wordedOption(group, () => getMessages().ui.settings.chineseGroups[group]);
+});
+
+const CHINESE_SCOPE_OPTIONS: readonly ChoiceOption[] = CHINESE_SCOPES.map((scope) => {
+    return wordedOption(scope, () => getMessages().ui.settings.chineseScopes[scope]);
+});
+
 // The Montessori sets, labeled the way a teacher says them: "s m a t"
 const CURSIVE_GROUP_OPTIONS: readonly ChoiceOption[] = CURSIVE_GROUPS.map((group) => {
     return { value: group, label: group.split('-').join(' ') };
@@ -187,6 +198,14 @@ export const PANEL_SPECIFICATIONS: readonly PanelSpecification[] = [
         options: KANA_ROW_OPTIONS, defaultValues: ['vowels'], offersAll: true
     }),
     withPanelWords({
+        id: 'chineseCharacters', topic: 'chineseCharacters', kind: 'single',
+        options: CHINESE_GROUP_OPTIONS, defaultValues: ['numbers'], offersAll: false
+    }),
+    withPanelWords({
+        id: 'chineseScope', topic: 'chineseCharacters', kind: 'single',
+        options: CHINESE_SCOPE_OPTIONS, defaultValues: ['up-to'], offersAll: false
+    }),
+    withPanelWords({
         id: 'cursiveLetters', topic: 'cursiveLetters', kind: 'multiple',
         options: CURSIVE_GROUP_OPTIONS, defaultValues: ['s-m-a-t'], offersAll: true
     }),
@@ -233,6 +252,8 @@ export function createDefaultSelections(): PanelSelections {
         division: [...findPanelSpecification('division').defaultValues],
         skipCounting: [...findPanelSpecification('skipCounting').defaultValues],
         hiragana: [...findPanelSpecification('hiragana').defaultValues],
+        chineseCharacters: [...findPanelSpecification('chineseCharacters').defaultValues],
+        chineseScope: [...findPanelSpecification('chineseScope').defaultValues],
         cursiveLetters: [...findPanelSpecification('cursiveLetters').defaultValues],
         cursiveLayout: [...findPanelSpecification('cursiveLayout').defaultValues],
         countries: [...findPanelSpecification('countries').defaultValues]
@@ -311,6 +332,16 @@ function pickLayout(chosen: readonly string[], panel: PanelId): CursiveLayoutNam
     return layout;
 }
 
+// A single-choice panel's one value, or an error when nothing valid was chosen. pickChosen already throws
+// on an empty pick; the second check is there for the type checker, which cannot know that.
+function pickOne<Item extends string>(allowed: readonly Item[], chosen: readonly string[], panel: PanelId): Item {
+    const item = pickChosen(allowed, chosen, panel)[0];
+    if (!item) {
+        throw new Error(`The ${panel} settings hold no valid choice.`);
+    }
+    return item;
+}
+
 function pickLevel(chosen: readonly string[], panel: PanelId): GradeLevel {
     const level = pickChosen(GRADE_LEVELS, chosen, panel)[0];
     if (!level) {
@@ -347,6 +378,10 @@ export function resolveTopicSettings(selections: PanelSelections): TopicSettings
         division: { level: pickLevel(selections.division, 'division') },
         skipCounting: { level: pickLevel(selections.skipCounting, 'skipCounting') },
         hiragana: { rows: pickChosen(kanaRows, selections.hiragana, 'hiragana') },
+        chineseCharacters: {
+            group: pickOne(CHINESE_GROUPS, selections.chineseCharacters, 'chineseCharacters'),
+            scope: pickOne(CHINESE_SCOPES, selections.chineseScope, 'chineseScope')
+        },
         cursiveLetters: {
             groups: pickChosen(cursiveGroups, selections.cursiveLetters, 'cursiveLetters'),
             layout: pickLayout(selections.cursiveLayout, 'cursiveLayout')

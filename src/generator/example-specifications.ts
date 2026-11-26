@@ -2,6 +2,7 @@ import { ClockType } from '../exercises/clock-exercise';
 import { Continent } from '../exercises/geography/geography-exercise';
 import { listKanaCards } from '../exercises/kana/kana-rows';
 import { listCursiveCards } from '../exercises/cursive/cursive-cards';
+import { ChineseCharacterCard, listChinesePracticeCards } from '../exercises/chinese/chinese-words';
 import {
     CursiveLayoutName,
     GradeLevel,
@@ -21,6 +22,7 @@ export type ExampleSpecification =
     | { type: 'division'; grade: GradeLevel }
     | { type: 'skipCounting'; grade: GradeLevel }
     | { type: 'kana'; character: string; pronunciation: string }
+    | { type: 'chineseCharacter'; card: ChineseCharacterCard }
     | { type: 'cursive'; letter: string; layout: CursiveLayoutName }
     | { type: 'geography'; continent: Continent }
     | { type: 'regionCountry'; region: PopulatedRegion; targetIdentifier: string }
@@ -88,6 +90,11 @@ function buildTopicExamples(topic: TopicKey, settings: TopicSettings): ExampleSp
         return card
             ? [{ type: 'kana', character: card.character, pronunciation: card.pronunciationHint }]
             : [];
+    } else if (topic === 'chineseCharacters') {
+        // The newest group's first character: what the chosen setting is about
+        const { group, scope } = settings.chineseCharacters;
+        const card = listChinesePracticeCards(group, scope).newest[0];
+        return card ? [{ type: 'chineseCharacter', card }] : [];
     } else if (topic === 'cursiveLetters') {
         const card = listCursiveCards(settings.cursiveLetters.groups)[0];
         return card ? [{ type: 'cursive', letter: card.letter, layout: settings.cursiveLetters.layout }] : [];

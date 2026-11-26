@@ -6,6 +6,8 @@ import { createSkipCountingExercise } from '../../../src/exercises/skip-counting
 import { createMultiplicationExercise } from '../../../src/exercises/multiplication-exercise';
 import { createFractionsExercise } from '../../../src/exercises/fractions-exercise';
 import { createClockExercise } from '../../../src/exercises/clock-exercise';
+import { createChineseCharacterExercise } from '../../../src/exercises/chinese/chinese-character-exercise';
+import { listChineseCharacterCards } from '../../../src/exercises/chinese/chinese-words';
 import { setLanguage, setMessages } from '../../../src/text/messages';
 import { pickMascotAndCheer } from '../../../src/worksheet/mascots';
 import { QuadrantExercise } from '../../../src/worksheet/worksheet-layout';
@@ -15,6 +17,14 @@ import { createRecordingContext } from '../../support/recording-context';
 afterEach(() => {
     setLanguage('en');
 });
+
+function createFirstChineseCharacterExercise(): QuadrantExercise {
+    const card = listChineseCharacterCards('numbers')[0];
+    if (!card) {
+        throw new Error('The numbers group has no characters.');
+    }
+    return createChineseCharacterExercise(card);
+}
 
 function drawnTexts(exercise: QuadrantExercise): string[] {
     const { quadrantContext, texts } = createRecordingContext();
@@ -30,7 +40,8 @@ const TITLED_EXERCISES: ReadonlyArray<[string, () => QuadrantExercise, string]> 
     ['skip counting', () => createSkipCountingExercise('3rd'), 'title:skipCounting|level:skipCounting:3rd'],
     ['fractions', () => createFractionsExercise('3rd'), 'title:fractions|level:fractions:3rd'],
     ['telling time', () => createClockExercise('telling', { hours: 3, minutes: 15 }), 'title:tellingTime'],
-    ['setting time', () => createClockExercise('setting', { hours: 3, minutes: 15 }), 'title:settingTime']
+    ['setting time', () => createClockExercise('setting', { hours: 3, minutes: 15 }), 'title:settingTime'],
+    ['chinese characters', () => createFirstChineseCharacterExercise(), 'title:chineseCharacters']
 ];
 
 describe('printed titles', () => {

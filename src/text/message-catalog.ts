@@ -5,7 +5,9 @@ import {
     MultiplicationSettings,
     PanelId,
     PopulatedRegion,
-    TopicKey
+    TopicKey,
+    ChineseGroup,
+    ChineseScope
 } from '../types';
 
 // A chip's words in full, and cut short for the compact view and the summary bar
@@ -120,6 +122,8 @@ export interface MessageCatalog {
                 zeroNeedsCompanion: string;
             };
             kanaRows: Record<KanaRow, OptionWords>;
+            chineseGroups: Record<ChineseGroup, OptionWords>;
+            chineseScopes: Record<ChineseScope, OptionWords>;
             cursiveLayouts: Record<CursiveLayoutName, OptionWords>;
             regions: Record<PopulatedRegion, OptionWords>;
         };

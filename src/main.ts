@@ -15,6 +15,7 @@ import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWork
 import { preloadMascotImages } from './worksheet/mascots';
 import { loadSansSerifFonts } from './worksheet/sans-serif-fonts';
 import { loadChineseFonts } from './exercises/chinese/chinese-fonts';
+import { createChineseCharacterExercise } from './exercises/chinese/chinese-character-exercise';
 import { getMessages } from './text/messages';
 import { createPlaceholderExercise, createBlankExercise } from './utils';
 import { loadGeographyData, createGeographyExercise } from './exercises/geography/geography-exercise';
@@ -56,6 +57,7 @@ const localState: Record<TopicKey, number>= {
     division: 0,
     skipCounting: 0,
     hiragana: 0,
+    chineseCharacters: 0,
     cursiveLetters: 0,
     continents: 0,
     countries: 0,
@@ -164,6 +166,8 @@ function createExerciseFromSpecification(specification: ExampleSpecification): Q
             specification.character,
             specification.pronunciation
         );
+    } else if (specification.type === 'chineseCharacter') {
+        return createChineseCharacterExercise(specification.card);
     } else if (specification.type === 'cursive') {
         return createCursiveExercise(specification.letter, specification.layout);
     } else if (specification.type === 'geography') {
