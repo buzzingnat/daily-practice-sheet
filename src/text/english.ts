@@ -49,7 +49,8 @@ export const english: MessageCatalog = {
         hiragana: 'HIRAGANA PRACTICE',
         cursive: 'CURSIVE',
         continents: 'NAME THIS CONTINENT',
-        countries: 'NAME THIS COUNTRY'
+        countries: 'NAME THIS COUNTRY',
+        chineseCharacters: 'CHINESE CHARACTERS'
     },
     levelTags: {
         addition: (level) => DIGIT_TAGS[level],

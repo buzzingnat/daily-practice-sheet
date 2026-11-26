@@ -36,6 +36,7 @@ export interface MessageCatalog {
         cursive: string;
         continents: string;
         countries: string;
+        chineseCharacters: string;
     };
     // The tag after a title that says how hard the problems are. Functions, so a language may order its words as it likes.
     levelTags: {
