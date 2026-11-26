@@ -163,7 +163,11 @@ Every step: build only its files; Claude runs `bash linux-modules/check.sh` (bot
 * **Step 5, docs and handoff:** `AGENTS.md` (uncommitted until the human approves the wording), the `progress.md` ledger and roadmap (sections 0 and 6 here, and anything found on the way), and this file cleared to "No active plan".
 
 ## 9. Questions collected for the human's review
-(Filled in as the steps run.)
+1. **Readings to confirm with a Chinese speaker** before printing: the five dictionary readings (zǐ for zi in zhuōzi, hòu in shíhou, huān in xǐhuan, lǐ in nǎlǐ, and me in shénme, which has no tone), plus two with common variants: shéi (also shuí, who) and lǜ (also lù, green). Also one look at all 64 characters in the tracing font on paper.
+2. **"Only this group" leaves out some words.** A character belongs to the group where it first appears, so a group chosen alone practices only its new characters. Greetings alone gives xiè, zài, jiàn and qǐng, but not nǐ hǎo (hello), whose two characters were learned in Describing and Pronouns. Keep it that way, or let "Only this group" also include every character in that group's words?
+3. **Card context for shared characters.** A character's card shows the first word it appears in, so the card for sè (color) reads "hóngsè, red", and the card for zǐ reads "zhuōzi, table". Fine as context, or should those cards carry the character's own meaning (color, child) instead?
+4. **The full test suite will roughly double in time.** The planner test replays every subset of the topics, so a thirteenth topic doubles it (about 22 s on the human's Mac before this; about 44 s after). The roadmap already suggests capping the sweep at six topics, the most the page allows. Do that as its own small task before or after this merge?
+
 
 ## Appendix: the word list (from the human, 2026-11-25), in group order
 Characters are for the code; read the pinyin and English.

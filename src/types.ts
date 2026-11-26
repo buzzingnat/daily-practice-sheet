@@ -55,6 +55,19 @@ export type CursiveLayoutName = typeof CURSIVE_LAYOUT_NAMES[number];
 
 export const DEFAULT_CURSIVE_LAYOUT: CursiveLayoutName = 'one-large-line';
 
+// The Chinese word groups, in the order a class meets them: fewest strokes and most useful words first,
+// so a parent can say how far a child has come and mean everything before it too
+export const CHINESE_GROUPS = [
+    'numbers', 'describing', 'family', 'pronouns', 'greetings', 'verbs', 'things', 'colors', 'questions'
+] as const;
+
+export type ChineseGroup = typeof CHINESE_GROUPS[number];
+
+// Which groups a sheet draws from: the chosen group and every earlier one, or the chosen group alone
+export const CHINESE_SCOPES = ['up-to', 'only'] as const;
+
+export type ChineseScope = typeof CHINESE_SCOPES[number];
+
 // Topics that come with a settings panel
 export const CONFIGURABLE_TOPICS = [
     'fractions', 'addition', 'subtraction', 'multiplication', 'division', 'skipCounting', 'hiragana', 'cursiveLetters', 'countries'
