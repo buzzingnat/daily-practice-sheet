@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import { SANS_SERIF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY, COLOR_PDF_CROSSHAIR, COLOR_PDF_PERFORATION, COLOR_WHITE } from '../constants';
+import { PDF_FONT, COLOR_BLACK, COLOR_MEDIUM_GREY, COLOR_PDF_CROSSHAIR, COLOR_PDF_PERFORATION, COLOR_WHITE } from '../constants';
 import { drawHalfPageDecorations } from './decorations';
 import { getHalfPageIdentifier } from './half-page-identifier';
 import { drawMascotBand, pickMascotAndCheer } from './mascots';
@@ -165,7 +165,7 @@ function createFingerprintContext(): CanvasRenderingContext2D {
  * on the grid. Native text, so it stays sharp. The worksheet and its key print the same words.
  */
 function drawHalfPageIdentifier(documentInstance: jsPDF, identifier: string, startCoordinateY: number): void {
-    documentInstance.setFont(SANS_SERIF_FONT, 'normal');
+    documentInstance.setFont(PDF_FONT, 'normal');
     documentInstance.setFontSize(IDENTIFIER_FONT_SIZE);
     documentInstance.setTextColor(COLOR_MEDIUM_GREY);
     // Rotated text starts at its bottom end, so the start sits half the text's length below the middle
@@ -193,7 +193,7 @@ async function renderSingleWorksheetPage(
 
     const renderHalfSheet = async (layout: HalfPageLayout, startCoordinateY: number, halfPageNumber: number) => {
         // Name / Date header lines rendered inside native PDF vector space
-        documentInstance.setFont(SANS_SERIF_FONT, 'bold');
+        documentInstance.setFont(PDF_FONT, 'bold');
         documentInstance.setFontSize(12);
         const wording = getMessages().worksheet;
         const nameText = wording.nameLine;

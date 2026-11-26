@@ -1,3 +1,19 @@
+/* Quicksand 3.006, the sans-serif for the worksheets; the license is OFL.txt beside the files.
+   Medium answers to weight 400 on purpose: the code asks for "normal", and Regular prints too faint. */
+@font-face {
+    font-family: 'Quicksand';
+    src: url('../fonts/quicksand/Quicksand-Medium.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Quicksand';
+    src: url('../fonts/quicksand/Quicksand-Bold.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 700;
+}
+
 @font-face {
     font-family: 'HiraganaTracing';
     src: url('../fonts/chirufont.ttf') format('truetype');
@@ -5,7 +21,7 @@
     font-weight: normal;
 }
 
-/* Learning Curve 4.0 by Jess Latham; the license is README.TXT beside the files */
+/* Learning Curve 4.0 by Jess Latham; the license is readme.txt beside the files */
 @font-face {
     font-family: 'CursiveRegular';
     src: url('../fonts/learning-curve/learning_curve_regular_ot_tt.ttf') format('truetype');

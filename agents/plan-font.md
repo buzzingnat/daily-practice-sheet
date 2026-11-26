@@ -104,6 +104,11 @@ Git needs file deletion to clear its own lock files. The human allowed deletion 
 * `main.ts`: the loader joins startup.
 * **Check by eye:** every topic card's preview, at desktop and phone width.
 
+**Step 2b, sharp previews** (added 2026-11-25, after the human saw slightly blurry text on the cards):
+* The card previews were drawn at one canvas pixel per quadrant point (266 x 155) and stretched by CSS to the card's width, so text smeared on high-density screens. Quicksand's thin, round strokes and the faded (60% opacity) unselected cards made it easy to see; the PDFs were never affected, since they draw at 3x.
+* `main.ts` (and `make-example-sheet.ts` if it draws its own preview canvas): draw previews at the same 3x scale as the PDF pipeline. The canvas becomes 798 x 465 pixels, the context is scaled by 3, CSS keeps sizing it to the card, and exercises still draw in 266 x 155 units.
+* **Check by eye:** card text looks crisp on the human's screen, selected and faded alike.
+
 **Step 3, the page** (section 8):
 * the page's own font: Arial becomes `Quicksand` in `styles.css` (one line)
 * the italic lines stay as they are

@@ -13,6 +13,7 @@ import { createCursiveExercise } from './exercises/cursive/cursive-exercise';
 import { loadCursiveFonts } from './exercises/cursive/cursive-fonts';
 import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWorksheetBatch } from './worksheet/worksheet-layout';
 import { preloadMascotImages } from './worksheet/mascots';
+import { loadSansSerifFonts } from './worksheet/sans-serif-fonts';
 import { getMessages } from './text/messages';
 import { createPlaceholderExercise, createBlankExercise } from './utils';
 import { loadGeographyData, createGeographyExercise } from './exercises/geography/geography-exercise';
@@ -359,6 +360,7 @@ async function initializeApp() {
             loadGeographyData(),
             loadRegionMapData(),
             loadCursiveFonts(),
+            loadSansSerifFonts(),
             preloadMascotImages()
         ]);
 

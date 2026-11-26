@@ -1,4 +1,13 @@
-export const SANS_SERIF_FONT = 'Helvetica';
+// Quicksand, declared with @font-face in styles.css: Medium as weight 400, Bold as 700
+export const SANS_SERIF_FAMILY = 'Quicksand';
+
+// For canvas font strings. The fallbacks show only if Quicksand fails to load, which the
+// startup loader treats as an error, so they are a seatbelt rather than a plan.
+export const SANS_SERIF_FONT = `${SANS_SERIF_FAMILY}, Helvetica, Arial, sans-serif`;
+
+// jsPDF takes one family name, not a list, and knows only its built-in Helvetica until
+// Quicksand is registered with each document.
+export const PDF_FONT = 'Helvetica';
 
 // Learning Curve cursive, declared with @font-face in styles.css. Bold models a letter,
 // Regular is the solid copy to trace, Dashed is the dotted copy.
