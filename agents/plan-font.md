@@ -138,6 +138,9 @@ Git needs file deletion to clear its own lock files. The human allowed deletion 
 * `constants.ts`: add `PDF_FONT`.
 * `worksheet/worksheet-layout.ts`: register the fonts on both new documents, and use `PDF_FONT` in its three `setFont` calls.
 * `text/english.ts`: the shorter Name and Date lines, measured with Quicksand Bold at 12pt. They move here from step 3, so no commit has underscore counts measured for a font the PDF is not yet using.
+    * **Superseded 2026-11-26:** a rendered test PDF showed Quicksand's underscores print as a dashed line. The human chose option B: the catalog holds only `nameLabel` ("Name:") and `dateLabel` ("Date:"), and `drawLabelWithWriteInLine` rules a 1pt line from just past each label to where the Helvetica underscore lines ended (x 260 and x 533), never shorter than 60pt. The "ANSWER KEY" label centers on the real end of the Name line.
+* `worksheet/worksheet-layout.ts` also gains `createWorksheetDocument()`, the one place a PDF is made, so no document can skip the font registration. The font loader checks each fetched file starts like a TrueType font, since a dev server may answer a missing file with the page's HTML.
+* Verified in Node with jsPDF 4.2.1: both faces embedded with Identity-H encoding; a 10-sheet header test grew by about 45 KB.
 * **Check by eye:** a generated PDF with an answer key:
     * the Name/Date line
     * the "ANSWER KEY" label in its gap
@@ -151,6 +154,7 @@ Git needs file deletion to clear its own lock files. The human allowed deletion 
 * `progress.md`: the ledger entry, and these roadmap items:
     * remove `worksheet/generate-pdf-batch.ts` (section 8, answer 4)
     * remove the "Make Test Sheet" button and the code only it uses (`make-example-sheet.ts`, `renderTestWorksheetButton` in `main.ts`): left over from early development, and the site is now shared with other people. High priority, but its own small task, not part of the font change (the human, 2026-11-26)
+    * interleave the answer key: each worksheet page followed straight away by its own answer page, instead of every key page at the end. It suits double-sided printing, and a parent who wants only one kind can print the odd or even pages. A setting to leave the answer pages out entirely would be ideal later; interleaving alone is enough for now (the human, 2026-11-26)
     * from the step reviews, left out of this plan as outside its scope:
         * a shared `createScaledCanvas` helper for the three places that build a scaled canvas
         * one font-loading helper shared by the cursive and sans-serif loaders (the cursive loader has the same missing-weight gap the sans-serif loader now guards against)

@@ -6,9 +6,9 @@ export const SANS_SERIF_FAMILY = 'Quicksand';
 // font-family in styles.css repeats this list, since CSS cannot import it: change both or neither.
 export const SANS_SERIF_FONT = `${SANS_SERIF_FAMILY}, Helvetica, Arial, sans-serif`;
 
-// jsPDF takes one family name, not a list, and knows only its built-in Helvetica until
-// Quicksand is registered with each document.
-export const PDF_FONT = 'Helvetica';
+// jsPDF takes one family name, not a list. Quicksand is registered with each document under
+// this name, since jsPDF knows only its built-in Helvetica until told otherwise.
+export const PDF_FONT = SANS_SERIF_FAMILY;
 
 // Learning Curve cursive, declared with @font-face in styles.css. Bold models a letter,
 // Regular is the solid copy to trace, Dashed is the dotted copy.

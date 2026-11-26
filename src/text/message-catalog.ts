@@ -48,8 +48,9 @@ export interface MessageCatalog {
     };
     worksheet: {
         // The blanks are part of the string, since a language may want different lengths
-        nameLine: string;
-        dateLine: string;
+        // Just the labels; the worksheet draws the line to write on after each
+        nameLabel: string;
+        dateLabel: string;
         answerKey: string;
         // Printed in the speech bubble. The list must not be empty; the mascot cycles through it by half-page number.
         cheers: readonly string[];

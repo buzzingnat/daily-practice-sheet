@@ -30,8 +30,8 @@ export function createMarkerCatalog(): MessageCatalog {
             skipCounting: (level) => `level:skipCounting:${level}`
         },
         worksheet: {
-            nameLine: 'worksheet:nameLine',
-            dateLine: 'worksheet:dateLine',
+            nameLabel: 'worksheet:nameLabel',
+            dateLabel: 'worksheet:dateLabel',
             answerKey: 'worksheet:answerKey',
             cheers: ['worksheet:cheer'],
             answerKeyCheer: 'worksheet:answerKeyCheer',
