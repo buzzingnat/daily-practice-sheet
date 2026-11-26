@@ -47,7 +47,6 @@ export interface MessageCatalog {
         skipCounting(level: GradeLevel): string;
     };
     worksheet: {
-        // The blanks are part of the string, since a language may want different lengths
         // Just the labels; the worksheet draws the line to write on after each
         nameLabel: string;
         dateLabel: string;
