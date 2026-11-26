@@ -64,7 +64,7 @@ These are the foundation for everything else you code. These are your touchstone
 * **Exercise Block Size:** Local canvas grid boxes must map mathematically to exactly 266pt width (`EXERCISE_WIDTH`) by 155pt height (`EXERCISE_HEIGHT`).
 * **Horizontal Cutoff:** An ornamental decoration line splits the document perfectly at the middle mark (396pt).
 * **Half-page vertical layout:** The Name/Date line sits at 20pt; the exercise grid starts at `GRID_TOP_OFFSET` (26pt) and ends at `GRID_BOTTOM_OFFSET` (336pt). Below it, a see-through layer (drawn after the exercises, so it can never hide one) holds a border of vines and daisies (`worksheet/decorations.ts`) and a 52pt animal mascot with a speech bubble (`worksheet/mascots.ts`). The animal's feet stand at `getMascotBottomEdge`: 2pt above the cutting line, and on the bottom half 14pt above the paper edge. The animal may reach up to `MASCOT_MAX_REACH_INTO_GRID` (6pt) into the bottom of the bottom-right quadrant, so no exercise may draw below 149pt down its 155pt quadrant (the tallest today stops at 147). Keep decoration at least 14pt from the paper edge, since home printers cannot print there.
-* **Half-page identifier:** Three dotted words (such as `drum.sock.oasis`) in 8pt medium grey, turned a quarter-turn to read bottom to top, baseline 20pt in from the paper's right edge and centered on the grid's height. They tie a worksheet half-page to its key (see Answer Key below).
+* **Half-page identifier:** Three dotted words (such as `drum.sock.oasis`) in 12pt medium grey, turned a quarter-turn to read bottom to top, baseline 20pt in from the paper's right edge and centered on the grid's height. They tie a worksheet half-page to its key (see Answer Key below).
 
 ### 3. Canvas-to-jsPDF Matrix Pipeline
 To prevent blurry text or pixelation on physical paper, follow this strict rendering pipeline:
@@ -74,6 +74,8 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 4. Embed the data URL into explicit coordinate boundaries in jsPDF using `doc.addImage(..., 'FAST')`.
 5. Overlay structural separator lines, crosshairs, and student headers natively using exact jsPDF vector commands for pristine vector sharpness.
 
+Card previews on the page sit outside this pipeline. Each draws at the card's CSS width times `devicePixelRatio` (capped at 4 canvas pixels per point) and repaints when its width or the screen's density changes (`ui/topic-card.ts`, `drawExample` in `main.ts`). Any other size resamples, which blurs when stretched and turns jagged when shrunk.
+
 ### 4. Visual Identity & Styling
    * **Color Palette:** Minimalist monochrome.
      * Canvas and jsPDF code takes every color from `src/constants.ts` (`COLOR_BLACK`, `COLOR_WHITE`, `COLOR_LIGHT_GREY`, `COLOR_MEDIUM_GREY`, `COLOR_PDF_CROSSHAIR`, `COLOR_PDF_PERFORATION`). Do not write hex values or RGB triples in other files.
@@ -81,9 +83,15 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
      * Light grey (`#D1D5DB`) for tracing, structural hints, and fraction shading.
      * Medium grey (`#999999`) for emphasis fills, such as the geography highlight, that need more contrast without heavy ink coverage when printed.
      * The native jsPDF overlays use near-matches by design: the crosshairs use `COLOR_PDF_CROSSHAIR` (`#C8C8C8`, light grey) and the perforation line uses `COLOR_PDF_PERFORATION` (`#969696`, medium grey). Leave these as they are unless a task says otherwise.
-* **Typography Specs:** Global font family uses Helvetica. Handwriting practice exercises are the exception and use a handwriting font: the Kana exercise uses a custom one, and the cursive exercise uses Learning Curve 4.0 by Jess Latham (Bold for the model, Regular for solid tracing copies, Dashed for dotted ones; files and license in `public/fonts/learning-curve/`, family names in `constants.ts`). Cursive text is sized from measured font metrics, not hard-coded numbers.
-  * **Exercise Main Headers:** bold 14px Helvetica, placed at padded offsets (15, 12) relative to top-left.
-  * **Subtext & Tracing Rules:** normal 9px - 11px Helvetica.
+* **Typography Specs:** The global font family is Quicksand 3.006.
+  * **Files and loading:** the files, license and readme are in `public/fonts/quicksand/`. Medium stands in for the normal weight (declared as 400 in `styles.css`), chosen to print darker than Regular, and Bold for bold. `worksheet/sans-serif-fonts.ts` loads both weights at startup and stops the app if either is missing, so a preview never differs from its PDF.
+  * **Constants:** canvas text uses `SANS_SERIF_FONT` from `constants.ts`; the page's `font-family` in `styles.css` repeats that list, so change both or neither. jsPDF's native text uses `PDF_FONT`, registered with every document by `createWorksheetDocument()` in `worksheet/worksheet-layout.ts`; make every PDF there.
+  * **Limits:** Quicksand has no italic, so the browser slants Medium. It also lacks the single characters for ü with a tone mark (U+01D5 to U+01DC). Pinyin must build those from u, U+0308 and a tone mark, and must be drawn on canvas only, never as jsPDF text, since jsPDF does not position combining marks. Not built yet: the helper is planned as `text/pinyin-display.ts`, with the Chinese characters exercise.
+  * **Shared styles:** exercises take their title and main-number fonts from `constants.ts`, never writing their own: `EXERCISE_TITLE_FONT` (bold 14px) for every exercise's title, handwriting exercises included, and `EXERCISE_MATH_NUMBER_FONT` (normal 18px) for the numbers a child works with in the math exercises (clock, addition, subtraction, multiplication, division, skip counting). Two deliberate exceptions: the clock face's numerals keep their own bold 9px, and the key's fraction answers use `EXERCISE_FRACTION_ANSWER_FONT` (normal 12px), kept small so the printed exercise looks balanced in its 30 x 16 boxes.
+  * **Exercise Main Headers:** `EXERCISE_TITLE_FONT`, placed at padded offsets (15, 12) relative to top-left.
+  * **Subtext & Tracing Rules:** normal 9px - 11px, in the global family.
+  * **Name and Date lines:** the catalog holds only `nameLabel` and `dateLabel`. `drawLabelWithWriteInLine` rules a 1pt vector line after each, to x 260 (Name) and x 533 (Date), never shorter than 60pt, and the "ANSWER KEY" label centers on the real gap. Typed underscores print dashed in a rounded font and would need counting afresh in every language.
+  * **Handwriting:** Handwriting practice exercises are the exception and use a handwriting font: the Kana exercise uses a custom one, and the cursive exercise uses Learning Curve 4.0 by Jess Latham (Bold for the model, Regular for solid tracing copies, Dashed for dotted ones; files and license in `public/fonts/learning-curve/`, family names in `constants.ts`). Cursive text is sized from measured font metrics, not hard-coded numbers.
 * **Line Weights & Caps:** Frame boundaries use `lineWidth = 1` or `1.5`. Geometry lines must utilize `context.lineCap = 'round'`. An exception is made for dashed lines, which use `context.lineCap = 'butt'`.
 * **Task Interactivity Mode:**
   * *Telling/Reading Tasks:* Draw explicit features (e.g., clock hands, filled fractions) within the vector area.
@@ -131,6 +139,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
   text/        message-catalog.ts  english.ts  messages.ts          every word a person reads, per language
   worksheet/   worksheet-layout.ts  generate-pdf-batch.ts            layout contract and PDF assembly
                half-page-identifier.ts  identifier-words.ts     three-word half-page names
+               sans-serif-fonts.ts                              Quicksand loading, for the canvas and for jsPDF
   exercises/   addition, subtraction, multiplication, division, skip-counting, fractions, clock (one *-exercise.ts each)
       kana/        kana-exercise.ts  kana-rows.ts
       cursive/     cursive-exercise.ts  cursive-cards.ts  cursive-layout.ts  cursive-fonts.ts
@@ -154,6 +163,7 @@ To prevent blurry text or pixelation on physical paper, follow this strict rende
 * Keep code sections single-purpose; split a file into helpers once it passes roughly 200 lines.
 * Use relative imports for now (no path aliases or index files).
 * New files use kebab-case (`clock-exercise.ts`). Existing files keep their names until a dedicated rename task with its own `plan.md`, so imports and documents change together. Moving a file is also a task with its own `plan.md`; move with `git mv` so history follows.
+* Name readme files in lowercase (`readme.txt`, `readme.md`); the human prefers it.
 
 ### 8. Testing
 * **Test the critical core only.** Before writing a test, name which of three things it checks, and write it only if it is one of them:
