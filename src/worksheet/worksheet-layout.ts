@@ -43,8 +43,11 @@ const WRITE_IN_LINE_WIDTH = 1;
 // Room for a name, however long the label grows in translation
 const MINIMUM_WRITE_IN_LINE_LENGTH = 60;
 
-// The identifier's letters rise from this line toward the left; 20pt in from the paper's edge clears the printer's blind strip
-const IDENTIFIER_FONT_SIZE = 8;
+// At 12pt a parent can match a key to its sheet without squinting. The longest name runs 150pt of the grid's
+// 310pt, its letters stop 8pt short of the grid, and it stays well below the daisies at the top right.
+const IDENTIFIER_FONT_SIZE = 12;
+// The identifier's letters rise from this line toward the left. 20pt in from the paper's edge leaves the
+// descenders, which reach 3pt the other way, clear of the printer's blind strip.
 const IDENTIFIER_BASELINE_COORDINATE_X = PAGE_WIDTH - 20;
 
 /**
