@@ -1,3 +1,6 @@
+// The most topics a person may choose at once; the page enforces it, and the planner tests stop there
+export const MAXIMUM_TOPIC_COUNT = 6;
+
 // Quicksand, declared with @font-face in styles.css: Medium as weight 400, Bold as 700
 export const SANS_SERIF_FAMILY = 'Quicksand';
 

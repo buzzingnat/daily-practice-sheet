@@ -22,7 +22,7 @@ import { loadGeographyData, createGeographyExercise } from './exercises/geograph
 import { loadRegionMapData } from './exercises/geography/region-map-data';
 import { createRegionMapExercise } from './exercises/geography/region-map-exercise';
 import { TOPIC_KEYS, TopicKey, ViewMode } from './types';
-import { KANA_IMAGE_URL, COLOR_MEDIUM_GREY, COLOR_WHITE } from './constants';
+import { KANA_IMAGE_URL, COLOR_MEDIUM_GREY, COLOR_WHITE, MAXIMUM_TOPIC_COUNT } from './constants';
 import {
     findConfigurableTopic,
     resolveTopicSettings,
@@ -34,7 +34,6 @@ import { createSummaryBar, SummaryBar } from './ui/summary-bar';
 import { describeSheet, describeTopicDetail } from './settings/sheet-summary';
 import { loadSavedSettings, saveHalfPageCount, savePanelSelections, saveSelectedTopics, saveViewMode } from './settings/saved-settings';
 
-const MAXIMUM_TOPIC_COUNT = 6;
 
 // Whatever the user chose last visit, checked against what still exists
 const savedSettings = loadSavedSettings(MAXIMUM_TOPIC_COUNT);
