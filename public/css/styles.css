@@ -23,6 +23,15 @@
     font-weight: normal;
 }
 
+/* LXGW WenKai GB, cut down to the characters the Chinese exercise uses; the license is OFL.txt beside
+   the files, and readme.txt says how to cut it again when words are added */
+@font-face {
+    font-family: 'ChineseTracing';
+    src: url('../fonts/lxgw-wenkai-gb/LXGWWenKaiGB-Regular-subset.ttf') format('truetype');
+    font-style: normal;
+    font-weight: normal;
+}
+
 /* Learning Curve 4.0 by Jess Latham; the license is readme.txt beside the files */
 @font-face {
     font-family: 'CursiveRegular';

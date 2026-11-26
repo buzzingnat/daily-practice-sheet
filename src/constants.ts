@@ -16,6 +16,13 @@ export const CURSIVE_BOLD_FONT = 'CursiveBold';
 export const CURSIVE_REGULAR_FONT = 'CursiveRegular';
 export const CURSIVE_DASHED_FONT = 'CursiveDashed';
 
+// LXGW WenKai GB, declared with @font-face in styles.css: a brush-style font, so the strokes a child
+// traces are shaped the way a teacher writes them. The fallbacks are system Kai fonts, then any serif,
+// for the unlikely day a character outruns the cut-down font.
+// The family name must match the @font-face in styles.css; the full font string for canvas follows it
+export const CHINESE_TRACING_FAMILY = 'ChineseTracing';
+export const CHINESE_TRACING_FONT = `${CHINESE_TRACING_FAMILY}, KaiTi, "Kaiti SC", STKaiti, serif`;
+
 // Whichever color emoji font the system carries, tried in order
 export const EMOJI_FONT = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
 

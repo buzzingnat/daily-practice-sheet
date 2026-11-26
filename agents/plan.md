@@ -29,7 +29,7 @@ At the handoff for this part, move sections 0 and 6 into the progress.md roadmap
 ## 2. Does the existing system fit?
 Yes, without new machinery:
 * **Panels:** a topic may own several panels (cursive owns `cursiveLetters` and `cursiveLayout`). Chinese gets two `single` panels:
-    * `chineseCharacters`: heading "Practised up to", one chip per group, default Numbers.
+    * `chineseCharacters`: heading "Chinese characters: group", one chip per group, default Numbers. (The first draft said "Practised up to", which reads wrong beside "Only this group".)
     * `chineseScope`: two chips, "This group and earlier" (default) and "Only this group".
 
   Saved settings store panels by id, so nothing new is needed there.
@@ -124,9 +124,9 @@ export interface ChineseCharacterCard {
 ```
 
 ## 5. Tests (critical core only)
-* **Data:** each word has one syllable per character; every group has at least one new character; each character is new in exactly one group. One collecting test.
+* **Data:** each word has one syllable per character, and its syllables spell its pinyin; every group has at least two new characters (group sizes: numbers 10, describing 6, family 8, pronouns 4, greetings 4, verbs 7, things 9, colors 7, questions 9); every character is in the cut-down font's `subset-characters.txt`. One collecting test. ("Each character new in exactly one group" was dropped: it is true by construction.)
 * **Selection rule:**
-    * "Up to" Colors gives Colors as the newest and the eight earlier groups as review.
+    * "Up to" a group gives that group as the newest and every earlier group as review (seven for Colors; the test works the count out from `CHINESE_GROUPS`).
     * "Only" gives no review.
     * Numbers gives no review.
     * Over many seeded draws, roughly half come from each deck when there is review (a loose bound, so the test does not flicker), and every draw comes from the newest deck when there is none.
