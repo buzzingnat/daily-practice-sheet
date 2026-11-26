@@ -5,6 +5,7 @@
     src: url('../fonts/quicksand/Quicksand-Medium.ttf') format('truetype');
     font-style: normal;
     font-weight: 400;
+    font-display: swap;
 }
 
 @font-face {
@@ -12,6 +13,7 @@
     src: url('../fonts/quicksand/Quicksand-Bold.ttf') format('truetype');
     font-style: normal;
     font-weight: 700;
+    font-display: swap;
 }
 
 @font-face {
@@ -47,7 +49,9 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    /* The worksheets' own Quicksand, so the page matches its previews. Mirrors SANS_SERIF_FONT in
+       constants.ts, which CSS cannot import: change both or neither. */
+    font-family: 'Quicksand', Helvetica, Arial, sans-serif;
     color: var(--dark-text);
     background: var(--page-background);
 }

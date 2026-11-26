@@ -2,7 +2,8 @@
 export const SANS_SERIF_FAMILY = 'Quicksand';
 
 // For canvas font strings. The fallbacks show only if Quicksand fails to load, which the
-// startup loader treats as an error, so they are a seatbelt rather than a plan.
+// startup loader treats as an error, so they are a seatbelt rather than a plan. The page's
+// font-family in styles.css repeats this list, since CSS cannot import it: change both or neither.
 export const SANS_SERIF_FONT = `${SANS_SERIF_FAMILY}, Helvetica, Arial, sans-serif`;
 
 // jsPDF takes one family name, not a list, and knows only its built-in Helvetica until
