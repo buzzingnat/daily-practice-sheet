@@ -26,7 +26,7 @@ Plan: replace Helvetica with Quicksand across the project. Written 2026-11-25. A
 New assets, `public/fonts/quicksand/`:
 * `Quicksand-Medium.ttf` and `Quicksand-Bold.ttf` (about 79 KB each, the static files from the Google Fonts download)
 * `OFL.txt` from that download
-* `README.TXT`: source, version 3.006, download date, why Medium and Bold, and the missing ü marks
+* `readme.txt`: source, version 3.006, download date, why Medium and Bold, and the missing ü marks
 
 Changed:
 * `public/css/styles.css`: two `@font-face` rules under one family name, `Quicksand`. Medium is declared as `font-weight: 400` and Bold as `font-weight: 700`, so every existing `normal` and `bold` font string picks the right file with no code change. A one-line comment explains the 400-to-Medium mapping, which would otherwise look like a mistake. Nothing in the page disables `font-synthesis`, so the kept italic still slants.
@@ -93,8 +93,8 @@ Git needs file deletion to clear its own lock files. The human allowed deletion 
 * Commit `agents/plan-font.md`, so the plan travels with the branch.
 
 **Step 1, font files.**
-* `public/fonts/quicksand/`: `Quicksand-Medium.ttf`, `Quicksand-Bold.ttf`, `OFL.txt` and `README.TXT` (section 3).
-* `README.TXT` follows the existing `public/fonts/learning-curve/README.TXT` naming. It notes that the OFL allows embedding the fonts in PDFs, and that `OFL.txt` must stay beside the files.
+* `public/fonts/quicksand/`: `Quicksand-Medium.ttf`, `Quicksand-Bold.ttf`, `OFL.txt` and `readme.txt` (section 3).
+* `readme.txt` uses the lowercase name the human prefers for every readme file (the Learning Curve readme was renamed to match in this step). It notes that the OFL allows embedding the fonts in PDFs, and that `OFL.txt` must stay beside the files.
 * No code yet, so the check is the build: `dist/fonts/quicksand/` must hold all four files (`build.js` copies `public/` into `dist/`). There is no `.gitattributes` or LFS rule, so the `.ttf` files commit as ordinary binaries.
 
 **Step 2, worksheets on screen.**
