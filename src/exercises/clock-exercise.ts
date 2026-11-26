@@ -145,7 +145,8 @@ function drawAnswerBox(
     } else {
         context.strokeRect(boxLeft, boxCenterY - 15, 80, 30);
         context.fillStyle = INK_COLOR;
-        context.font = `normal 13px ${SANS_SERIF_FONT}`;
+        // The time is the whole task, so it gets the box's biggest, boldest type
+        context.font = `bold 16px ${SANS_SERIF_FONT}`;
         context.textBaseline = 'middle';
         context.textAlign = 'center';
         context.fillText(displayLabel, boxLeft + 40, boxCenterY + 1);
