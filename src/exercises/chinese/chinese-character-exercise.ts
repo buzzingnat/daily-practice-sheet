@@ -1,9 +1,9 @@
 import { QuadrantExercise, QuadrantContext } from '../../worksheet/worksheet-layout';
 import { getMessages } from '../../text/messages';
 import { displayPinyin } from '../../text/pinyin-display';
-import { COLOR_BLACK, COLOR_LIGHT_GREY, EXERCISE_TITLE_FONT, SANS_SERIF_FONT } from '../../constants';
+import { COLOR_BLACK, EXERCISE_TITLE_FONT, SANS_SERIF_FONT } from '../../constants';
 import { ChineseCharacterCard } from './chinese-words';
-import { drawCharacterInBox, drawTianzigeBox } from './chinese-grid';
+import { drawCharacterInBox, drawTianzigeBox, MODEL_INK, TRACING_INK } from './chinese-grid';
 
 const TITLE_LEFT = 15;
 const TITLE_TOP = 12;
@@ -57,7 +57,7 @@ function drawNoteLine(context: CanvasRenderingContext2D, text: string, top: numb
 
 function drawModelColumn(context: CanvasRenderingContext2D, card: ChineseCharacterCard): void {
     drawTianzigeBox(context, MODEL_LEFT, MODEL_TOP, MODEL_SIZE);
-    drawCharacterInBox(context, card.character, MODEL_LEFT, MODEL_TOP, MODEL_SIZE, COLOR_BLACK);
+    drawCharacterInBox(context, card.character, MODEL_LEFT, MODEL_TOP, MODEL_SIZE, MODEL_INK);
 
     drawNoteLine(context, displayPinyin(card.pinyin), CHARACTER_PINYIN_TOP, CHARACTER_PINYIN_SIZE);
     drawNoteLine(context, card.meaning, CHARACTER_MEANING_TOP, NOTE_SIZE);
@@ -77,7 +77,7 @@ function drawPracticeGrid(context: CanvasRenderingContext2D, character: string):
             const top = PRACTICE_TOP + row * PRACTICE_BOX_SIZE;
             drawTianzigeBox(context, left, top, PRACTICE_BOX_SIZE);
             if (column < tracingCopies) {
-                drawCharacterInBox(context, character, left, top, PRACTICE_BOX_SIZE, COLOR_LIGHT_GREY);
+                drawCharacterInBox(context, character, left, top, PRACTICE_BOX_SIZE, TRACING_INK);
             }
         }
     });

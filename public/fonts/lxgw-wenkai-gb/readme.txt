@@ -21,8 +21,8 @@ Keep OFL.txt beside the font files.
 
 Files
 -----
-LXGWWenKaiGB-Regular-subset.ttf   tracing font (about 24 KB; the full font is about 26 MB)
-LXGWWenKaiGB-Medium-subset.ttf    kept for a possible sturdier model character
+LXGWWenKaiGB-Regular-subset.ttf   the black model character (about 24 KB; the full font is about 26 MB)
+LXGWWenKaiGB-Medium-subset.ttf    the grey tracing copies, declared as weight 500 (about 24 KB)
 subset-characters.txt             the characters kept, one line, no separators
 OFL.txt                           the license, required beside the fonts
 

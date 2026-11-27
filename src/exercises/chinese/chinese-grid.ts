@@ -6,6 +6,17 @@ const CROSS_DASH = [2, 2];
 // A character fills most of its box and leaves the rest to the margins, as a teacher's would
 const CHARACTER_SHARE_OF_BOX = 0.8;
 
+// How a character is inked: its color, and the weight styles.css declares for the face that carries it
+export interface CharacterInk {
+    readonly color: string;
+    readonly weight: number;
+}
+
+// The model in black Regular. The grey copies take Medium: the same grey on Regular's finer strokes
+// printed faint beside the kana and cursive copies, so the strokes thicken while the grey stays put.
+export const MODEL_INK: CharacterInk = { color: COLOR_BLACK, weight: 400 };
+export const TRACING_INK: CharacterInk = { color: COLOR_LIGHT_GREY, weight: 500 };
+
 /**
  * One tianzige box: a black square with a light grey dashed cross through its middle, for judging
  * where each stroke of a character belongs. The cross goes down first, so the frame lies over its
@@ -41,11 +52,11 @@ export function drawCharacterInBox(
     left: number,
     top: number,
     size: number,
-    color: string
+    ink: CharacterInk
 ): void {
     context.save();
-    context.fillStyle = color;
-    context.font = `${Math.round(size * CHARACTER_SHARE_OF_BOX)}px ${CHINESE_TRACING_FONT}`;
+    context.fillStyle = ink.color;
+    context.font = `${ink.weight} ${Math.round(size * CHARACTER_SHARE_OF_BOX)}px ${CHINESE_TRACING_FONT}`;
     context.textAlign = 'center';
     context.textBaseline = 'alphabetic';
     const fontMetrics = context.measureText(character);
