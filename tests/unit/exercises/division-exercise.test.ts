@@ -1,45 +1,26 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
-import { createDivisionExercise } from '../../../src/exercises/division-exercise';
+import { describe, expect, test, vi } from 'vitest';
+import { createDivisionExercise, DivisionProblem, generateDivisionProblems } from '../../../src/exercises/division-exercise';
 import { GradeLevel } from '../../../src/types';
-import { createRecordingContext } from '../../support/recording-context';
+import { createRecordingContext, RecordedText } from '../../support/recording-context';
 import { createSeededRandom } from '../../support/seeded-random';
 
 const SEEDS = 200;
+const DRAWING_SEED = 7;
 
-afterEach(() => {
-    vi.restoreAllMocks();
-});
-
-// Every whole number the exercise wrote, in the order it wrote them: divisor, then dividend, for each problem
-function drawnNumbers(level: GradeLevel, seed: number): number[] {
-    vi.spyOn(Math, 'random').mockImplementation(createSeededRandom(seed));
-    const drawn = createRecordingContext();
-    createDivisionExercise(level).render(drawn.quadrantContext);
-    return drawn.texts.filter((entry) => /^\d+$/.test(entry.text)).map((entry) => Number(entry.text));
+interface Limits {
+    smallestDivisor: number;
+    largestDivisor: number;
+    smallestQuotient: number;
+    largestQuotient: number;
+    smallestDividend: number;
+    largestDividend: number;
 }
 
-interface Problem {
-    divisor: number;
-    dividend: number;
-}
-
-function drawnProblems(level: GradeLevel, seed: number): Problem[] {
-    const numbers = drawnNumbers(level, seed);
-    const problems: Problem[] = [];
-    for (let index = 0; index + 1 < numbers.length; index += 2) {
-        problems.push({ divisor: numbers[index] as number, dividend: numbers[index + 1] as number });
-    }
-    return problems;
-}
-
-// What is wrong with a sheet of problems, in words; an empty list means nothing is
-function findFaults(problems: Problem[], limits: { smallestDivisor: number; largestDivisor: number; smallestQuotient: number; largestQuotient: number }): string[] {
+// What is wrong with a set of problems, in words; an empty list means nothing is
+function findFaults(problems: DivisionProblem[], limits: Limits): string[] {
     const faults: string[] = [];
-    if (problems.length !== 3) {
-        faults.push(`${problems.length} problems`);
-    }
-    if (new Set(problems.map((problem) => `${problem.dividend}/${problem.divisor}`)).size !== problems.length) {
-        faults.push('a repeated problem');
+    if (problems.length !== 3 || new Set(problems.map((problem) => `${problem.dividend}/${problem.divisor}`)).size !== 3) {
+        faults.push(`not three different problems: ${JSON.stringify(problems)}`);
     }
     problems.forEach(({ divisor, dividend }) => {
         const quotient = dividend / divisor;
@@ -49,94 +30,48 @@ function findFaults(problems: Problem[], limits: { smallestDivisor: number; larg
             faults.push(`${dividend}/${divisor}: leaves a remainder`);
         } else if (quotient < limits.smallestQuotient || quotient > limits.largestQuotient) {
             faults.push(`${dividend}/${divisor}: quotient ${quotient} out of range`);
+        } else if (dividend < limits.smallestDividend || dividend > limits.largestDividend) {
+            faults.push(`${dividend}/${divisor}: dividend out of range`);
         }
     });
     return faults;
 }
 
-function collectFaults(level: GradeLevel, limits: Parameters<typeof findFaults>[1], extraRule?: (problem: Problem) => string | null): string[] {
-    const offenders: string[] = [];
-    for (let seed = 1; seed <= SEEDS; seed++) {
-        const problems = drawnProblems(level, seed);
-        const faults = findFaults(problems, limits);
-        problems.forEach((problem) => {
-            const extraFault = extraRule?.(problem);
-            if (extraFault) {
-                faults.push(extraFault);
-            }
-        });
-        if (faults.length > 0) {
-            offenders.push(`seed ${seed}: ${faults.join('; ')}`);
-        }
-    }
-    return offenders;
+const LEVELS: [GradeLevel, Limits][] = [
+    ['1st', { smallestDivisor: 2, largestDivisor: 5, smallestQuotient: 1, largestQuotient: 5, smallestDividend: 2, largestDividend: 25 }],
+    ['2nd', { smallestDivisor: 2, largestDivisor: 9, smallestQuotient: 2, largestQuotient: 12, smallestDividend: 4, largestDividend: 108 }],
+    // Triple digit: a three-digit dividend and a two-digit answer that fits its box
+    ['3rd', { smallestDivisor: 2, largestDivisor: 9, smallestQuotient: 10, largestQuotient: 99, smallestDividend: 100, largestDividend: 999 }]
+];
+
+function digitsOf(texts: RecordedText[]): number[] {
+    return texts.filter((entry) => /^\d+$/.test(entry.text)).map((entry) => Number(entry.text));
 }
 
-describe('division', () => {
-    test('draws something for every level', () => {
+describe.each(LEVELS)('division, %s level', (level, limits) => {
+    test('sets three different problems that come out even, inside the level ranges', () => {
         const offenders: string[] = [];
-        for (const level of ['1st', '2nd', '3rd'] as const) {
-            const drawn = createRecordingContext();
-            createDivisionExercise(level).render(drawn.quadrantContext);
-            if (drawn.calls.length === 0 || drawn.texts.length === 0) {
-                offenders.push(level);
-            }
+        for (let seed = 1; seed <= SEEDS; seed++) {
+            findFaults(generateDivisionProblems(level, createSeededRandom(seed)), limits)
+                .forEach((fault) => offenders.push(`seed ${seed}: ${fault}`));
         }
         expect(offenders).toEqual([]);
     });
 
-    test('1st level sets even problems with divisors and quotients from 2 to 5 and 1 to 5', () => {
-        expect(collectFaults('1st', { smallestDivisor: 2, largestDivisor: 5, smallestQuotient: 1, largestQuotient: 5 })).toEqual([]);
-    });
+    test('the key writes each quotient over its own problem, and the worksheet is the key without them', () => {
+        const problems = generateDivisionProblems(level, createSeededRandom(DRAWING_SEED));
+        expect(problems).toHaveLength(3);
+        vi.spyOn(Math, 'random').mockImplementation(createSeededRandom(DRAWING_SEED));
+        const exercise = createDivisionExercise(level);
+        const plain = createRecordingContext();
+        const answered = createRecordingContext();
+        exercise.render(plain.quadrantContext);
+        exercise.renderAnswers?.(answered.quadrantContext);
 
-    test('2nd level sets even problems with divisors from 2 to 9 and quotients from 2 to 12', () => {
-        expect(collectFaults('2nd', { smallestDivisor: 2, largestDivisor: 9, smallestQuotient: 2, largestQuotient: 12 })).toEqual([]);
-    });
-
-    test('3rd level sets even problems with three-digit dividends, divisors from 2 to 9 and two-digit quotients', () => {
-        const offenders = collectFaults(
-            '3rd',
-            { smallestDivisor: 2, largestDivisor: 9, smallestQuotient: 10, largestQuotient: 99 },
-            ({ divisor, dividend }) => (dividend >= 100 && dividend <= 999 ? null : `${dividend}/${divisor}: not three digits`)
-        );
-        expect(offenders).toEqual([]);
-    });
-
-    test('the answer key writes each quotient with its problem, and the worksheet shows none', () => {
-        const offenders: string[] = [];
-        for (const level of ['1st', '2nd', '3rd'] as const) {
-            for (let seed = 1; seed <= SEEDS; seed++) {
-                vi.spyOn(Math, 'random').mockImplementation(createSeededRandom(seed));
-                const exercise = createDivisionExercise(level);
-                const plain = createRecordingContext();
-                const answered = createRecordingContext();
-                exercise.render(plain.quadrantContext);
-                exercise.renderAnswers?.(answered.quadrantContext);
-                const toNumbers = (texts: { text: string }[]): number[] => {
-                    return texts.filter((entry) => /^\d+$/.test(entry.text)).map((entry) => Number(entry.text));
-                };
-                const worksheetNumbers = toNumbers(plain.texts);
-                const keyNumbers = toNumbers(answered.texts);
-
-                // The key writes quotient, divisor, dividend for each problem; dropping the quotients must leave the worksheet
-                const quotients: number[] = [];
-                const rest: number[] = [];
-                const wrongPairs: string[] = [];
-                for (let index = 0; index + 2 < keyNumbers.length; index += 3) {
-                    const quotient = keyNumbers[index] as number;
-                    const divisor = keyNumbers[index + 1] as number;
-                    const dividend = keyNumbers[index + 2] as number;
-                    quotients.push(quotient);
-                    rest.push(divisor, dividend);
-                    if (quotient * divisor !== dividend) {
-                        wrongPairs.push(`${dividend}/${divisor}=${quotient}`);
-                    }
-                }
-                if (quotients.length !== 3 || wrongPairs.length > 0 || rest.join() !== worksheetNumbers.join()) {
-                    offenders.push(`${level} seed ${seed}: ${wrongPairs.join() || 'worksheet differs from key'}`);
-                }
-            }
-        }
-        expect(offenders).toEqual([]);
+        // Each problem reads divisor then dividend; the key puts its quotient first
+        const asked = problems.flatMap((problem) => [problem.divisor, problem.dividend]);
+        const answeredInOrder = problems.flatMap((problem) => [problem.dividend / problem.divisor, problem.divisor, problem.dividend]);
+        expect(digitsOf(plain.texts)).toEqual(asked);
+        expect(digitsOf(answered.texts)).toEqual(answeredInOrder);
     });
 });
