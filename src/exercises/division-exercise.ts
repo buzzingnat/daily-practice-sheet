@@ -1,6 +1,6 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
 import { getMessages } from '../text/messages';
-import { GradeLevel } from '../types';
+import { GradeLevel, RandomSource } from '../types';
 import {
     COLOR_BLACK,
     COLOR_LIGHT_GREY,
@@ -8,7 +8,7 @@ import {
     EXERCISE_MATH_NUMBER_FONT
 } from '../constants';
 
-interface DivisionProblem {
+export interface DivisionProblem {
     dividend: number;
     divisor: number;
 }
@@ -18,16 +18,21 @@ const SMALLEST_THREE_DIGIT_NUMBER = 100;
 const LARGEST_TWO_DIGIT_QUOTIENT = 99;
 const LARGEST_THREE_DIGIT_NUMBER = 999;
 
-function pickBetween(smallest: number, largest: number): number {
-    return Math.floor(Math.random() * (largest - smallest + 1)) + smallest;
+function pickBetween(smallest: number, largest: number, random: RandomSource): number {
+    return Math.floor(random() * (largest - smallest + 1)) + smallest;
 }
 
 /**
  * Generates unique division problems that come out even. The divisor and the quotient are chosen
  * first and the dividend is their product, so no remainder can sneak in. A divisor of 1 teaches
  * nothing, and 0 teaches the wrong thing.
+ * The random source is a parameter so tests can hand in a seeded one; real sheets keep Math.random.
+ * The draws come in the same order either way, which matters: a sheet's identifier hashes what it draws.
  */
-function generateDivisionProblemsBatch(gradeLevel: GradeLevel): DivisionProblem[] {
+export function generateDivisionProblems(
+    gradeLevel: GradeLevel,
+    random: RandomSource = Math.random
+): DivisionProblem[] {
     const generatedProblems: DivisionProblem[] = [];
     const seenProblemKeys = new Set<string>();
 
@@ -37,18 +42,18 @@ function generateDivisionProblemsBatch(gradeLevel: GradeLevel): DivisionProblem[
 
         if (gradeLevel === '1st') {
             // Facts to 5: dividends never pass 25
-            divisor = pickBetween(2, 5);
-            quotient = pickBetween(1, 5);
+            divisor = pickBetween(2, 5, random);
+            quotient = pickBetween(1, 5, random);
         } else if (gradeLevel === '2nd') {
             // Facts to 12: the table the child has just learned, run backwards
-            divisor = pickBetween(2, 9);
-            quotient = pickBetween(2, 12);
+            divisor = pickBetween(2, 9, random);
+            quotient = pickBetween(2, 12, random);
         } else {
             // Triple digit: a quotient that keeps the dividend at three digits and the answer inside its box
-            divisor = pickBetween(2, 9);
+            divisor = pickBetween(2, 9, random);
             const smallestQuotient = Math.ceil(SMALLEST_THREE_DIGIT_NUMBER / divisor);
             const largestQuotient = Math.min(LARGEST_TWO_DIGIT_QUOTIENT, Math.floor(LARGEST_THREE_DIGIT_NUMBER / divisor));
-            quotient = pickBetween(smallestQuotient, largestQuotient);
+            quotient = pickBetween(smallestQuotient, largestQuotient, random);
         }
 
         // Duplicate problems on one sheet teach copying, not arithmetic
@@ -69,7 +74,7 @@ function generateDivisionProblemsBatch(gradeLevel: GradeLevel): DivisionProblem[
 export function createDivisionExercise(
     gradeLevel: GradeLevel
 ): QuadrantExercise {
-    const problems = generateDivisionProblemsBatch(gradeLevel);
+    const problems = generateDivisionProblems(gradeLevel);
 
     // One drawing routine serves both sheets; the answer sheet writes each quotient into its box
     function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {

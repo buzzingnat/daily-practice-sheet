@@ -1,6 +1,6 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
 import { getMessages } from '../text/messages';
-import { MultiplicationSettings } from '../types';
+import { MultiplicationSettings, RandomSource } from '../types';
 import {
     COLOR_BLACK,
     COLOR_LIGHT_GREY,
@@ -9,7 +9,7 @@ import {
 } from '../constants';
 import { pickFromWithRareZero } from './problem-numbers';
 
-interface MultiplicationProblem {
+export interface MultiplicationProblem {
     topNumber: number;
     bottomNumber: number;
 }
@@ -17,16 +17,21 @@ interface MultiplicationProblem {
 const PROBLEMS_COUNT = 3;
 const LARGEST_TABLE_FACTOR = 12;
 
-function pickBetween(smallest: number, largest: number): number {
-    return Math.floor(Math.random() * (largest - smallest + 1)) + smallest;
+function pickBetween(smallest: number, largest: number, random: RandomSource): number {
+    return Math.floor(random() * (largest - smallest + 1)) + smallest;
 }
 
 /**
  * Generates unique multiplication problems. Times tables draw both factors from
  * the chosen numbers, zero being rarer than the rest; a lone chosen number would offer one problem only, so it
  * meets partners from 1 to 12 and the sheet becomes that number's table.
+ * The random source is a parameter so tests can hand in a seeded one; real sheets keep Math.random.
+ * The draws come in the same order either way, which matters: a sheet's identifier hashes what it draws.
  */
-function generateMultiplicationProblemsBatch(settings: MultiplicationSettings): MultiplicationProblem[] {
+export function generateMultiplicationProblems(
+    settings: MultiplicationSettings,
+    random: RandomSource = Math.random
+): MultiplicationProblem[] {
     const generatedProblems: MultiplicationProblem[] = [];
     const seenProblemKeys = new Set<string>();
 
@@ -35,14 +40,14 @@ function generateMultiplicationProblemsBatch(settings: MultiplicationSettings): 
         let bottomNumber = 0;
 
         if (settings.mode === 'two-digit') {
-            topNumber = pickBetween(10, 99);
-            bottomNumber = pickBetween(2, 9);
+            topNumber = pickBetween(10, 99, random);
+            bottomNumber = pickBetween(2, 9, random);
         } else if (settings.factors.length === 1) {
-            topNumber = pickFromWithRareZero(settings.factors);
-            bottomNumber = pickBetween(1, LARGEST_TABLE_FACTOR);
+            topNumber = pickFromWithRareZero(settings.factors, random);
+            bottomNumber = pickBetween(1, LARGEST_TABLE_FACTOR, random);
         } else {
-            topNumber = pickFromWithRareZero(settings.factors);
-            bottomNumber = pickFromWithRareZero(settings.factors);
+            topNumber = pickFromWithRareZero(settings.factors, random);
+            bottomNumber = pickFromWithRareZero(settings.factors, random);
         }
 
         // Duplicate problems on one sheet teach copying, not arithmetic
@@ -63,7 +68,7 @@ function generateMultiplicationProblemsBatch(settings: MultiplicationSettings): 
 export function createMultiplicationExercise(
     settings: MultiplicationSettings
 ): QuadrantExercise {
-    const problems = generateMultiplicationProblemsBatch(settings);
+    const problems = generateMultiplicationProblems(settings);
 
     // One drawing routine serves both sheets; the answer sheet writes each result into its box
     function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {

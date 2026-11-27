@@ -1,6 +1,6 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
 import { getMessages } from '../text/messages';
-import { GradeLevel } from '../types';
+import { GradeLevel, RandomSource } from '../types';
 import {
     COLOR_BLACK,
     COLOR_LIGHT_GREY,
@@ -9,7 +9,7 @@ import {
 } from '../constants';
 import { pickRandomWithRareZero } from './problem-numbers';
 
-interface AdditionProblem {
+export interface AdditionProblem {
     topNumber: number;
     bottomNumber: number;
 }
@@ -17,8 +17,13 @@ interface AdditionProblem {
 /**
  * Generates an array of unique addition problems tailored to curriculum difficulty tiers.
  * Three problems fit the quadrant; a fourth would be crowding the room.
+ * The random source is a parameter so tests can hand in a seeded one; real sheets keep Math.random.
+ * The draws come in the same order either way, which matters: a sheet's identifier hashes what it draws.
  */
-function generateAdditionProblemsBatch(gradeLevel: GradeLevel): AdditionProblem[] {
+export function generateAdditionProblems(
+    gradeLevel: GradeLevel,
+    random: RandomSource = Math.random
+): AdditionProblem[] {
     const problemsCount = 3;
     const generatedProblems: AdditionProblem[] = [];
     const seenProblemKeys = new Set<string>();
@@ -29,22 +34,22 @@ function generateAdditionProblemsBatch(gradeLevel: GradeLevel): AdditionProblem[
 
         if (gradeLevel === '1st') {
             // Grade 1: Single digits, no carrying into the tens place
-            topNumber = Math.floor(Math.random() * 10) + 1;    // 1 to 10
+            topNumber = Math.floor(random() * 10) + 1;    // 1 to 10
 
             // Early learners meet carrying later, so the bottom number leaves the ones place short of ten.
             // A top of 9 leaves room only for zero, and a sheet of "9 + 0" helps nobody: draw again.
             while (topNumber % 10 === 9) {
-                topNumber = Math.floor(Math.random() * 10) + 1;
+                topNumber = Math.floor(random() * 10) + 1;
             }
-            bottomNumber = pickRandomWithRareZero(9 - (topNumber % 10));
+            bottomNumber = pickRandomWithRareZero(9 - (topNumber % 10), random);
         } else if (gradeLevel === '2nd') {
             // Grade 2: Double digits, basic carrying allowed
-            topNumber = Math.floor(Math.random() * 70) + 15;     // 15 to 84
-            bottomNumber = Math.floor(Math.random() * 14) + 10;  // 10 to 23
+            topNumber = Math.floor(random() * 70) + 15;     // 15 to 84
+            bottomNumber = Math.floor(random() * 14) + 10;  // 10 to 23
         } else {
             // Grade 3: Triple digits with multi-column carrying
-            topNumber = Math.floor(Math.random() * 600) + 150;   // 150 to 749
-            bottomNumber = Math.floor(Math.random() * 200) + 40; // 40 to 239
+            topNumber = Math.floor(random() * 600) + 150;   // 150 to 749
+            bottomNumber = Math.floor(random() * 200) + 40; // 40 to 239
         }
 
         // Duplicate problems on one sheet teach copying, not arithmetic
@@ -68,7 +73,7 @@ function generateAdditionProblemsBatch(gradeLevel: GradeLevel): AdditionProblem[
 export function createAdditionExercise(
     gradeLevel: GradeLevel
 ): QuadrantExercise {
-    const problems = generateAdditionProblemsBatch(gradeLevel);
+    const problems = generateAdditionProblems(gradeLevel);
 
     // One drawing routine serves both sheets; the answer sheet writes each result into its box
     function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {
