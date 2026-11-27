@@ -9,6 +9,10 @@ export default defineConfig({
     test: {
         environment: 'node',
         include: ['tests/unit/**/*.test.ts'],
+        // Files in one worker share modules instead of loading them afresh, which was most of the
+        // run. A test's changes then reach later files, so the setup file undoes them after each test.
+        isolate: false,
+        setupFiles: ['tests/support/reset-shared-state.ts'],
         exclude: ['**/node_modules/**', '**/*.full.test.ts']
     }
 });
