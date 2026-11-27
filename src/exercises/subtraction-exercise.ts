@@ -1,6 +1,6 @@
 import { QuadrantExercise, QuadrantContext } from '../worksheet/worksheet-layout';
 import { getMessages } from '../text/messages';
-import { GradeLevel } from '../types';
+import { GradeLevel, RandomSource } from '../types';
 import {
     COLOR_BLACK,
     COLOR_LIGHT_GREY,
@@ -9,7 +9,7 @@ import {
 } from '../constants';
 import { pickRandomWithRareZero } from './problem-numbers';
 
-interface SubtractionProblem {
+export interface SubtractionProblem {
     topNumber: number;
     bottomNumber: number;
 }
@@ -17,8 +17,13 @@ interface SubtractionProblem {
 /**
  * Generates an array of unique subtraction problems tailored to curriculum difficulty tiers.
  * Ensures no negative answers are generated.
+ * The random source is a parameter so tests can hand in a seeded one; real sheets keep Math.random.
+ * The draws come in the same order either way, which matters: a sheet's identifier hashes what it draws.
  */
-function generateSubtractionProblemsBatch(gradeLevel: GradeLevel): SubtractionProblem[] {
+export function generateSubtractionProblems(
+    gradeLevel: GradeLevel,
+    random: RandomSource = Math.random
+): SubtractionProblem[] {
     const problemsCount = 3;
     const generatedProblems: SubtractionProblem[] = [];
     const seenProblemKeys = new Set<string>();
@@ -29,22 +34,22 @@ function generateSubtractionProblemsBatch(gradeLevel: GradeLevel): SubtractionPr
 
         if (gradeLevel === '1st') {
             // Grade 1: Single/double digits up to 20, no borrowing/regrouping required
-            topNumber = Math.floor(Math.random() * 11) + 10; // 10 to 20
+            topNumber = Math.floor(random() * 11) + 10; // 10 to 20
 
             // A top of 10 or 20 leaves room only for zero, and a sheet of "10 - 0" helps nobody: draw again
             while (topNumber % 10 === 0) {
-                topNumber = Math.floor(Math.random() * 11) + 10;
+                topNumber = Math.floor(random() * 11) + 10;
             }
             // Keep the bottom within the units place so nothing is borrowed or regrouped
-            bottomNumber = pickRandomWithRareZero(topNumber % 10);
+            bottomNumber = pickRandomWithRareZero(topNumber % 10, random);
         } else if (gradeLevel === '2nd') {
             // Grade 2: Full double digits up to 99, occasional basic regrouping allowed
-            topNumber = Math.floor(Math.random() * 80) + 20;    // 20 to 99
-            bottomNumber = Math.floor(Math.random() * (topNumber - 5)) + 5; // Valid positive range
+            topNumber = Math.floor(random() * 80) + 20;    // 20 to 99
+            bottomNumber = Math.floor(random() * (topNumber - 5)) + 5; // Valid positive range
         } else if (gradeLevel === '3rd') {
             // Grade 3: Triple-digit challenge calculations up to 999 with regrouping
-            topNumber = Math.floor(Math.random() * 800) + 150;  // 150 to 999
-            bottomNumber = Math.floor(Math.random() * (topNumber - 50)) + 40;
+            topNumber = Math.floor(random() * 800) + 150;  // 150 to 999
+            bottomNumber = Math.floor(random() * (topNumber - 50)) + 40;
         }
 
         // Check unique structure constraint signature to avoid duplicate problems
@@ -68,7 +73,7 @@ function generateSubtractionProblemsBatch(gradeLevel: GradeLevel): SubtractionPr
 export function createSubtractionExercise(
     gradeLevel: GradeLevel
 ): QuadrantExercise {
-    const problems = generateSubtractionProblemsBatch(gradeLevel);
+    const problems = generateSubtractionProblems(gradeLevel);
 
     // One drawing routine serves both sheets; the answer sheet writes each result into its box
     function draw(quadrantContext: QuadrantContext, showAnswers: boolean): void {

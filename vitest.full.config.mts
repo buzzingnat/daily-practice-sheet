@@ -7,6 +7,9 @@ export default defineConfig({
     test: {
         environment: 'node',
         include: ['tests/**/*.test.ts'],
+        // Shared modules and the setup file that tidies after each test: see vitest.config.mts
+        isolate: false,
+        setupFiles: ['tests/support/reset-shared-state.ts'],
         // The folder dependency test lists src/ with import.meta.glob, and a cached transform
         // would keep the list it saw first, so a new file would go unseen.
         fsModuleCache: false
