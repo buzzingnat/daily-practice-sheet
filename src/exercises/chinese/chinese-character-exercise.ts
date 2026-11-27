@@ -14,11 +14,13 @@ const MODEL_TOP = 34;
 const MODEL_SIZE = 60;
 const NOTE_COLUMN_WIDTH = 74;
 
-// The note lines under the model: the character's own pinyin first and largest, then its word and meaning
+// The note lines under the model: the character's own pinyin first and largest, then what it means,
+// then the word it came in, read and meant, as a pair set a little apart
 const CHARACTER_PINYIN_TOP = 100;
 const CHARACTER_PINYIN_SIZE = 11;
-const WORD_LINE_TOP = 116;
-const MEANING_LINE_TOP = 129;
+const CHARACTER_MEANING_TOP = 114;
+const WORD_PINYIN_TOP = 128;
+const WORD_MEANING_TOP = 139;
 const NOTE_SIZE = 9;
 // A line too wide for the column steps down, but never below the project's smallest subtext;
 // past that it is squeezed to fit rather than let into the practice grid
@@ -58,12 +60,14 @@ function drawModelColumn(context: CanvasRenderingContext2D, card: ChineseCharact
     drawCharacterInBox(context, card.character, MODEL_LEFT, MODEL_TOP, MODEL_SIZE, COLOR_BLACK);
 
     drawNoteLine(context, displayPinyin(card.pinyin), CHARACTER_PINYIN_TOP, CHARACTER_PINYIN_SIZE);
-    // A word that reads just like its character would only repeat the line above, so its slot goes to the meaning
-    const showsWordLine = card.word.pinyin !== card.pinyin;
-    if (showsWordLine) {
-        drawNoteLine(context, displayPinyin(card.word.pinyin), WORD_LINE_TOP, NOTE_SIZE);
+    drawNoteLine(context, card.meaning, CHARACTER_MEANING_TOP, NOTE_SIZE);
+    // A one-character word would only say the two lines above again, and red needs saying once
+    if (Array.from(card.word.characters).length > 1) {
+        drawNoteLine(context, displayPinyin(card.word.pinyin), WORD_PINYIN_TOP, NOTE_SIZE);
+        if (card.word.meaning !== card.meaning) {
+            drawNoteLine(context, card.word.meaning, WORD_MEANING_TOP, NOTE_SIZE);
+        }
     }
-    drawNoteLine(context, card.word.meaning, showsWordLine ? MEANING_LINE_TOP : WORD_LINE_TOP, NOTE_SIZE);
 }
 
 function drawPracticeGrid(context: CanvasRenderingContext2D, character: string): void {
@@ -80,9 +84,9 @@ function drawPracticeGrid(context: CanvasRenderingContext2D, character: string):
 }
 
 /**
- * One character to trace: a model in black with its pinyin, word and meaning beside it, then fifteen
- * boxes in which the grey copies to trace over thin out until the child writes alone. Tracing has
- * no answer, so there is no key to draw.
+ * One character to trace: a model in black with its pinyin and meaning, and its word's, beneath it,
+ * then fifteen boxes in which the grey copies to trace over thin out until the child writes alone.
+ * Tracing has no answer, so there is no key to draw.
  */
 export function createChineseCharacterExercise(card: ChineseCharacterCard): QuadrantExercise {
     if (Array.from(card.character).length !== 1) {

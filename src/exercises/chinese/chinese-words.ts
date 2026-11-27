@@ -15,14 +15,16 @@ export interface ChineseCharacterCard {
     readonly character: string;
     // The character said on its own, as a dictionary gives it
     readonly pinyin: string;
-    // The word it first appears in, printed beside it as context
+    // What the character means on its own, which its word may not say (color, in red)
+    readonly meaning: string;
+    // The word that brings it into its group, printed beneath it as context
     readonly word: ChineseWord;
 }
 
 export interface ChinesePracticeCards {
-    // The chosen group's new characters, which a sheet leans toward
+    // Every character the chosen group's words use, which a sheet leans toward
     newest: readonly ChineseCharacterCard[];
-    // Every earlier group's characters, for review; empty when there is nothing behind
+    // Every earlier group's characters not already among the newest, for review; empty when there is nothing behind
     review: readonly ChineseCharacterCard[];
 }
 
@@ -112,6 +114,62 @@ const DICTIONARY_PINYIN: Readonly<Record<string, string>> = {
     '候': 'hòu'
 };
 
+// What a character means on its own when the list never gives it a word to itself. A character that
+// is a word somewhere (good, you) takes that word's meaning instead. Kept short for a 74pt column, and
+// flagged for a Chinese speaker to confirm alongside the readings above.
+const CHARACTER_MEANINGS: Readonly<Record<string, string>> = {
+    '爸': 'dad',
+    '妈': 'mom',
+    '哥': 'older brother',
+    '姐': 'older sister',
+    '弟': 'younger brother',
+    '妹': 'younger sister',
+    '爷': 'grandpa',
+    '奶': 'grandma',
+    '谢': 'to thank',
+    '再': 'again',
+    '见': 'to see',
+    '喜': 'happy',
+    '欢': 'glad',
+    '桌': 'table',
+    '子': 'noun ending',
+    '椅': 'chair',
+    '苹': 'apple',
+    '果': 'fruit',
+    '玩': 'to play',
+    '具': 'tool',
+    '红': 'red',
+    '蓝': 'blue',
+    '黄': 'yellow',
+    '绿': 'green',
+    '白': 'white',
+    '黑': 'black',
+    '色': 'color',
+    '什': 'what',
+    '么': 'word ending',
+    '哪': 'which',
+    '里': 'inside',
+    '时': 'time',
+    '候': 'to wait',
+    '为': 'for',
+    '怎': 'how'
+};
+
+// Characters that are whole words in the list lend those words' meanings
+const STANDALONE_MEANINGS: ReadonlyMap<string, string> = new Map(
+    CHINESE_GROUPS.flatMap((group) => CHINESE_WORDS[group])
+        .filter((word) => Array.from(word.characters).length === 1)
+        .map((word) => [word.characters, word.meaning])
+);
+
+function meaningOf(character: string): string {
+    const meaning = STANDALONE_MEANINGS.get(character) ?? CHARACTER_MEANINGS[character];
+    if (meaning === undefined) {
+        throw new Error(`The character ${character} has no meaning of its own to print.`);
+    }
+    return meaning;
+}
+
 /**
  * A word must have one syllable per character, and its syllables must spell its pinyin, or a card
  * would print a reading that belongs to a neighbor. Checked as the list loads, so a typo stops the app
@@ -127,14 +185,14 @@ function checkSyllables(word: ChineseWord): void {
 }
 
 /**
- * Every character, filed under the group where it first appears and in the order it appears there.
- * A character met again later (good, in hello) is review by then, not news.
+ * Every character a group's words use, in the order they appear there, once per group. A character
+ * met in an earlier group stays here too (good, in hello): a child learning a word practices all of it.
  */
 function fileCardsByGroup(): ReadonlyMap<ChineseGroup, readonly ChineseCharacterCard[]> {
     const filed = new Map<ChineseGroup, ChineseCharacterCard[]>();
-    const seen = new Set<string>();
     CHINESE_GROUPS.forEach((group) => {
         const cards: ChineseCharacterCard[] = [];
+        const seen = new Set<string>();
         CHINESE_WORDS[group].forEach((word) => {
             checkSyllables(word);
             Array.from(word.characters).forEach((character, index) => {
@@ -146,7 +204,7 @@ function fileCardsByGroup(): ReadonlyMap<ChineseGroup, readonly ChineseCharacter
                 if (pinyin === undefined) {
                     throw new Error(`The word ${word.characters} has no syllable for its character number ${index + 1}.`);
                 }
-                cards.push({ character, pinyin, word });
+                cards.push({ character, pinyin, meaning: meaningOf(character), word });
             });
         });
         filed.set(group, cards);
@@ -156,7 +214,7 @@ function fileCardsByGroup(): ReadonlyMap<ChineseGroup, readonly ChineseCharacter
 
 const CARDS_BY_GROUP = fileCardsByGroup();
 
-// The characters a group introduces, in the order its words bring them
+// The characters a group's words use, in the order its words bring them
 export function listChineseCharacterCards(group: ChineseGroup): readonly ChineseCharacterCard[] {
     const cards = CARDS_BY_GROUP.get(group);
     if (cards === undefined) {
@@ -166,13 +224,24 @@ export function listChineseCharacterCards(group: ChineseGroup): readonly Chinese
 }
 
 /**
- * What a sheet practices for a chosen group: its new characters, and, when the scope reaches back,
- * every earlier group's characters for review.
+ * What a sheet practices for a chosen group: its characters, and, when the scope reaches back, every
+ * earlier group's characters for review. Review takes each character once, from the group that met it
+ * first, and leaves out any the chosen group already practices, so no character gets a double share.
  */
 export function listChinesePracticeCards(group: ChineseGroup, scope: ChineseScope): ChinesePracticeCards {
-    const groupIndex = CHINESE_GROUPS.indexOf(group);
-    const review = scope === 'up-to'
-        ? CHINESE_GROUPS.slice(0, groupIndex).flatMap((earlierGroup) => listChineseCharacterCards(earlierGroup))
-        : [];
-    return { newest: listChineseCharacterCards(group), review };
+    const newest = listChineseCharacterCards(group);
+    if (scope === 'only') {
+        return { newest, review: [] };
+    }
+    const seen = new Set(newest.map((card) => card.character));
+    const review: ChineseCharacterCard[] = [];
+    CHINESE_GROUPS.slice(0, CHINESE_GROUPS.indexOf(group)).forEach((earlierGroup) => {
+        listChineseCharacterCards(earlierGroup).forEach((card) => {
+            if (!seen.has(card.character)) {
+                seen.add(card.character);
+                review.push(card);
+            }
+        });
+    });
+    return { newest, review };
 }
