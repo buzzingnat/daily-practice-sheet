@@ -29,8 +29,8 @@ The human's Mac, the same day: quick suite 865 ms (import 52%, tests 23%, transf
 * **Result (VM):** quick suite 4.2 s to about 1.8 s; full suite 10.4 s to about 8.5 s.
 
 ### Step 2. One DOM file instead of three
-* **Change:** merge `summary-bar.test.ts`, `topic-card.test.ts` and `topic-settings-panel.test.ts` into `tests/dom/ui/ui.test.ts`, one `describe` per module with their own `afterEach` clean-ups, so jsdom starts once.
-* **Expected:** about 2 s off the full suite. Measured first: if it saves under a second, Claude drops the step and says so.
+* **Change:** `summary-bar.test.ts`, `topic-card.test.ts` and `topic-settings-panel.test.ts` became `tests/dom/ui/ui.test.ts`, one `describe` per module, so jsdom starts once. Their own language resets went too; the setup file does that now.
+* **Result (VM):** full suite about 8.5 s to about 5 s; 10 shuffled runs passed.
 * **Not planned:** `happy-dom` starts faster than jsdom but is a new package. Listed only so the human knows it exists.
 
 ### Step 3. Measure, and update the testing docs
