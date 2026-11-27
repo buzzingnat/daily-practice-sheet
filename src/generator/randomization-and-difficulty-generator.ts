@@ -14,11 +14,26 @@ import { createRegionMapExercise, listRegionTargets } from '../exercises/geograp
 import { KanaCard, listKanaCards } from '../exercises/kana/kana-rows';
 import { createCursiveExercise } from '../exercises/cursive/cursive-exercise';
 import { CursiveCard, listCursiveCards } from '../exercises/cursive/cursive-cards';
-import { CursiveLayoutName, GradeLevel, MultiplicationSettings, PopulatedRegion, QuadrantTopics, RandomSource, TopicKey, TopicSettings } from '../types';
+import { ChineseCharacterCard, listChinesePracticeCards } from '../exercises/chinese/chinese-words';
+import { createChineseCharacterExercise } from '../exercises/chinese/chinese-character-exercise';
+import {
+    ChineseGroup,
+    ChineseScope,
+    CursiveLayoutName,
+    GradeLevel,
+    MultiplicationSettings,
+    PopulatedRegion,
+    QuadrantTopics,
+    RandomSource,
+    TopicKey,
+    TopicSettings
+} from '../types';
 
 // Content that must take turns rather than trust to luck.
 export interface ContentDecks {
     kana: ShuffledDeck<KanaCard>;
+    // Half new characters and half review, when there is anything to review
+    chineseCharacters: ShuffledDeck<ChineseCharacterCard>;
     cursive: ShuffledDeck<CursiveCard>;
     continents: ShuffledDeck<Continent>;
     regions: ShuffledDeck<PopulatedRegion>;
@@ -36,6 +51,7 @@ export interface ExerciseFactories {
     createAdditionExercise(level: GradeLevel): QuadrantExercise;
     createMultiplicationExercise(settings: MultiplicationSettings): QuadrantExercise;
     createKanaExercise(card: KanaCard): QuadrantExercise;
+    createChineseCharacterExercise(card: ChineseCharacterCard): QuadrantExercise;
     createCursiveExercise(card: CursiveCard, layout: CursiveLayoutName): QuadrantExercise;
     createFractionsExercise(level: GradeLevel): QuadrantExercise;
     createGeographyExercise(continent: Continent): QuadrantExercise;
@@ -47,6 +63,33 @@ const HALF_PAGES_PER_SHEET = 2;
 // Each card appears this often per cycle: five kana twice in ten draws,
 // seven continents twice in fourteen.
 const COPIES_PER_CYCLE = 2;
+
+// A draw is new material this often when there is review to mix in; the human chose half and half
+const CHINESE_NEWEST_SHARE = 0.5;
+
+/**
+ * Deals Chinese characters from two decks: the chosen group's new characters, and every earlier
+ * group's for review. Each draw picks a deck at random, half and half, so a sheet leans toward what
+ * is new without forgetting what came before. With nothing to review, every draw is new.
+ */
+export function createChineseCharacterDeck(
+    group: ChineseGroup,
+    scope: ChineseScope,
+    random: RandomSource
+): ShuffledDeck<ChineseCharacterCard> {
+    const { newest, review } = listChinesePracticeCards(group, scope);
+    const newestDeck = createShuffledDeck(newest, COPIES_PER_CYCLE, random);
+    const reviewDeck = review.length > 0 ? createShuffledDeck(review, COPIES_PER_CYCLE, random) : undefined;
+    return {
+        drawNext(): ChineseCharacterCard {
+            // The low half of the dice goes to what is new, the high half to review
+            if (reviewDeck !== undefined && random() >= CHINESE_NEWEST_SHARE) {
+                return reviewDeck.drawNext();
+            }
+            return newestDeck.drawNext();
+        }
+    };
+}
 
 /**
  * Builds fresh decks for one batch. Exported so a later task can keep one
@@ -61,6 +104,9 @@ export function createContentDecks(random: RandomSource, settings: TopicSettings
 
     return {
         kana: createShuffledDeck(listKanaCards(settings.hiragana.rows), COPIES_PER_CYCLE, random),
+        chineseCharacters: createChineseCharacterDeck(
+            settings.chineseCharacters.group, settings.chineseCharacters.scope, random
+        ),
         cursive: createShuffledDeck(listCursiveCards(settings.cursiveLetters.groups), COPIES_PER_CYCLE, random),
         continents: createShuffledDeck(CONTINENTS, COPIES_PER_CYCLE, random),
         regions: createShuffledDeck(settings.countries.regions, COPIES_PER_CYCLE, random),
@@ -95,6 +141,8 @@ function instantiateExercise(
         return factories.createSkipCountingExercise(settings.skipCounting.level);
     } else if (topic === 'hiragana') {
         return factories.createKanaExercise(decks.kana.drawNext());
+    } else if (topic === 'chineseCharacters') {
+        return factories.createChineseCharacterExercise(decks.chineseCharacters.drawNext());
     } else if (topic === 'cursiveLetters') {
         return factories.createCursiveExercise(decks.cursive.drawNext(), settings.cursiveLetters.layout);
     } else if (topic === 'fractions') {
@@ -167,6 +215,9 @@ export function createWorkbookExerciseFactories(): ExerciseFactories {
         },
         createKanaExercise: (card: KanaCard): QuadrantExercise => {
             return createKanaExercise(card.character, card.pronunciationHint);
+        },
+        createChineseCharacterExercise: (card: ChineseCharacterCard): QuadrantExercise => {
+            return createChineseCharacterExercise(card);
         },
         createCursiveExercise: (card: CursiveCard, layout: CursiveLayoutName): QuadrantExercise => {
             return createCursiveExercise(card.letter, layout);

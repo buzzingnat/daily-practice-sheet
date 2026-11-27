@@ -13,6 +13,7 @@ describe('resolveTopicSettings', () => {
             division: { level: '1st' },
             skipCounting: { level: '1st' },
             hiragana: { rows: ['vowels'] },
+            chineseCharacters: { group: 'numbers', scope: 'up-to' },
             cursiveLetters: { groups: ['s-m-a-t'], layout: 'one-large-line' },
             countries: { regions: ['Africa'] }
         });

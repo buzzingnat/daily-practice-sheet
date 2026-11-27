@@ -1,4 +1,4 @@
-import { CURSIVE_LAYOUT_NAMES, KANA_ROWS, PANEL_IDS, POPULATED_REGIONS, TOPIC_KEYS } from '../../src/types';
+import { CHINESE_GROUPS, CHINESE_SCOPES, CURSIVE_LAYOUT_NAMES, KANA_ROWS, PANEL_IDS, POPULATED_REGIONS, TOPIC_KEYS } from '../../src/types';
 import { MessageCatalog, OptionWords } from '../../src/text/message-catalog';
 import { english } from '../../src/text/english';
 
@@ -97,6 +97,8 @@ export function createMarkerCatalog(): MessageCatalog {
                     zeroNeedsCompanion: 'ui:zeroNeedsCompanion'
                 },
                 kanaRows: markOptions('hiragana', KANA_ROWS),
+                chineseGroups: markOptions('chineseCharacters', CHINESE_GROUPS),
+                chineseScopes: markOptions('chineseScope', CHINESE_SCOPES),
                 cursiveLayouts: markOptions('cursiveLayout', CURSIVE_LAYOUT_NAMES),
                 regions: markOptions('countries', POPULATED_REGIONS)
             }

@@ -5,7 +5,9 @@ import {
     MultiplicationSettings,
     PanelId,
     PopulatedRegion,
-    TopicKey
+    TopicKey,
+    ChineseGroup,
+    ChineseScope
 } from '../types';
 
 // A chip's words in full, and cut short for the compact view and the summary bar
@@ -36,6 +38,7 @@ export interface MessageCatalog {
         cursive: string;
         continents: string;
         countries: string;
+        chineseCharacters: string;
     };
     // The tag after a title that says how hard the problems are. Functions, so a language may order its words as it likes.
     levelTags: {
@@ -47,7 +50,6 @@ export interface MessageCatalog {
         skipCounting(level: GradeLevel): string;
     };
     worksheet: {
-        // The blanks are part of the string, since a language may want different lengths
         // Just the labels; the worksheet draws the line to write on after each
         nameLabel: string;
         dateLabel: string;
@@ -120,6 +122,8 @@ export interface MessageCatalog {
                 zeroNeedsCompanion: string;
             };
             kanaRows: Record<KanaRow, OptionWords>;
+            chineseGroups: Record<ChineseGroup, OptionWords>;
+            chineseScopes: Record<ChineseScope, OptionWords>;
             cursiveLayouts: Record<CursiveLayoutName, OptionWords>;
             regions: Record<PopulatedRegion, OptionWords>;
         };

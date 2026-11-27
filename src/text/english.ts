@@ -33,6 +33,7 @@ export const english: MessageCatalog = {
         setTime: { name: 'Setting time', shortName: 'Set' },
         tellTime: { name: 'Telling time', shortName: 'Tell' },
         hiragana: { name: 'Hiragana', shortName: 'Hira' },
+        chineseCharacters: { name: 'Chinese characters', shortName: 'Chinese' },
         cursiveLetters: { name: 'Cursive letters', shortName: 'Cur' },
         continents: { name: 'Continents', shortName: 'Cont' },
         countries: { name: 'Countries', shortName: 'Ctry' }
@@ -49,7 +50,8 @@ export const english: MessageCatalog = {
         hiragana: 'HIRAGANA PRACTICE',
         cursive: 'CURSIVE',
         continents: 'NAME THIS CONTINENT',
-        countries: 'NAME THIS COUNTRY'
+        countries: 'NAME THIS COUNTRY',
+        chineseCharacters: 'CHINESE CHARACTERS'
     },
     levelTags: {
         addition: (level) => DIGIT_TAGS[level],
@@ -131,6 +133,8 @@ export const english: MessageCatalog = {
                 division: { heading: 'Division', summaryNoun: '' },
                 skipCounting: { heading: 'Skip counting', summaryNoun: '' },
                 hiragana: { heading: 'Hiragana rows', summaryNoun: 'rows' },
+                chineseCharacters: { heading: 'Chinese characters: group', summaryNoun: '' },
+                chineseScope: { heading: 'Chinese characters: which groups', summaryNoun: '' },
                 cursiveLetters: { heading: 'Cursive letters: sets', summaryNoun: 'sets' },
                 cursiveLayout: { heading: 'Cursive letters: practice lines', summaryNoun: '' },
                 countries: { heading: 'Countries: regions', summaryNoun: 'regions' }
@@ -177,6 +181,21 @@ export const english: MessageCatalog = {
                 y: { label: 'や y', shortLabel: 'や' },
                 r: { label: 'ら r', shortLabel: 'ら' },
                 wn: { label: 'わ w + n', shortLabel: 'わ' }
+            },
+            chineseGroups: {
+                numbers: { label: 'Numbers', shortLabel: 'Num' },
+                describing: { label: 'Describing', shortLabel: 'Desc' },
+                family: { label: 'Family', shortLabel: 'Fam' },
+                pronouns: { label: 'Pronouns', shortLabel: 'Pron' },
+                greetings: { label: 'Greetings', shortLabel: 'Greet' },
+                verbs: { label: 'Verbs', shortLabel: 'Verb' },
+                things: { label: 'Things', shortLabel: 'Thing' },
+                colors: { label: 'Colors', shortLabel: 'Color' },
+                questions: { label: 'Questions', shortLabel: 'Ques' }
+            },
+            chineseScopes: {
+                'up-to': { label: 'This group and earlier', shortLabel: 'And earlier' },
+                'only': { label: 'Only this group', shortLabel: 'Only' }
             },
             cursiveLayouts: {
                 'one-large-line': { label: 'One large line', shortLabel: '1 line' },

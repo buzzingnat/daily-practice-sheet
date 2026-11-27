@@ -1,5 +1,6 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { TOPIC_KEYS, TopicKey } from '../../../src/types';
+import { MAXIMUM_TOPIC_COUNT } from '../../../src/constants';
 import {
     countSameQuadrantRepeats,
     describePlannerRules,
@@ -9,26 +10,44 @@ import {
 
 const SEEDS_PER_SELECTION = 30;
 
-// Replaying every selection x seed takes seconds, and more when other test files compete for the processor
-vi.setConfig({ testTimeout: 60_000 });
+// Two ways round the topic list, so a topic meets its far neighbors as well as its near ones. A stride
+// sharing a factor with the topic count would revisit a topic inside one window; the guard below says so.
+const NEIGHBOR_STRIDES: readonly number[] = [1, 5];
 
-// Every non-empty subset of the topics, so no combination a human can click goes unplanned
-function allNonEmptySelections(): TopicKey[][] {
+/**
+ * Every size a person can choose, from one topic to the page's maximum, with every topic at every size.
+ * For each size, a window of that many topics starts at each topic in turn and wraps round the list,
+ * once with neighbors side by side and once spaced apart. The planner's behavior follows the size of
+ * the selection, not which topics are in it, so this covers its rules without every combination,
+ * which would double with each new topic (8,191 selections for 13). Duplicates only arise at size one.
+ */
+function representativeSelections(): TopicKey[][] {
+    const seen = new Set<string>();
     const selections: TopicKey[][] = [];
-    const selectionCount = 2 ** TOPIC_KEYS.length;
-    let mask = 1;
-    while (mask < selectionCount) {
-        selections.push(TOPIC_KEYS.filter((topic, topicIndex) => (mask & (1 << topicIndex)) !== 0));
-        mask = mask + 1;
-    }
+    NEIGHBOR_STRIDES.forEach((stride) => {
+        for (let size = 1; size <= MAXIMUM_TOPIC_COUNT; size++) {
+            TOPIC_KEYS.forEach((unusedTopic, startIndex) => {
+                const indexes = Array.from({ length: size }, (unusedSlot, step) => (startIndex + step * stride) % TOPIC_KEYS.length);
+                if (new Set(indexes).size !== size) {
+                    throw new Error(`A stride of ${stride} revisits a topic among ${TOPIC_KEYS.length}; choose a stride with no common factor.`);
+                }
+                const selection = TOPIC_KEYS.filter((topic, topicIndex) => indexes.includes(topicIndex));
+                const key = selection.join(',');
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    selections.push(selection);
+                }
+            });
+        }
+    });
     return selections;
 }
 
-const runs = planEveryRun(allNonEmptySelections(), SEEDS_PER_SELECTION);
+const runs = planEveryRun(representativeSelections(), SEEDS_PER_SELECTION);
 
-describePlannerRules('planHalfPages on every selection', runs);
+describePlannerRules('planHalfPages at every size from one topic to six, every topic at each size', runs);
 
-describe('planHalfPages on every selection, seat report', () => {
+describe('planHalfPages at every size from one topic to six, seat report', () => {
     test('reports how often a topic keeps its quadrant when five or more topics are selected', () => {
         // Not a rule, a report: the rate is printed so a change in seating shows up in review
         const largeRuns = runs.filter((run) => run.selection.length > 4);

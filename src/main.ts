@@ -14,13 +14,15 @@ import { loadCursiveFonts } from './exercises/cursive/cursive-fonts';
 import { QuadrantExercise, EXERCISE_WIDTH, EXERCISE_HEIGHT, buildAndDownloadWorksheetBatch } from './worksheet/worksheet-layout';
 import { preloadMascotImages } from './worksheet/mascots';
 import { loadSansSerifFonts } from './worksheet/sans-serif-fonts';
+import { loadChineseFonts } from './exercises/chinese/chinese-fonts';
+import { createChineseCharacterExercise } from './exercises/chinese/chinese-character-exercise';
 import { getMessages } from './text/messages';
 import { createPlaceholderExercise, createBlankExercise } from './utils';
 import { loadGeographyData, createGeographyExercise } from './exercises/geography/geography-exercise';
 import { loadRegionMapData } from './exercises/geography/region-map-data';
 import { createRegionMapExercise } from './exercises/geography/region-map-exercise';
 import { TOPIC_KEYS, TopicKey, ViewMode } from './types';
-import { KANA_IMAGE_URL, COLOR_MEDIUM_GREY, COLOR_WHITE } from './constants';
+import { KANA_IMAGE_URL, COLOR_MEDIUM_GREY, COLOR_WHITE, MAXIMUM_TOPIC_COUNT } from './constants';
 import {
     findConfigurableTopic,
     resolveTopicSettings,
@@ -32,7 +34,6 @@ import { createSummaryBar, SummaryBar } from './ui/summary-bar';
 import { describeSheet, describeTopicDetail } from './settings/sheet-summary';
 import { loadSavedSettings, saveHalfPageCount, savePanelSelections, saveSelectedTopics, saveViewMode } from './settings/saved-settings';
 
-const MAXIMUM_TOPIC_COUNT = 6;
 
 // Whatever the user chose last visit, checked against what still exists
 const savedSettings = loadSavedSettings(MAXIMUM_TOPIC_COUNT);
@@ -55,6 +56,7 @@ const localState: Record<TopicKey, number>= {
     division: 0,
     skipCounting: 0,
     hiragana: 0,
+    chineseCharacters: 0,
     cursiveLetters: 0,
     continents: 0,
     countries: 0,
@@ -163,6 +165,8 @@ function createExerciseFromSpecification(specification: ExampleSpecification): Q
             specification.character,
             specification.pronunciation
         );
+    } else if (specification.type === 'chineseCharacter') {
+        return createChineseCharacterExercise(specification.card);
     } else if (specification.type === 'cursive') {
         return createCursiveExercise(specification.letter, specification.layout);
     } else if (specification.type === 'geography') {
@@ -378,6 +382,7 @@ async function initializeApp() {
             loadRegionMapData(),
             loadCursiveFonts(),
             loadSansSerifFonts(),
+            loadChineseFonts(),
             preloadMascotImages()
         ]);
 

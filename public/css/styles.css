@@ -23,6 +23,23 @@
     font-weight: normal;
 }
 
+/* LXGW WenKai GB, cut down to the characters the Chinese exercise uses; the license is OFL.txt beside
+   the files, and readme.txt says how to cut it again when words are added. Regular (400) draws the
+   black model; Medium (500) draws the grey copies, whose thinner Regular strokes printed faint */
+@font-face {
+    font-family: 'ChineseTracing';
+    src: url('../fonts/lxgw-wenkai-gb/LXGWWenKaiGB-Regular-subset.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'ChineseTracing';
+    src: url('../fonts/lxgw-wenkai-gb/LXGWWenKaiGB-Medium-subset.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 500;
+}
+
 /* Learning Curve 4.0 by Jess Latham; the license is readme.txt beside the files */
 @font-face {
     font-family: 'CursiveRegular';
