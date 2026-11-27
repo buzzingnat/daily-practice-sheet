@@ -479,8 +479,8 @@ Phases 1 to 6 and the dependency check are done: the files moved into `settings/
     * The Medium tracing copies are unchecked on paper.
 
 ### 2026-11-26 - Faster test suites, and the arithmetic generators tested directly (Claude, with the human)
-* **Status:** Done on branch `prune-tests` (brought up to date with `main` first), committed step by step, not merged. Linux pre-checks pass: both type checks, the quick suite (261) and full suite (295), and the bundle. The `AGENTS.md` lines on the test tiers wait for the human's approval of their wording. `npm run test:full` on the Mac and the pull request come next.
-* **Timings (Claude's VM; the human's Mac before: quick 865 ms, full 1.74 s):**
+* **Status:** Done on branch `prune-tests` (brought up to date with `main` first), committed step by step, not merged. Linux pre-checks pass: both type checks, the quick suite (261) and full suite (295), and the bundle. The human approved the `AGENTS.md` lines on the test tiers and ran both suites on the Mac (all passing); the pull request comes next.
+* **Timings.** On the human's Mac: quick suite 865 ms to 854 ms, full suite 1.74 s to 1.11 s. The Mac's quick suite was mostly fixed costs already, so the gain shows in the full suite. In Claude's VM:
 
     | Suite | Before | After shared modules | After one DOM file | After item 6 |
     | --- | --- | --- | --- | --- |
